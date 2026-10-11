@@ -166,3 +166,9 @@ body.simulator-page.light .status[data-state="error"]{background:#fff0f1;border-
 .toolbar-group .symbol-style-control select{max-width:125px}
 @media(max-width:800px){.toolbar-group[role="group"]::before{display:none}.toolbar{gap:6px;padding-left:8px;padding-right:8px}.toolbar-group{gap:5px}.toolbar-group button{padding:7px 9px}}
 @media(max-width:520px){.toolbar{overflow-x:auto}.toolbar-group .academy-toolbar-link{font-size:10px}.toolbar-group .status{min-width:92px}.sim-app{grid-template-rows:64px 48px minmax(0,1fr) 28px}}
+
+/* Physical prototyping-board connection points stay small enough to preserve the board layout. */
+.component .breadboard-pin{r:2.7;fill:#27343b;stroke:#8b9aa0;stroke-width:1;}
+.component .breadboard-pin:hover{r:5;fill:#35d5ff;stroke:#fff;stroke-width:1.5;}
+.component .board-pin{r:3.5;fill:#d7e4e7;stroke:#263d43;stroke-width:1.2;}
+.component .board-pin:hover{r:6;fill:#ffc45c;stroke:#fff;stroke-width:1.5;}
