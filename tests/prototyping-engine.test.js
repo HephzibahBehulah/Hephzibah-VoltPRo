@@ -801,3 +801,30 @@ test("catalog RS latch sets, holds and resets its output",()=>{
  r=E.dc(make(false,false,r.deviceStates.G1));assert.equal(r.ok,true,JSON.stringify(r));assert.equal(r.deviceStates.G1.qHigh,true,"both inputs low should hold state");
  r=E.dc(make(false,true,r.deviceStates.G1));assert.equal(r.ok,true,JSON.stringify(r));assert.equal(r.deviceStates.G1.qHigh,false);
 });
+
+test("catalog delay timer waits for its configured interval before driving output high",()=>{
+ const make=(inputHigh,state)=>{const components=[comp("V1","battery",2,{voltage:inputHigh?5:0}),comp("T1","logic-logic-timer-delay",2,{delayMs:100,inputThreshold:2.5,logicVoltage:5}),comp("R1","resistor",2,{resistance:1000})];if(state)components.find(c=>c.id==="T1").state=state;return {components,wires:[wire("V1:1","R1:1"),wire("V1:0","T1:0"),wire("T1:1","R1:0")]};};
+ let r=E.dc(make(true,null),{scanTimeMs:50});assert.equal(r.ok,true,JSON.stringify(r));assert.equal(r.deviceStates.T1.outputHigh,false);
+ r=E.dc(make(true,r.deviceStates.T1),{scanTimeMs:50});assert.equal(r.ok,true,JSON.stringify(r));assert.equal(r.deviceStates.T1.outputHigh,true);
+ r=E.dc(make(false,r.deviceStates.T1),{scanTimeMs:50});assert.equal(r.ok,true,JSON.stringify(r));assert.equal(r.deviceStates.T1.outputHigh,false);
+});
+test("catalog rising-edge detector emits a one-tick pulse",()=>{
+ const make=(inputHigh,state)=>{const components=[comp("V1","battery",2,{voltage:inputHigh?5:0}),comp("E1","logic-logic-edge-rising",2,{inputThreshold:2.5,logicVoltage:5}),comp("R1","resistor",2,{resistance:1000})];if(state)components.find(c=>c.id==="E1").state=state;return {components,wires:[wire("V1:1","R1:1"),wire("V1:0","E1:0"),wire("E1:1","R1:0")]};};
+ let r=E.dc(make(false,null),{scanTimeMs:50});assert.equal(r.ok,true,JSON.stringify(r));assert.equal(r.deviceStates.E1.outputHigh,false);
+ r=E.dc(make(true,r.deviceStates.E1),{scanTimeMs:50});assert.equal(r.ok,true,JSON.stringify(r));assert.equal(r.deviceStates.E1.outputHigh,true);
+ r=E.dc(make(true,r.deviceStates.E1),{scanTimeMs:50});assert.equal(r.ok,true,JSON.stringify(r));assert.equal(r.deviceStates.E1.outputHigh,false);
+});
+test("catalog four-bit up-counter advances only on rising enabled clock edges",()=>{
+ const make=(clockHigh,state)=>{const components=[comp("VC","battery",2,{voltage:clockHigh?5:0}),comp("VE","battery",2,{voltage:5}),comp("C1","logic-logic-counter-up",6,{inputThreshold:2.5,logicVoltage:5}),comp("R0","resistor",2,{resistance:1000}),comp("R1","resistor",2,{resistance:1000})];if(state)components.find(c=>c.id==="C1").state=state;return {components,wires:[wire("VC:1","VE:1"),wire("VC:1","R0:1"),wire("VC:1","R1:1"),wire("VC:0","C1:0"),wire("VE:0","C1:1"),wire("C1:2","R0:0"),wire("C1:3","R1:0")]};};
+ let r=E.dc(make(false,null));assert.equal(r.ok,true,JSON.stringify(r));assert.equal(r.deviceStates.C1.count,0);
+ r=E.dc(make(true,r.deviceStates.C1));assert.equal(r.ok,true,JSON.stringify(r));assert.equal(r.deviceStates.C1.count,1);
+ r=E.dc(make(true,r.deviceStates.C1));assert.equal(r.ok,true,JSON.stringify(r));assert.equal(r.deviceStates.C1.count,1,"holding clock high must not increment again");
+ r=E.dc(make(false,r.deviceStates.C1));assert.equal(r.ok,true,JSON.stringify(r));
+ r=E.dc(make(true,r.deviceStates.C1));assert.equal(r.ok,true,JSON.stringify(r));assert.equal(r.deviceStates.C1.count,2);
+});
+test("catalog clock output toggles with its configured frequency and scan interval",()=>{
+ const p={components:[comp("CLK","logic-logic-clock",2,{frequencyHz:5,scanTimeMs:50,logicVoltage:5}),comp("R1","resistor",2,{resistance:1000})],wires:[wire("CLK:0","R1:0"),wire("R1:1","CLK:1")]};
+ let r=E.dc(p,{scanTimeMs:50});assert.equal(r.ok,true,JSON.stringify(r));assert.equal(r.deviceStates.CLK.outputHigh,true);
+ p.components.find(c=>c.id==="CLK").state={...r.deviceStates.CLK};
+ r=E.dc(p,{scanTimeMs:50});assert.equal(r.ok,true,JSON.stringify(r));assert.equal(r.deviceStates.CLK.outputHigh,false);
+});
