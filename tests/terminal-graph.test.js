@@ -16,3 +16,6 @@ test("overload relay exposes three thermal elements and 95/96 plus 97/98 contact
 test("automatic transfer switch exposes two four-pole source paths with no overlap",()=>{const d=load().definitionFor("automatic-transfer-switch");assert.equal(d.terminals.length,12);assert.equal(d.paths.length,8);assert.equal(d.paths.filter(p=>p.id.startsWith("normal-")).length,4);assert.equal(d.paths.filter(p=>p.id.startsWith("emergency-")).length,4)});
 
 test("PLC controller exposes power, digital inputs and four isolated relay outputs",()=>{const d=load().definitionFor("plc-controller");assert.equal(d.terminals.length,13);assert.equal(d.paths.filter(p=>p.kind==="input-resistor").length,3);assert.equal(d.paths.filter(p=>p.kind==="switchable").length,4);assert.ok(d.paths.some(p=>p.kind==="supply-load"))});
+
+
+test('catalog contactor variants expose correct terminal counts and paths',()=>{const T=load();const v=T.definitionFor('contactors-contactor-24vac'),p2=T.definitionFor('contactors-contactor-2p'),p4=T.definitionFor('contactors-contactor-4p');assert.equal(v.terminals.length,12);assert.equal(v.paths.length,6);assert.equal(p2.terminals.length,10);assert.equal(p2.paths.length,5);assert.equal(p4.terminals.length,14);assert.equal(p4.paths.length,7);assert.ok(p4.terminals.some(t=>t.id==='TN'));});

@@ -10,12 +10,52 @@
       "category": "contactors",
       "terminals": [
         {
+          "id": "A1",
+          "name": "Coil A1"
+        },
+        {
+          "id": "A2",
+          "name": "Coil A2"
+        },
+        {
+          "id": "L1",
+          "name": "L1 line"
+        },
+        {
           "id": "T1",
-          "name": "Terminal 1"
+          "name": "L1 load"
+        },
+        {
+          "id": "L2",
+          "name": "L2 line"
         },
         {
           "id": "T2",
-          "name": "Terminal 2"
+          "name": "L2 load"
+        },
+        {
+          "id": "L3",
+          "name": "L3 line"
+        },
+        {
+          "id": "T3",
+          "name": "L3 load"
+        },
+        {
+          "id": "13",
+          "name": "Auxiliary NO 13"
+        },
+        {
+          "id": "14",
+          "name": "Auxiliary NO 14"
+        },
+        {
+          "id": "21",
+          "name": "Auxiliary NC 21"
+        },
+        {
+          "id": "22",
+          "name": "Auxiliary NC 22"
         }
       ],
       "parameters": {
@@ -36,6 +76,56 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "coilVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 24,
+          "min": 1,
+          "max": 1000
+        },
+        "coilResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 82,
+          "min": 1,
+          "max": 100000
+        },
+        "mainPoles": {
+          "type": "number",
+          "default": 3,
+          "min": 1,
+          "max": 4
+        },
+        "auxNO": {
+          "type": "number",
+          "default": 1,
+          "min": 0,
+          "max": 4
+        },
+        "auxNC": {
+          "type": "number",
+          "default": 1,
+          "min": 0,
+          "max": 4
+        },
+        "energized": {
+          "type": "boolean",
+          "default": false
+        },
+        "onResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 0.000001,
+          "min": 0.000001,
+          "max": 1
+        },
+        "offResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 30000000000,
+          "min": 1,
+          "max": 1000000000000
         }
       },
       "ratings": {
@@ -52,15 +142,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "contactor",
+        "engine": "VoltPRo MNA electromechanical",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "contactor",
         "states": [
-          "enabled",
-          "disabled"
+          "deenergized",
+          "energized"
         ]
       },
       "faultModes": [
@@ -82,12 +172,52 @@
       "category": "contactors",
       "terminals": [
         {
+          "id": "A1",
+          "name": "Coil A1"
+        },
+        {
+          "id": "A2",
+          "name": "Coil A2"
+        },
+        {
+          "id": "L1",
+          "name": "L1 line"
+        },
+        {
           "id": "T1",
-          "name": "Terminal 1"
+          "name": "L1 load"
+        },
+        {
+          "id": "L2",
+          "name": "L2 line"
         },
         {
           "id": "T2",
-          "name": "Terminal 2"
+          "name": "L2 load"
+        },
+        {
+          "id": "L3",
+          "name": "L3 line"
+        },
+        {
+          "id": "T3",
+          "name": "L3 load"
+        },
+        {
+          "id": "13",
+          "name": "Auxiliary NO 13"
+        },
+        {
+          "id": "14",
+          "name": "Auxiliary NO 14"
+        },
+        {
+          "id": "21",
+          "name": "Auxiliary NC 21"
+        },
+        {
+          "id": "22",
+          "name": "Auxiliary NC 22"
         }
       ],
       "parameters": {
@@ -108,6 +238,56 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "coilVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 24,
+          "min": 1,
+          "max": 1000
+        },
+        "coilResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 82,
+          "min": 1,
+          "max": 100000
+        },
+        "mainPoles": {
+          "type": "number",
+          "default": 3,
+          "min": 1,
+          "max": 4
+        },
+        "auxNO": {
+          "type": "number",
+          "default": 1,
+          "min": 0,
+          "max": 4
+        },
+        "auxNC": {
+          "type": "number",
+          "default": 1,
+          "min": 0,
+          "max": 4
+        },
+        "energized": {
+          "type": "boolean",
+          "default": false
+        },
+        "onResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 0.000001,
+          "min": 0.000001,
+          "max": 1
+        },
+        "offResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 30000000000,
+          "min": 1,
+          "max": 1000000000000
         }
       },
       "ratings": {
@@ -124,15 +304,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "contactor",
+        "engine": "VoltPRo MNA electromechanical",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "contactor",
         "states": [
-          "enabled",
-          "disabled"
+          "deenergized",
+          "energized"
         ]
       },
       "faultModes": [
@@ -154,12 +334,52 @@
       "category": "contactors",
       "terminals": [
         {
+          "id": "A1",
+          "name": "Coil A1"
+        },
+        {
+          "id": "A2",
+          "name": "Coil A2"
+        },
+        {
+          "id": "L1",
+          "name": "L1 line"
+        },
+        {
           "id": "T1",
-          "name": "Terminal 1"
+          "name": "L1 load"
+        },
+        {
+          "id": "L2",
+          "name": "L2 line"
         },
         {
           "id": "T2",
-          "name": "Terminal 2"
+          "name": "L2 load"
+        },
+        {
+          "id": "L3",
+          "name": "L3 line"
+        },
+        {
+          "id": "T3",
+          "name": "L3 load"
+        },
+        {
+          "id": "13",
+          "name": "Auxiliary NO 13"
+        },
+        {
+          "id": "14",
+          "name": "Auxiliary NO 14"
+        },
+        {
+          "id": "21",
+          "name": "Auxiliary NC 21"
+        },
+        {
+          "id": "22",
+          "name": "Auxiliary NC 22"
         }
       ],
       "parameters": {
@@ -180,6 +400,56 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "coilVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 48,
+          "min": 1,
+          "max": 1000
+        },
+        "coilResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 82,
+          "min": 1,
+          "max": 100000
+        },
+        "mainPoles": {
+          "type": "number",
+          "default": 3,
+          "min": 1,
+          "max": 4
+        },
+        "auxNO": {
+          "type": "number",
+          "default": 1,
+          "min": 0,
+          "max": 4
+        },
+        "auxNC": {
+          "type": "number",
+          "default": 1,
+          "min": 0,
+          "max": 4
+        },
+        "energized": {
+          "type": "boolean",
+          "default": false
+        },
+        "onResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 0.000001,
+          "min": 0.000001,
+          "max": 1
+        },
+        "offResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 30000000000,
+          "min": 1,
+          "max": 1000000000000
         }
       },
       "ratings": {
@@ -196,15 +466,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "contactor",
+        "engine": "VoltPRo MNA electromechanical",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "contactor",
         "states": [
-          "enabled",
-          "disabled"
+          "deenergized",
+          "energized"
         ]
       },
       "faultModes": [
@@ -226,12 +496,52 @@
       "category": "contactors",
       "terminals": [
         {
+          "id": "A1",
+          "name": "Coil A1"
+        },
+        {
+          "id": "A2",
+          "name": "Coil A2"
+        },
+        {
+          "id": "L1",
+          "name": "L1 line"
+        },
+        {
           "id": "T1",
-          "name": "Terminal 1"
+          "name": "L1 load"
+        },
+        {
+          "id": "L2",
+          "name": "L2 line"
         },
         {
           "id": "T2",
-          "name": "Terminal 2"
+          "name": "L2 load"
+        },
+        {
+          "id": "L3",
+          "name": "L3 line"
+        },
+        {
+          "id": "T3",
+          "name": "L3 load"
+        },
+        {
+          "id": "13",
+          "name": "Auxiliary NO 13"
+        },
+        {
+          "id": "14",
+          "name": "Auxiliary NO 14"
+        },
+        {
+          "id": "21",
+          "name": "Auxiliary NC 21"
+        },
+        {
+          "id": "22",
+          "name": "Auxiliary NC 22"
         }
       ],
       "parameters": {
@@ -252,6 +562,56 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "coilVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 48,
+          "min": 1,
+          "max": 1000
+        },
+        "coilResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 82,
+          "min": 1,
+          "max": 100000
+        },
+        "mainPoles": {
+          "type": "number",
+          "default": 3,
+          "min": 1,
+          "max": 4
+        },
+        "auxNO": {
+          "type": "number",
+          "default": 1,
+          "min": 0,
+          "max": 4
+        },
+        "auxNC": {
+          "type": "number",
+          "default": 1,
+          "min": 0,
+          "max": 4
+        },
+        "energized": {
+          "type": "boolean",
+          "default": false
+        },
+        "onResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 0.000001,
+          "min": 0.000001,
+          "max": 1
+        },
+        "offResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 30000000000,
+          "min": 1,
+          "max": 1000000000000
         }
       },
       "ratings": {
@@ -268,15 +628,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "contactor",
+        "engine": "VoltPRo MNA electromechanical",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "contactor",
         "states": [
-          "enabled",
-          "disabled"
+          "deenergized",
+          "energized"
         ]
       },
       "faultModes": [
@@ -298,12 +658,52 @@
       "category": "contactors",
       "terminals": [
         {
+          "id": "A1",
+          "name": "Coil A1"
+        },
+        {
+          "id": "A2",
+          "name": "Coil A2"
+        },
+        {
+          "id": "L1",
+          "name": "L1 line"
+        },
+        {
           "id": "T1",
-          "name": "Terminal 1"
+          "name": "L1 load"
+        },
+        {
+          "id": "L2",
+          "name": "L2 line"
         },
         {
           "id": "T2",
-          "name": "Terminal 2"
+          "name": "L2 load"
+        },
+        {
+          "id": "L3",
+          "name": "L3 line"
+        },
+        {
+          "id": "T3",
+          "name": "L3 load"
+        },
+        {
+          "id": "13",
+          "name": "Auxiliary NO 13"
+        },
+        {
+          "id": "14",
+          "name": "Auxiliary NO 14"
+        },
+        {
+          "id": "21",
+          "name": "Auxiliary NC 21"
+        },
+        {
+          "id": "22",
+          "name": "Auxiliary NC 22"
         }
       ],
       "parameters": {
@@ -324,6 +724,56 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "coilVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 110,
+          "min": 1,
+          "max": 1000
+        },
+        "coilResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 82,
+          "min": 1,
+          "max": 100000
+        },
+        "mainPoles": {
+          "type": "number",
+          "default": 3,
+          "min": 1,
+          "max": 4
+        },
+        "auxNO": {
+          "type": "number",
+          "default": 1,
+          "min": 0,
+          "max": 4
+        },
+        "auxNC": {
+          "type": "number",
+          "default": 1,
+          "min": 0,
+          "max": 4
+        },
+        "energized": {
+          "type": "boolean",
+          "default": false
+        },
+        "onResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 0.000001,
+          "min": 0.000001,
+          "max": 1
+        },
+        "offResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 30000000000,
+          "min": 1,
+          "max": 1000000000000
         }
       },
       "ratings": {
@@ -340,15 +790,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "contactor",
+        "engine": "VoltPRo MNA electromechanical",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "contactor",
         "states": [
-          "enabled",
-          "disabled"
+          "deenergized",
+          "energized"
         ]
       },
       "faultModes": [
@@ -370,12 +820,52 @@
       "category": "contactors",
       "terminals": [
         {
+          "id": "A1",
+          "name": "Coil A1"
+        },
+        {
+          "id": "A2",
+          "name": "Coil A2"
+        },
+        {
+          "id": "L1",
+          "name": "L1 line"
+        },
+        {
           "id": "T1",
-          "name": "Terminal 1"
+          "name": "L1 load"
+        },
+        {
+          "id": "L2",
+          "name": "L2 line"
         },
         {
           "id": "T2",
-          "name": "Terminal 2"
+          "name": "L2 load"
+        },
+        {
+          "id": "L3",
+          "name": "L3 line"
+        },
+        {
+          "id": "T3",
+          "name": "L3 load"
+        },
+        {
+          "id": "13",
+          "name": "Auxiliary NO 13"
+        },
+        {
+          "id": "14",
+          "name": "Auxiliary NO 14"
+        },
+        {
+          "id": "21",
+          "name": "Auxiliary NC 21"
+        },
+        {
+          "id": "22",
+          "name": "Auxiliary NC 22"
         }
       ],
       "parameters": {
@@ -396,6 +886,56 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "coilVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 110,
+          "min": 1,
+          "max": 1000
+        },
+        "coilResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 82,
+          "min": 1,
+          "max": 100000
+        },
+        "mainPoles": {
+          "type": "number",
+          "default": 3,
+          "min": 1,
+          "max": 4
+        },
+        "auxNO": {
+          "type": "number",
+          "default": 1,
+          "min": 0,
+          "max": 4
+        },
+        "auxNC": {
+          "type": "number",
+          "default": 1,
+          "min": 0,
+          "max": 4
+        },
+        "energized": {
+          "type": "boolean",
+          "default": false
+        },
+        "onResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 0.000001,
+          "min": 0.000001,
+          "max": 1
+        },
+        "offResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 30000000000,
+          "min": 1,
+          "max": 1000000000000
         }
       },
       "ratings": {
@@ -412,15 +952,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "contactor",
+        "engine": "VoltPRo MNA electromechanical",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "contactor",
         "states": [
-          "enabled",
-          "disabled"
+          "deenergized",
+          "energized"
         ]
       },
       "faultModes": [
@@ -442,12 +982,52 @@
       "category": "contactors",
       "terminals": [
         {
+          "id": "A1",
+          "name": "Coil A1"
+        },
+        {
+          "id": "A2",
+          "name": "Coil A2"
+        },
+        {
+          "id": "L1",
+          "name": "L1 line"
+        },
+        {
           "id": "T1",
-          "name": "Terminal 1"
+          "name": "L1 load"
+        },
+        {
+          "id": "L2",
+          "name": "L2 line"
         },
         {
           "id": "T2",
-          "name": "Terminal 2"
+          "name": "L2 load"
+        },
+        {
+          "id": "L3",
+          "name": "L3 line"
+        },
+        {
+          "id": "T3",
+          "name": "L3 load"
+        },
+        {
+          "id": "13",
+          "name": "Auxiliary NO 13"
+        },
+        {
+          "id": "14",
+          "name": "Auxiliary NO 14"
+        },
+        {
+          "id": "21",
+          "name": "Auxiliary NC 21"
+        },
+        {
+          "id": "22",
+          "name": "Auxiliary NC 22"
         }
       ],
       "parameters": {
@@ -468,6 +1048,56 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "coilVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 230,
+          "min": 1,
+          "max": 1000
+        },
+        "coilResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 82,
+          "min": 1,
+          "max": 100000
+        },
+        "mainPoles": {
+          "type": "number",
+          "default": 3,
+          "min": 1,
+          "max": 4
+        },
+        "auxNO": {
+          "type": "number",
+          "default": 1,
+          "min": 0,
+          "max": 4
+        },
+        "auxNC": {
+          "type": "number",
+          "default": 1,
+          "min": 0,
+          "max": 4
+        },
+        "energized": {
+          "type": "boolean",
+          "default": false
+        },
+        "onResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 0.000001,
+          "min": 0.000001,
+          "max": 1
+        },
+        "offResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 30000000000,
+          "min": 1,
+          "max": 1000000000000
         }
       },
       "ratings": {
@@ -484,15 +1114,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "contactor",
+        "engine": "VoltPRo MNA electromechanical",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "contactor",
         "states": [
-          "enabled",
-          "disabled"
+          "deenergized",
+          "energized"
         ]
       },
       "faultModes": [
@@ -514,12 +1144,52 @@
       "category": "contactors",
       "terminals": [
         {
+          "id": "A1",
+          "name": "Coil A1"
+        },
+        {
+          "id": "A2",
+          "name": "Coil A2"
+        },
+        {
+          "id": "L1",
+          "name": "L1 line"
+        },
+        {
           "id": "T1",
-          "name": "Terminal 1"
+          "name": "L1 load"
+        },
+        {
+          "id": "L2",
+          "name": "L2 line"
         },
         {
           "id": "T2",
-          "name": "Terminal 2"
+          "name": "L2 load"
+        },
+        {
+          "id": "L3",
+          "name": "L3 line"
+        },
+        {
+          "id": "T3",
+          "name": "L3 load"
+        },
+        {
+          "id": "13",
+          "name": "Auxiliary NO 13"
+        },
+        {
+          "id": "14",
+          "name": "Auxiliary NO 14"
+        },
+        {
+          "id": "21",
+          "name": "Auxiliary NC 21"
+        },
+        {
+          "id": "22",
+          "name": "Auxiliary NC 22"
         }
       ],
       "parameters": {
@@ -540,6 +1210,56 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "coilVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 230,
+          "min": 1,
+          "max": 1000
+        },
+        "coilResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 82,
+          "min": 1,
+          "max": 100000
+        },
+        "mainPoles": {
+          "type": "number",
+          "default": 3,
+          "min": 1,
+          "max": 4
+        },
+        "auxNO": {
+          "type": "number",
+          "default": 1,
+          "min": 0,
+          "max": 4
+        },
+        "auxNC": {
+          "type": "number",
+          "default": 1,
+          "min": 0,
+          "max": 4
+        },
+        "energized": {
+          "type": "boolean",
+          "default": false
+        },
+        "onResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 0.000001,
+          "min": 0.000001,
+          "max": 1
+        },
+        "offResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 30000000000,
+          "min": 1,
+          "max": 1000000000000
         }
       },
       "ratings": {
@@ -556,15 +1276,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "contactor",
+        "engine": "VoltPRo MNA electromechanical",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "contactor",
         "states": [
-          "enabled",
-          "disabled"
+          "deenergized",
+          "energized"
         ]
       },
       "faultModes": [
@@ -586,12 +1306,52 @@
       "category": "contactors",
       "terminals": [
         {
+          "id": "A1",
+          "name": "Coil A1"
+        },
+        {
+          "id": "A2",
+          "name": "Coil A2"
+        },
+        {
+          "id": "L1",
+          "name": "L1 line"
+        },
+        {
           "id": "T1",
-          "name": "Terminal 1"
+          "name": "L1 load"
+        },
+        {
+          "id": "L2",
+          "name": "L2 line"
         },
         {
           "id": "T2",
-          "name": "Terminal 2"
+          "name": "L2 load"
+        },
+        {
+          "id": "L3",
+          "name": "L3 line"
+        },
+        {
+          "id": "T3",
+          "name": "L3 load"
+        },
+        {
+          "id": "13",
+          "name": "Auxiliary NO 13"
+        },
+        {
+          "id": "14",
+          "name": "Auxiliary NO 14"
+        },
+        {
+          "id": "21",
+          "name": "Auxiliary NC 21"
+        },
+        {
+          "id": "22",
+          "name": "Auxiliary NC 22"
         }
       ],
       "parameters": {
@@ -612,6 +1372,56 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "coilVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 400,
+          "min": 1,
+          "max": 1000
+        },
+        "coilResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 82,
+          "min": 1,
+          "max": 100000
+        },
+        "mainPoles": {
+          "type": "number",
+          "default": 3,
+          "min": 1,
+          "max": 4
+        },
+        "auxNO": {
+          "type": "number",
+          "default": 1,
+          "min": 0,
+          "max": 4
+        },
+        "auxNC": {
+          "type": "number",
+          "default": 1,
+          "min": 0,
+          "max": 4
+        },
+        "energized": {
+          "type": "boolean",
+          "default": false
+        },
+        "onResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 0.000001,
+          "min": 0.000001,
+          "max": 1
+        },
+        "offResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 30000000000,
+          "min": 1,
+          "max": 1000000000000
         }
       },
       "ratings": {
@@ -628,15 +1438,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "contactor",
+        "engine": "VoltPRo MNA electromechanical",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "contactor",
         "states": [
-          "enabled",
-          "disabled"
+          "deenergized",
+          "energized"
         ]
       },
       "faultModes": [
@@ -658,12 +1468,52 @@
       "category": "contactors",
       "terminals": [
         {
+          "id": "A1",
+          "name": "Coil A1"
+        },
+        {
+          "id": "A2",
+          "name": "Coil A2"
+        },
+        {
+          "id": "L1",
+          "name": "L1 line"
+        },
+        {
           "id": "T1",
-          "name": "Terminal 1"
+          "name": "L1 load"
+        },
+        {
+          "id": "L2",
+          "name": "L2 line"
         },
         {
           "id": "T2",
-          "name": "Terminal 2"
+          "name": "L2 load"
+        },
+        {
+          "id": "L3",
+          "name": "L3 line"
+        },
+        {
+          "id": "T3",
+          "name": "L3 load"
+        },
+        {
+          "id": "13",
+          "name": "Auxiliary NO 13"
+        },
+        {
+          "id": "14",
+          "name": "Auxiliary NO 14"
+        },
+        {
+          "id": "21",
+          "name": "Auxiliary NC 21"
+        },
+        {
+          "id": "22",
+          "name": "Auxiliary NC 22"
         }
       ],
       "parameters": {
@@ -684,6 +1534,56 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "coilVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 415,
+          "min": 1,
+          "max": 1000
+        },
+        "coilResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 82,
+          "min": 1,
+          "max": 100000
+        },
+        "mainPoles": {
+          "type": "number",
+          "default": 3,
+          "min": 1,
+          "max": 4
+        },
+        "auxNO": {
+          "type": "number",
+          "default": 1,
+          "min": 0,
+          "max": 4
+        },
+        "auxNC": {
+          "type": "number",
+          "default": 1,
+          "min": 0,
+          "max": 4
+        },
+        "energized": {
+          "type": "boolean",
+          "default": false
+        },
+        "onResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 0.000001,
+          "min": 0.000001,
+          "max": 1
+        },
+        "offResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 30000000000,
+          "min": 1,
+          "max": 1000000000000
         }
       },
       "ratings": {
@@ -700,15 +1600,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "contactor",
+        "engine": "VoltPRo MNA electromechanical",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "contactor",
         "states": [
-          "enabled",
-          "disabled"
+          "deenergized",
+          "energized"
         ]
       },
       "faultModes": [
@@ -730,12 +1630,44 @@
       "category": "contactors",
       "terminals": [
         {
+          "id": "A1",
+          "name": "Coil A1"
+        },
+        {
+          "id": "A2",
+          "name": "Coil A2"
+        },
+        {
+          "id": "L1",
+          "name": "L1 line"
+        },
+        {
           "id": "T1",
-          "name": "Terminal 1"
+          "name": "L1 load"
+        },
+        {
+          "id": "L2",
+          "name": "L2 line"
         },
         {
           "id": "T2",
-          "name": "Terminal 2"
+          "name": "L2 load"
+        },
+        {
+          "id": "13",
+          "name": "Auxiliary NO 13"
+        },
+        {
+          "id": "14",
+          "name": "Auxiliary NO 14"
+        },
+        {
+          "id": "21",
+          "name": "Auxiliary NC 21"
+        },
+        {
+          "id": "22",
+          "name": "Auxiliary NC 22"
         }
       ],
       "parameters": {
@@ -756,6 +1688,56 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "coilVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 230,
+          "min": 1,
+          "max": 1000
+        },
+        "coilResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 82,
+          "min": 1,
+          "max": 100000
+        },
+        "mainPoles": {
+          "type": "number",
+          "default": 2,
+          "min": 1,
+          "max": 4
+        },
+        "auxNO": {
+          "type": "number",
+          "default": 1,
+          "min": 0,
+          "max": 4
+        },
+        "auxNC": {
+          "type": "number",
+          "default": 1,
+          "min": 0,
+          "max": 4
+        },
+        "energized": {
+          "type": "boolean",
+          "default": false
+        },
+        "onResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 0.000001,
+          "min": 0.000001,
+          "max": 1
+        },
+        "offResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 30000000000,
+          "min": 1,
+          "max": 1000000000000
         }
       },
       "ratings": {
@@ -772,15 +1754,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "contactor",
+        "engine": "VoltPRo MNA electromechanical",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "contactor",
         "states": [
-          "enabled",
-          "disabled"
+          "deenergized",
+          "energized"
         ]
       },
       "faultModes": [
@@ -802,12 +1784,52 @@
       "category": "contactors",
       "terminals": [
         {
+          "id": "A1",
+          "name": "Coil A1"
+        },
+        {
+          "id": "A2",
+          "name": "Coil A2"
+        },
+        {
+          "id": "L1",
+          "name": "L1 line"
+        },
+        {
           "id": "T1",
-          "name": "Terminal 1"
+          "name": "L1 load"
+        },
+        {
+          "id": "L2",
+          "name": "L2 line"
         },
         {
           "id": "T2",
-          "name": "Terminal 2"
+          "name": "L2 load"
+        },
+        {
+          "id": "L3",
+          "name": "L3 line"
+        },
+        {
+          "id": "T3",
+          "name": "L3 load"
+        },
+        {
+          "id": "13",
+          "name": "Auxiliary NO 13"
+        },
+        {
+          "id": "14",
+          "name": "Auxiliary NO 14"
+        },
+        {
+          "id": "21",
+          "name": "Auxiliary NC 21"
+        },
+        {
+          "id": "22",
+          "name": "Auxiliary NC 22"
         }
       ],
       "parameters": {
@@ -828,6 +1850,56 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "coilVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 230,
+          "min": 1,
+          "max": 1000
+        },
+        "coilResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 82,
+          "min": 1,
+          "max": 100000
+        },
+        "mainPoles": {
+          "type": "number",
+          "default": 3,
+          "min": 1,
+          "max": 4
+        },
+        "auxNO": {
+          "type": "number",
+          "default": 1,
+          "min": 0,
+          "max": 4
+        },
+        "auxNC": {
+          "type": "number",
+          "default": 1,
+          "min": 0,
+          "max": 4
+        },
+        "energized": {
+          "type": "boolean",
+          "default": false
+        },
+        "onResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 0.000001,
+          "min": 0.000001,
+          "max": 1
+        },
+        "offResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 30000000000,
+          "min": 1,
+          "max": 1000000000000
         }
       },
       "ratings": {
@@ -844,15 +1916,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "contactor",
+        "engine": "VoltPRo MNA electromechanical",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "contactor",
         "states": [
-          "enabled",
-          "disabled"
+          "deenergized",
+          "energized"
         ]
       },
       "faultModes": [
@@ -874,12 +1946,60 @@
       "category": "contactors",
       "terminals": [
         {
+          "id": "A1",
+          "name": "Coil A1"
+        },
+        {
+          "id": "A2",
+          "name": "Coil A2"
+        },
+        {
+          "id": "L1",
+          "name": "L1 line"
+        },
+        {
           "id": "T1",
-          "name": "Terminal 1"
+          "name": "L1 load"
+        },
+        {
+          "id": "L2",
+          "name": "L2 line"
         },
         {
           "id": "T2",
-          "name": "Terminal 2"
+          "name": "L2 load"
+        },
+        {
+          "id": "L3",
+          "name": "L3 line"
+        },
+        {
+          "id": "T3",
+          "name": "L3 load"
+        },
+        {
+          "id": "N",
+          "name": "N line"
+        },
+        {
+          "id": "TN",
+          "name": "N load"
+        },
+        {
+          "id": "13",
+          "name": "Auxiliary NO 13"
+        },
+        {
+          "id": "14",
+          "name": "Auxiliary NO 14"
+        },
+        {
+          "id": "21",
+          "name": "Auxiliary NC 21"
+        },
+        {
+          "id": "22",
+          "name": "Auxiliary NC 22"
         }
       ],
       "parameters": {
@@ -900,6 +2020,56 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "coilVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 230,
+          "min": 1,
+          "max": 1000
+        },
+        "coilResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 82,
+          "min": 1,
+          "max": 100000
+        },
+        "mainPoles": {
+          "type": "number",
+          "default": 4,
+          "min": 1,
+          "max": 4
+        },
+        "auxNO": {
+          "type": "number",
+          "default": 1,
+          "min": 0,
+          "max": 4
+        },
+        "auxNC": {
+          "type": "number",
+          "default": 1,
+          "min": 0,
+          "max": 4
+        },
+        "energized": {
+          "type": "boolean",
+          "default": false
+        },
+        "onResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 0.000001,
+          "min": 0.000001,
+          "max": 1
+        },
+        "offResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 30000000000,
+          "min": 1,
+          "max": 1000000000000
         }
       },
       "ratings": {
@@ -916,15 +2086,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "contactor",
+        "engine": "VoltPRo MNA electromechanical",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "contactor",
         "states": [
-          "enabled",
-          "disabled"
+          "deenergized",
+          "energized"
         ]
       },
       "faultModes": [
