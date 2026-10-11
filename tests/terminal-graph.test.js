@@ -50,3 +50,9 @@ test("catalog transistor variants expose their true three-terminal pin names",()
  assert.equal(T.definitionFor("semiconductor-device-mosfet-p").terminals.map(t=>t.id).join(","),"G,D,S");
  assert.equal(T.definitionFor("semiconductor-device-igbt").terminals.map(t=>t.id).join(","),"G,C,E");
 });
+
+test("catalog combinational logic gates expose A/B/Y and NOT exposes A/Y",()=>{
+ const T=load();
+ for(const id of ["logic-logic-and","logic-logic-or","logic-logic-nand","logic-logic-nor","logic-logic-xor","logic-logic-xnor"])assert.equal(T.definitionFor(id).terminals.map(t=>t.id).join(","),"A,B,Y",id);
+ assert.equal(T.definitionFor("logic-logic-not").terminals.map(t=>t.id).join(","),"A,Y");
+});

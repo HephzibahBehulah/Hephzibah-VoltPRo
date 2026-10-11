@@ -10,12 +10,16 @@
       "category": "logic",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "A",
+          "name": "Input A"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "B",
+          "name": "Input B"
+        },
+        {
+          "id": "Y",
+          "name": "Output Y"
         }
       ],
       "parameters": {
@@ -33,6 +37,27 @@
         "value": {
           "type": "number",
           "default": 1
+        },
+        "inputThreshold": {
+          "type": "number",
+          "unit": "V",
+          "default": 2.5,
+          "min": 0,
+          "max": 5
+        },
+        "logicVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 5,
+          "min": 0,
+          "max": 24
+        },
+        "outputLowVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 0,
+          "min": 0,
+          "max": 24
         }
       },
       "ratings": {
@@ -49,15 +74,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "logic",
-        "engine": "VoltPro MNA educational",
+        "type": "logic-gate",
+        "engine": "VoltPro combinational logic MNA",
         "editable": true
       },
       "behaviorModel": {
-        "type": "logic-node",
+        "type": "two-input-logic-gate",
         "states": [
-          "enabled",
-          "disabled"
+          "output-low",
+          "output-high"
         ]
       },
       "faultModes": [
@@ -66,8 +91,8 @@
         "parameter-out-of-range"
       ],
       "documentation": {
-        "summary": "Educational Logic model for AND.",
-        "usage": "Double-click to edit parameters, connect terminals and run simulation.",
+        "summary": "Combinational logic gate with electrical input thresholds and a driven output voltage.",
+        "usage": "Connect input terminals to logic-level sources and Y to a load referenced to circuit ground.",
         "standards": [
           "IEC-oriented educational representation"
         ]
@@ -79,12 +104,16 @@
       "category": "logic",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "A",
+          "name": "Input A"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "B",
+          "name": "Input B"
+        },
+        {
+          "id": "Y",
+          "name": "Output Y"
         }
       ],
       "parameters": {
@@ -102,6 +131,27 @@
         "value": {
           "type": "number",
           "default": 1
+        },
+        "inputThreshold": {
+          "type": "number",
+          "unit": "V",
+          "default": 2.5,
+          "min": 0,
+          "max": 5
+        },
+        "logicVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 5,
+          "min": 0,
+          "max": 24
+        },
+        "outputLowVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 0,
+          "min": 0,
+          "max": 24
         }
       },
       "ratings": {
@@ -118,15 +168,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "logic",
-        "engine": "VoltPro MNA educational",
+        "type": "logic-gate",
+        "engine": "VoltPro combinational logic MNA",
         "editable": true
       },
       "behaviorModel": {
-        "type": "logic-node",
+        "type": "two-input-logic-gate",
         "states": [
-          "enabled",
-          "disabled"
+          "output-low",
+          "output-high"
         ]
       },
       "faultModes": [
@@ -135,8 +185,8 @@
         "parameter-out-of-range"
       ],
       "documentation": {
-        "summary": "Educational Logic model for OR.",
-        "usage": "Double-click to edit parameters, connect terminals and run simulation.",
+        "summary": "Combinational logic gate with electrical input thresholds and a driven output voltage.",
+        "usage": "Connect input terminals to logic-level sources and Y to a load referenced to circuit ground.",
         "standards": [
           "IEC-oriented educational representation"
         ]
@@ -148,12 +198,12 @@
       "category": "logic",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "A",
+          "name": "Input A"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "Y",
+          "name": "Output Y"
         }
       ],
       "parameters": {
@@ -171,6 +221,27 @@
         "value": {
           "type": "number",
           "default": 1
+        },
+        "inputThreshold": {
+          "type": "number",
+          "unit": "V",
+          "default": 2.5,
+          "min": 0,
+          "max": 5
+        },
+        "logicVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 5,
+          "min": 0,
+          "max": 24
+        },
+        "outputLowVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 0,
+          "min": 0,
+          "max": 24
         }
       },
       "ratings": {
@@ -187,15 +258,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "logic",
-        "engine": "VoltPro MNA educational",
+        "type": "logic-inverter",
+        "engine": "VoltPro combinational logic MNA",
         "editable": true
       },
       "behaviorModel": {
-        "type": "logic-node",
+        "type": "not-gate",
         "states": [
-          "enabled",
-          "disabled"
+          "output-low",
+          "output-high"
         ]
       },
       "faultModes": [
@@ -204,8 +275,8 @@
         "parameter-out-of-range"
       ],
       "documentation": {
-        "summary": "Educational Logic model for NOT.",
-        "usage": "Double-click to edit parameters, connect terminals and run simulation.",
+        "summary": "Combinational logic gate with electrical input thresholds and a driven output voltage.",
+        "usage": "Connect input terminals to logic-level sources and Y to a load referenced to circuit ground.",
         "standards": [
           "IEC-oriented educational representation"
         ]
@@ -217,12 +288,16 @@
       "category": "logic",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "A",
+          "name": "Input A"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "B",
+          "name": "Input B"
+        },
+        {
+          "id": "Y",
+          "name": "Output Y"
         }
       ],
       "parameters": {
@@ -240,6 +315,27 @@
         "value": {
           "type": "number",
           "default": 1
+        },
+        "inputThreshold": {
+          "type": "number",
+          "unit": "V",
+          "default": 2.5,
+          "min": 0,
+          "max": 5
+        },
+        "logicVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 5,
+          "min": 0,
+          "max": 24
+        },
+        "outputLowVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 0,
+          "min": 0,
+          "max": 24
         }
       },
       "ratings": {
@@ -256,15 +352,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "logic",
-        "engine": "VoltPro MNA educational",
+        "type": "logic-gate",
+        "engine": "VoltPro combinational logic MNA",
         "editable": true
       },
       "behaviorModel": {
-        "type": "logic-node",
+        "type": "two-input-logic-gate",
         "states": [
-          "enabled",
-          "disabled"
+          "output-low",
+          "output-high"
         ]
       },
       "faultModes": [
@@ -273,8 +369,8 @@
         "parameter-out-of-range"
       ],
       "documentation": {
-        "summary": "Educational Logic model for NAND.",
-        "usage": "Double-click to edit parameters, connect terminals and run simulation.",
+        "summary": "Combinational logic gate with electrical input thresholds and a driven output voltage.",
+        "usage": "Connect input terminals to logic-level sources and Y to a load referenced to circuit ground.",
         "standards": [
           "IEC-oriented educational representation"
         ]
@@ -286,12 +382,16 @@
       "category": "logic",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "A",
+          "name": "Input A"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "B",
+          "name": "Input B"
+        },
+        {
+          "id": "Y",
+          "name": "Output Y"
         }
       ],
       "parameters": {
@@ -309,6 +409,27 @@
         "value": {
           "type": "number",
           "default": 1
+        },
+        "inputThreshold": {
+          "type": "number",
+          "unit": "V",
+          "default": 2.5,
+          "min": 0,
+          "max": 5
+        },
+        "logicVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 5,
+          "min": 0,
+          "max": 24
+        },
+        "outputLowVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 0,
+          "min": 0,
+          "max": 24
         }
       },
       "ratings": {
@@ -325,15 +446,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "logic",
-        "engine": "VoltPro MNA educational",
+        "type": "logic-gate",
+        "engine": "VoltPro combinational logic MNA",
         "editable": true
       },
       "behaviorModel": {
-        "type": "logic-node",
+        "type": "two-input-logic-gate",
         "states": [
-          "enabled",
-          "disabled"
+          "output-low",
+          "output-high"
         ]
       },
       "faultModes": [
@@ -342,8 +463,8 @@
         "parameter-out-of-range"
       ],
       "documentation": {
-        "summary": "Educational Logic model for NOR.",
-        "usage": "Double-click to edit parameters, connect terminals and run simulation.",
+        "summary": "Combinational logic gate with electrical input thresholds and a driven output voltage.",
+        "usage": "Connect input terminals to logic-level sources and Y to a load referenced to circuit ground.",
         "standards": [
           "IEC-oriented educational representation"
         ]
@@ -355,12 +476,16 @@
       "category": "logic",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "A",
+          "name": "Input A"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "B",
+          "name": "Input B"
+        },
+        {
+          "id": "Y",
+          "name": "Output Y"
         }
       ],
       "parameters": {
@@ -378,6 +503,27 @@
         "value": {
           "type": "number",
           "default": 1
+        },
+        "inputThreshold": {
+          "type": "number",
+          "unit": "V",
+          "default": 2.5,
+          "min": 0,
+          "max": 5
+        },
+        "logicVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 5,
+          "min": 0,
+          "max": 24
+        },
+        "outputLowVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 0,
+          "min": 0,
+          "max": 24
         }
       },
       "ratings": {
@@ -394,15 +540,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "logic",
-        "engine": "VoltPro MNA educational",
+        "type": "logic-gate",
+        "engine": "VoltPro combinational logic MNA",
         "editable": true
       },
       "behaviorModel": {
-        "type": "logic-node",
+        "type": "two-input-logic-gate",
         "states": [
-          "enabled",
-          "disabled"
+          "output-low",
+          "output-high"
         ]
       },
       "faultModes": [
@@ -411,8 +557,8 @@
         "parameter-out-of-range"
       ],
       "documentation": {
-        "summary": "Educational Logic model for XOR.",
-        "usage": "Double-click to edit parameters, connect terminals and run simulation.",
+        "summary": "Combinational logic gate with electrical input thresholds and a driven output voltage.",
+        "usage": "Connect input terminals to logic-level sources and Y to a load referenced to circuit ground.",
         "standards": [
           "IEC-oriented educational representation"
         ]
@@ -424,12 +570,16 @@
       "category": "logic",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "A",
+          "name": "Input A"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "B",
+          "name": "Input B"
+        },
+        {
+          "id": "Y",
+          "name": "Output Y"
         }
       ],
       "parameters": {
@@ -447,6 +597,27 @@
         "value": {
           "type": "number",
           "default": 1
+        },
+        "inputThreshold": {
+          "type": "number",
+          "unit": "V",
+          "default": 2.5,
+          "min": 0,
+          "max": 5
+        },
+        "logicVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 5,
+          "min": 0,
+          "max": 24
+        },
+        "outputLowVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 0,
+          "min": 0,
+          "max": 24
         }
       },
       "ratings": {
@@ -463,15 +634,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "logic",
-        "engine": "VoltPro MNA educational",
+        "type": "logic-gate",
+        "engine": "VoltPro combinational logic MNA",
         "editable": true
       },
       "behaviorModel": {
-        "type": "logic-node",
+        "type": "two-input-logic-gate",
         "states": [
-          "enabled",
-          "disabled"
+          "output-low",
+          "output-high"
         ]
       },
       "faultModes": [
@@ -480,8 +651,8 @@
         "parameter-out-of-range"
       ],
       "documentation": {
-        "summary": "Educational Logic model for XNOR.",
-        "usage": "Double-click to edit parameters, connect terminals and run simulation.",
+        "summary": "Combinational logic gate with electrical input thresholds and a driven output voltage.",
+        "usage": "Connect input terminals to logic-level sources and Y to a load referenced to circuit ground.",
         "standards": [
           "IEC-oriented educational representation"
         ]
@@ -1912,15 +2083,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "logic",
-        "engine": "VoltPro MNA educational",
+        "type": "logic-constant",
+        "engine": "VoltPro logic-level source",
         "editable": true
       },
       "behaviorModel": {
-        "type": "logic-node",
+        "type": "logic-constant",
         "states": [
-          "enabled",
-          "disabled"
+          "low",
+          "high"
         ]
       },
       "faultModes": [
@@ -1981,15 +2152,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "logic",
-        "engine": "VoltPro MNA educational",
+        "type": "logic-constant",
+        "engine": "VoltPro logic-level source",
         "editable": true
       },
       "behaviorModel": {
-        "type": "logic-node",
+        "type": "logic-constant",
         "states": [
-          "enabled",
-          "disabled"
+          "low",
+          "high"
         ]
       },
       "faultModes": [

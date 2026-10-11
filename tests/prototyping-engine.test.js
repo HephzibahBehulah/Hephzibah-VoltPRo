@@ -755,3 +755,21 @@ test("catalog P-channel MOSFET uses source-to-gate polarity",()=>{
  assert.equal(result.ok,true,JSON.stringify(result));
  assert.ok(result.branches.find(b=>b.id==="R1").current>.045,"P-channel source above gate should turn the device on");
 });
+
+test("catalog AND gate drives an electrical output for every input combination",()=>{
+ const make=(aHigh,bHigh)=>({components:[comp("VA","battery",2,{voltage:aHigh?5:0}),comp("VB","battery",2,{voltage:bHigh?5:0}),comp("G1","logic-logic-and",3,{inputThreshold:2.5,logicVoltage:5}),comp("R1","resistor",2,{resistance:1000})],wires:[wire("VA:1","VB:1"),wire("VA:0","G1:0"),wire("VB:0","G1:1"),wire("G1:2","R1:0"),wire("R1:1","VA:1")]});
+ for(const [aHigh,bHigh] of [[false,false],[false,true],[true,false],[true,true]]){
+  const result=E.dc(make(aHigh,bHigh));
+  assert.equal(result.ok,true,JSON.stringify(result));
+  const expected=aHigh&&bHigh?5:0;
+  assert.ok(Math.abs(result.deviceStates.G1.outputVoltage-expected)<1e-7,"AND output must follow both inputs");
+  assert.ok(Math.abs(result.branches.find(b=>b.id==="R1").current-expected/1000)<1e-7);
+ }
+});
+test("catalog NOT gate inverts a measured input and drives a real load",()=>{
+ const make=inputHigh=>({components:[comp("VA","battery",2,{voltage:inputHigh?5:0}),comp("G1","logic-logic-not",2,{inputThreshold:2.5,logicVoltage:5}),comp("R1","resistor",2,{resistance:1000})],wires:[wire("VA:1","R1:1"),wire("VA:0","G1:0"),wire("G1:1","R1:0")]});
+ const high=E.dc(make(false)),low=E.dc(make(true));
+ assert.equal(high.ok,true,JSON.stringify(high));assert.equal(low.ok,true,JSON.stringify(low));
+ assert.equal(high.deviceStates.G1.outputVoltage,5);
+ assert.equal(low.deviceStates.G1.outputVoltage,0);
+});
