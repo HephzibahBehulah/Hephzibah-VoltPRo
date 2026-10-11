@@ -2370,12 +2370,36 @@
       "category": "transformers",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "P1",
+          "name": "Primary L1"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "P2",
+          "name": "Primary L2"
+        },
+        {
+          "id": "P3",
+          "name": "Primary L3"
+        },
+        {
+          "id": "PN",
+          "name": "Primary neutral"
+        },
+        {
+          "id": "S1",
+          "name": "Secondary L1"
+        },
+        {
+          "id": "S2",
+          "name": "Secondary L2"
+        },
+        {
+          "id": "S3",
+          "name": "Secondary L3"
+        },
+        {
+          "id": "SN",
+          "name": "Secondary neutral"
         }
       ],
       "parameters": {
@@ -2396,6 +2420,26 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "primaryVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 400,
+          "min": 1,
+          "max": 1000
+        },
+        "secondaryVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 230,
+          "min": 1,
+          "max": 1000
+        },
+        "turnsRatio": {
+          "type": "number",
+          "default": 1.7391304347826086,
+          "min": 0.001,
+          "max": 1000
         }
       },
       "ratings": {
@@ -2412,12 +2456,12 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "three-phase-transformer",
+        "engine": "VoltPRo MNA ideal wye-wye transformer",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "three-phase-transformer",
         "states": [
           "enabled",
           "disabled"
@@ -2442,12 +2486,44 @@
       "category": "transformers",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "P1",
+          "name": "Primary L1"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "P2",
+          "name": "Primary L2"
+        },
+        {
+          "id": "P3",
+          "name": "Primary L3"
+        },
+        {
+          "id": "PN",
+          "name": "Primary neutral"
+        },
+        {
+          "id": "S1",
+          "name": "Secondary L1"
+        },
+        {
+          "id": "S2",
+          "name": "Secondary L2"
+        },
+        {
+          "id": "S3",
+          "name": "Secondary L3"
+        },
+        {
+          "id": "SN",
+          "name": "Secondary neutral"
+        },
+        {
+          "id": "A1",
+          "name": "Auxiliary 24 V winding 1"
+        },
+        {
+          "id": "A2",
+          "name": "Auxiliary 24 V winding 2"
         }
       ],
       "parameters": {
@@ -2468,6 +2544,46 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "primaryVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 400,
+          "min": 1,
+          "max": 1000
+        },
+        "secondaryVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 230,
+          "min": 1,
+          "max": 1000
+        },
+        "turnsRatio": {
+          "type": "number",
+          "default": 1.7391304347826086,
+          "min": 0.001,
+          "max": 1000
+        },
+        "auxiliaryVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 24,
+          "min": 1,
+          "max": 1000
+        },
+        "primaryPhaseVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 230.94010767585033,
+          "min": 1,
+          "max": 1000
+        },
+        "auxiliaryTurnsRatio": {
+          "type": "number",
+          "default": 9.622504486493764,
+          "min": 0.001,
+          "max": 1000
         }
       },
       "ratings": {
@@ -2484,12 +2600,12 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "three-phase-transformer",
+        "engine": "VoltPRo MNA ideal wye-wye transformer",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "three-phase-transformer",
         "states": [
           "enabled",
           "disabled"
@@ -2514,12 +2630,36 @@
       "category": "transformers",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "P1",
+          "name": "Primary L1"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "P2",
+          "name": "Primary L2"
+        },
+        {
+          "id": "P3",
+          "name": "Primary L3"
+        },
+        {
+          "id": "PN",
+          "name": "Primary neutral"
+        },
+        {
+          "id": "S1",
+          "name": "Secondary L1"
+        },
+        {
+          "id": "S2",
+          "name": "Secondary L2"
+        },
+        {
+          "id": "S3",
+          "name": "Secondary L3"
+        },
+        {
+          "id": "SN",
+          "name": "Secondary neutral"
         }
       ],
       "parameters": {
@@ -2540,6 +2680,26 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "primaryVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 400,
+          "min": 1,
+          "max": 1000
+        },
+        "secondaryVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 110,
+          "min": 1,
+          "max": 1000
+        },
+        "turnsRatio": {
+          "type": "number",
+          "default": 3.6363636363636362,
+          "min": 0.001,
+          "max": 1000
         }
       },
       "ratings": {
@@ -2556,12 +2716,12 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "three-phase-transformer",
+        "engine": "VoltPRo MNA ideal wye-wye transformer",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "three-phase-transformer",
         "states": [
           "enabled",
           "disabled"

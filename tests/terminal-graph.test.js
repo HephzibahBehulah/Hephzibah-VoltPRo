@@ -28,3 +28,6 @@ test('catalog transformer variants expose isolated primary and secondary termina
 
 
 test('auxiliary contactor catalog variants expose matching terminal/path counts',()=>{const T=load();for(const [id,terminals,paths] of [['contactors-contactor-1no',4,2],['contactors-contactor-2no',6,3],['contactors-contactor-1nc',4,2],['contactors-contactor-2nc',6,3],['contactors-contactor-1no1nc',6,3],['contactors-contactor-2no2nc',10,5]]){const d=T.definitionFor(id);assert.equal(d.terminals.length,terminals,id);assert.equal(d.paths.length,paths,id)}});
+
+
+test("catalog three-phase transformer variants expose 8 or 10 winding terminals",()=>{const T=load();assert.equal(T.definitionFor("transformers-transformer-3p-400-230").terminals.length,8);assert.equal(T.definitionFor("transformers-transformer-3p-400-230").paths.length,6);assert.equal(T.definitionFor("transformers-transformer-3p-400-230-24").terminals.length,10);});
