@@ -97,7 +97,7 @@ function plc(){
  document.querySelectorAll("[data-plc]").forEach(btn=>btn.onclick=()=>{const key=btn.dataset.plc;io[key]=!io[key];draw(10)});
  draw(0);
 }
-function micro(){if(window.VoltProMCULab?.open){window.VoltProMCULab.open();return}
+function micro(){if(window.VoltProMCULab?.open&&!window.VoltProMCULabOpeningLegacy){window.VoltProMCULab.open();return}
  open("MICROCONTROLLER LAB",'<main class="vpw-main"><div class="vpw-logic-card"><b>Local educational sketch runner</b><p>Models a safe static subset of pinMode, digitalWrite and Serial print statements. It does not compile or upload firmware.</p><label>Board <select id="vpwBoard"><option>Arduino UNO</option><option>Generic GPIO</option></select></label></div><textarea id="vpwCode" rows="12" style="width:100%;margin:10px 0;background:#06101b;color:#eaf5ff;border:1px solid #31516d;border-radius:8px;padding:12px;font:12px/1.6 ui-monospace,monospace">void setup(){\n  pinMode(13, OUTPUT);\n  Serial.println("VoltPRo ready");\n}\nvoid loop(){\n  digitalWrite(13, HIGH);\n}</textarea><button id="vpwRunMcu">Run educational simulation</button><pre id="vpwMcuOut" style="white-space:pre-wrap;overflow-wrap:anywhere;background:#06101b;border:1px solid #29475f;border-radius:8px;padding:12px">Ready. Run the sketch to inspect modeled pin states.</pre></main>');
  $("#vpwRunMcu").onclick=()=>{const result=window.VoltProMCU?.simulate($("#vpwCode").value,{target:$("#vpwBoard").value});$("#vpwMcuOut").textContent=JSON.stringify(result||{error:"Microcontroller engine did not load."},null,2)};
 }
