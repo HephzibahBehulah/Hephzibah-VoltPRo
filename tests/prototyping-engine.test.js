@@ -666,3 +666,30 @@ test("explicit sensor contact state overrides the physical threshold",()=>{
  assert.equal(result.ok,true,JSON.stringify(result));
  assert.ok(Math.abs(result.branches.find(b=>b.id==="R1").current)<1e-8);
 });
+
+test("catalog electronics resistor values override the generic resistance placeholder",()=>{
+ const p={components:[comp("V1","battery",2,{voltage:10}),comp("R1","electronics-passive-r-10",2,{resistance:100})],wires:[wire("V1:0","R1:0"),wire("R1:1","V1:1")]};
+ const result=E.dc(p);
+ assert.equal(result.ok,true,JSON.stringify(result));
+ assert.ok(Math.abs(result.branches.find(b=>b.id==="R1").current-1)<1e-7,"R-10 catalog part should simulate as 10 ohms, not the generic 100-ohm placeholder");
+});
+test("catalog capacitor suffix is converted to farads in AC analysis",()=>{
+ const p={components:[comp("V1","ac_source",2,{voltage:10,frequency:50}),comp("C1","electronics-passive-c-10nf",2,{resistance:100})],wires:[wire("V1:0","C1:0"),wire("C1:1","V1:1")]};
+ const result=E.ac(p,{frequency:50,points:1});
+ assert.equal(result.ok,true,JSON.stringify(result));
+ const current=result.sweep[0].branches.find(b=>b.id==="C1").current;
+ assert.ok(Math.abs(current-2*Math.PI*50*1e-8*10)<1e-7,"10 nF should use its catalog capacitance rather than a 1 uF generic default");
+});
+test("catalog inductor suffix is converted to henries in AC analysis",()=>{
+ const p={components:[comp("V1","ac_source",2,{voltage:10,frequency:50}),comp("L1","electronics-passive-l-10mh",2,{resistance:100})],wires:[wire("V1:0","L1:0"),wire("L1:1","V1:1")]};
+ const result=E.ac(p,{frequency:50,points:1});
+ assert.equal(result.ok,true,JSON.stringify(result));
+ const current=result.sweep[0].branches.find(b=>b.id==="L1").current;
+ assert.ok(Math.abs(current-10/(2*Math.PI*50*0.01))<1e-5,"10 mH should use its encoded inductance");
+});
+test("catalog potentiometer variants resolve their encoded resistance",()=>{
+ const p={components:[comp("V1","battery",2,{voltage:10}),comp("P1","electronics-passive-pot-1k",2,{resistance:100})],wires:[wire("V1:0","P1:0"),wire("P1:1","V1:1")]};
+ const result=E.dc(p);
+ assert.equal(result.ok,true,JSON.stringify(result));
+ assert.ok(Math.abs(result.branches.find(b=>b.id==="P1").current-.01)<1e-7);
+});
