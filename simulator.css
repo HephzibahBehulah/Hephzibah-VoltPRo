@@ -205,3 +205,20 @@ body.simulator-page.light .status[data-state="error"]{background:#fff0f1;border-
 @media(max-width:800px){
  .workspace:not(.inspector-hidden) #inspectorPanel{position:fixed;z-index:9200;right:0;top:100px;bottom:24px;width:min(330px,90vw);max-height:none;display:block!important;overflow:auto;background:#081321;border-left:1px solid var(--line);box-shadow:-18px 0 48px #0009}
 }
+
+/* Independent sidebar toggles with consistent responsive behavior. */
+@media (min-width:1001px){
+ .workspace{grid-template-columns:260px minmax(0,1fr) 290px}
+ .workspace.palette-hidden{grid-template-columns:minmax(0,1fr) 290px}
+ .workspace.inspector-hidden{grid-template-columns:260px minmax(0,1fr)}
+ .workspace.palette-hidden.inspector-hidden{grid-template-columns:minmax(0,1fr)}
+ .workspace.palette-hidden #palette,.workspace.inspector-hidden #inspectorPanel{display:none!important}
+}
+@media (max-width:1000px){
+ .workspace{grid-template-columns:minmax(0,1fr)!important;position:relative}
+ .workspace #palette{position:fixed!important;z-index:9300;left:0;top:108px;bottom:24px;width:min(290px,88vw);max-height:none;transform:translateX(-110%);transition:transform .18s ease;box-shadow:18px 0 42px #0009}
+ .workspace #palette.open{transform:translateX(0)}
+ .workspace #inspectorPanel{position:fixed!important;z-index:9301;right:0;top:108px;bottom:24px;width:min(330px,90vw);max-height:none;display:block!important;transform:translateX(0);box-shadow:-18px 0 42px #0009}
+ .workspace.inspector-hidden #inspectorPanel{display:none!important}
+ .workspace.palette-hidden #palette{display:block!important;transform:translateX(-110%)}
+}
