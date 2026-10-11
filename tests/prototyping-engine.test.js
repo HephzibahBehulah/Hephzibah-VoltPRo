@@ -178,6 +178,45 @@ test("catalog red LED uses the diode model and conducts through a series resisto
  assert.ok(led.current>0.015&&led.current<0.025,"LED should conduct around 20 mA with a 150 Ω series resistor: "+JSON.stringify(led));
 });
 
+
+test("catalog contactor coil rating is inferred from a 24 VAC model ID",()=>{
+ const p={components:[
+  comp("V1","battery",2,{voltage:24}),
+  comp("KM1","contactors-contactor-24vac",12,{coilResistance:82}),
+  comp("R1","resistor",2,{resistance:100})
+ ],wires:[
+  wire("V1:0","KM1:0"),wire("KM1:1","V1:1"),
+  wire("V1:0","KM1:2"),wire("KM1:3","R1:0"),wire("R1:1","V1:1")
+ ]};
+ const result=E.analyze(p).dc;
+ assert.equal(result.ok,true,JSON.stringify(result));
+ assert.equal(result.deviceStates.KM1,true,"a 24 V catalog contactor should pick up at 24 V without an explicit coilVoltage property");
+ assert.ok(result.branches.some(b=>b.id==="KM1"&&b.contactId==="main-1"&&b.current>0.23));
+});
+test("catalog relay coil rating is inferred from a 24 VDC model ID",()=>{
+ const p={components:[
+  comp("V1","battery",2,{voltage:24}),
+  comp("K1","relays-relay-24vdc",8,{coilResistance:240}),
+  comp("R1","resistor",2,{resistance:100})
+ ],wires:[
+  wire("V1:0","K1:0"),wire("K1:1","V1:1"),
+  wire("V1:0","K1:2"),wire("K1:3","R1:0"),wire("R1:1","V1:1")
+ ]};
+ const result=E.analyze(p).dc;
+ assert.equal(result.ok,true,JSON.stringify(result));
+ assert.equal(result.deviceStates.K1,true,"a 24 V relay should pick up at its catalog rated voltage");
+ assert.ok(result.branches.some(b=>b.id==="K1"&&b.contactId==="changeover-1-no"&&b.current>0));
+});
+test("explicit coil voltage overrides the catalog's inferred rating",()=>{
+ const p={components:[
+  comp("V1","battery",2,{voltage:24}),
+  comp("KM1","contactors-contactor-230vac",12,{coilVoltage:230,coilResistance:82})
+ ],wires:[wire("V1:0","KM1:0"),wire("KM1:1","V1:1")]};
+ const result=E.analyze(p).dc;
+ assert.equal(result.ok,true,JSON.stringify(result));
+ assert.equal(result.deviceStates.KM1,false,"a 24 V supply must not pick up a 230 V coil");
+});
+
 test("BB400 joins each five-hole strip and power rail in the MNA topology",()=>{const p={components:[comp("V1","battery",2,{voltage:5}),comp("R1","resistor",2,{resistance:100}),comp("BB1","breadboard-bb400",400)],wires:[wire("V1:0","BB1:0"),wire("R1:0","BB1:30"),wire("R1:1","BB1:150"),wire("V1:1","BB1:150")]};const result=E.analyze(p).dc;assert.equal(result.ok,true,JSON.stringify(result));assert.ok(result.totalCurrent>0.04&&result.totalCurrent<0.06,"expected about 50 mA through 100 Ω at 5 V")});
 test("one-pole breaker opens and closes its actual line/load path",()=>{const base={components:[comp("V1","battery",2,{voltage:12}),comp("Q1","circuit-breaker-1p",2,{rating:16,closed:1}),comp("R1","resistor",2,{resistance:100})],wires:[wire("V1:0","Q1:0"),wire("Q1:1","R1:0"),wire("R1:1","V1:1")]};const closed=E.analyze(base).dc;assert.equal(closed.ok,true,JSON.stringify(closed));assert.ok(closed.totalCurrent>0.1);const opened=E.analyze({...base,components:base.components.map(c=>c.id==="Q1"?{...c,props:{...c.props,closed:0}}:c)}).dc;assert.equal(opened.ok,true,JSON.stringify(opened));assert.ok(Math.abs(opened.totalCurrent)<1e-9)});
 
