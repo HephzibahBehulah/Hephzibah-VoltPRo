@@ -334,7 +334,7 @@ async function loadProject(data){
  const ids=new Set();
  for(const c of components){if(!c.id||ids.has(String(c.id)))throw Error("Project contains a missing or duplicate component ID: "+String(c.id||"(empty)"));ids.add(String(c.id))}
  S.components=components.map(c=>({...c,x:Number(c.x??c.position?.x??0),y:Number(c.y??c.position?.y??0),rotation:Number(c.rotation||0),props:structuredClone(c.props||c.parameters||{}),pins:Array.isArray(c.pins)?c.pins:[]}));
- S.wires=Array.isArray(x.wires)?x.wires.map((w,i)=>window.VoltProWiring?window.VoltProWiring.normalizeWire(w,i):w):[];S.faults=Array.isArray(x.faults)?structuredClone(x.faults):[];
+ S.wires=Array.isArray(x.wires)?x.wires.map((w,i)=>window.VoltProWiring?window.VoltProWiring.normalizeWire(w,i):w):[];S.faults=Array.isArray(x.faults)?structuredClone(x.faults):[];S.lastAnalysis=null;S.lastAnalysisSignature="";
  if(x.wireStyle&&typeof x.wireStyle==="object"){
   const style=x.wireStyle;
   if(/^#[0-9a-f]{6}$/i.test(style.color||""))S.wireStyle.color=style.color;
