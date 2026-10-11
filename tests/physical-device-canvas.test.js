@@ -32,3 +32,10 @@ test("physical canvas terminals and labels remain visually prominent and cache-b
   assert.match(html, /simulator\.js\?v=20261011x/);
   assert.match(worker, /voltpro-v63/);
 });
+
+test("Arduino terminal labels stay readable at close header spacing",()=>{
+  assert.ok(source.includes("arduino-terminal-label"));
+  assert.ok(source.includes('rotate(-90 '));
+  assert.ok(source.includes('rotate(90 '));
+  assert.ok(css.includes(".component .arduino-terminal-label{font-size:7px"));
+});
