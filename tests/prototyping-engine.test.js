@@ -20,7 +20,7 @@ test("contactor coil voltage drives three independent main poles and auxiliary c
  const energized=E.analyze(make(230)).dc;
  assert.equal(energized.ok,true,JSON.stringify(energized));
  assert.equal(energized.deviceStates.KM1,true,"230 V coil should pull in");
- assert.ok(energized.branches.some(b=>b.id==="KM1"&&b.contactId==="main-1"&&b.current>2),"main contact should conduct after coil energizes");
+ assert.ok(energized.branches.some(b=>b.id==="KM1"&&b.contactId==="main-1"&&b.current>2),"main contact should conduct after coil energizes: "+JSON.stringify(energized.branches));
  assert.ok(energized.branches.some(b=>b.id==="KM1"&&b.contactId==="aux-no-13-14"&&b.current>0),"NO auxiliary contact should close with coil");
  const released=E.analyze(make(24)).dc;
  assert.equal(released.ok,true,JSON.stringify(released));
@@ -28,7 +28,7 @@ test("contactor coil voltage drives three independent main poles and auxiliary c
  assert.ok(released.branches.some(b=>b.id==="KM1"&&b.contactId==="main-1"&&Math.abs(b.current)<1e-9),"main contact should remain open");
 });
 test("relay uses explicit eight-terminal coil and changeover contacts",()=>{
- const p={components:[comp("V1","battery",2,{voltage:24}),comp("K1","relay",8,{coilVoltage:24,coilResistance:240}),comp("R1","resistor",2,{resistance:100})],wires:[wire("V1:0","K1:0"),wire("K1:1","V1:1"),wire("V1:0","K1:2"),wire("K1:4","R1:0"),wire("R1:1","V1:1")]};
+ const p={components:[comp("V1","battery",2,{voltage:24}),comp("K1","relay",8,{coilVoltage:24,coilResistance:240}),comp("R1","resistor",2,{resistance:100}),comp("R2","resistor",2,{resistance:100})],wires:[wire("V1:0","K1:0"),wire("K1:1","V1:1"),wire("V1:0","K1:2"),wire("K1:3","R1:0"),wire("R1:1","V1:1"),wire("K1:4","R2:0"),wire("R2:1","V1:1")]};
  const result=E.analyze(p).dc;
  assert.equal(result.ok,true,JSON.stringify(result));
  assert.equal(result.deviceStates.K1,true,"24 V relay coil should energize");
