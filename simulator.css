@@ -176,3 +176,11 @@ body.simulator-page.light .status[data-state="error"]{background:#fff0f1;border-
 /* Live electrical state feedback from the MNA engine */
 .component.energized .symbol{stroke:#16a34a;filter:drop-shadow(0 0 4px rgba(22,163,74,.55))}
 .component.tripped .symbol{stroke:#dc2626;filter:drop-shadow(0 0 5px rgba(220,38,38,.65))}
+
+/* Large, terminal-first product faces replace tiny schematic blocks for physical-device components. */
+.component .physical-device-face{pointer-events:none}
+.component .physical-device-photo,.component .physical-device-fallback{pointer-events:none}
+.component .terminal-label{font-size:11px;font-weight:800;fill:#f4fbff;paint-order:stroke;stroke:#06101b;stroke-width:2.5px;stroke-linejoin:round}
+.component .pin{r:6;stroke-width:2}
+.component .pin:hover{r:9}
+.component.selected .physical-device-photo,.component.selected .physical-device-fallback{filter:drop-shadow(0 0 3px rgba(53,213,255,.45))}
