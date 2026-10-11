@@ -8,7 +8,7 @@ const EPS=1e-12;
 const C=(re=0,im=0)=>({re:+re||0,im:+im||0});
 const add=(a,b)=>C(a.re+b.re,a.im+b.im), sub=(a,b)=>C(a.re-b.re,a.im-b.im);
 const mul=(a,b)=>C(a.re*b.re-a.im*b.im,a.re*b.im+a.im*b.re);
-const div=(a,b)=>{const d=b.re*b.re+b.im*b.im;if(d<EPS)throw Error("Singular complex division");return C((a.re*b.re+a.im*b.im)/d,(a.im*b.re-a.re*b.im)/d)};
+const div=(a,b)=>{const d=b.re*b.re+b.im*b.im;if(d<EPS*EPS)throw Error("Singular complex division");return C((a.re*b.re+a.im*b.im)/d,(a.im*b.re-a.re*b.im)/d)};
 const mag=a=>Math.hypot(a.re,a.im), deg=a=>Math.atan2(a.im,a.re)*180/Math.PI;
 function solve(A,b){
  const n=A.length;if(!n)return [];
