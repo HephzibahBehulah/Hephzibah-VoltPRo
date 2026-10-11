@@ -27,19 +27,21 @@ test("MCU runner lifecycle clears timers and supports a changing tick interval",
   assert.match(ui,/addEventListener\("click",stopTimer\)/);
 });
 
-test("simulator and breadboard load the current MCU workspace and engine assets",()=>{
-  for(const page of [simulator,breadboard]){
-    assert.match(page,/platform\/mcu-engine\.js\?v=20261013a/);
-    assert.match(page,/platform\/mcu-circuit-bridge\.js\?v=20261013a/);
-    assert.match(page,/platform\/mcu-lab-ui\.js\?v=20261013a/);
-  }
+test("simulator loads MCU assets while breadboard uses its native electrical model",()=>{
+  assert.match(simulator,/platform\/mcu-engine\.js\?v=20261013a/);
+  assert.match(simulator,/platform\/mcu-circuit-bridge\.js\?v=20261013a/);
+  assert.match(simulator,/platform\/mcu-lab-ui\.js\?v=20261013a/);
+  assert.match(breadboard,/engine\/breadboard-project\.js/);
+  assert.match(breadboard,/engine\/breadboard-solver\.js/);
 });
 
 test("service worker cache version is advanced for the MCU workspace release",()=>{
-  assert.match(worker,/const CACHE="voltpro-v71"/); 
+  assert.match(worker,/const CACHE="voltpro-v72"/); 
   assert.ok(worker.includes('"./platform/mcu-circuit-bridge.js"'));
   assert.ok(worker.includes('"./platform/mcu-lab-ui.js"'));
   assert.ok(worker.includes('"./platform/mcu-engine.js"'));
+  assert.ok(worker.includes('"./engine/breadboard-project.js"'));
+  assert.ok(worker.includes('"./engine/breadboard-solver.js"'));
 });
 
 test("MCU outputs propagate into correctly wired schematic LED visuals",()=>{
