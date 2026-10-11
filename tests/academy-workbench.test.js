@@ -37,13 +37,26 @@ test("curated template inventory contains only relevant technical domains", () =
   assert.ok(index.tools.some(tool => tool.category === "Automation & PLC"));
 });
 
-test("simulator links to the workbench and supports its project handoff", () => {
+test("simulator exposes one in-page dropdown system without duplicated controls", () => {
   const html = read("simulator.html");
   const js = read("simulator.js");
-  assert.match(html, /academy-workbench\.html/);
+  const ui = read("platform/ui.js");
+  assert.match(html, /data-vp-menu="demos"/);
+  assert.match(html, /data-vp-menu="faults"/);
+  assert.match(html, /data-vp-menu="challenges"/);
+  assert.match(html, /data-vp-menu="tutorials"/);
+  assert.match(html, /data-vp-menu="mcu"/);
+  assert.doesNotMatch(html, /href="academy-workbench\\.html/);
   assert.match(js, /voltpro-library-import/);
   assert.match(js, /libraryImport/);
-  assert.match(js, /loadProject\(pending\)/);
+  assert.match(js, /loadProject\\(pending\\)/);
+  assert.equal((html.match(/class="sim-top"/g) || []).length, 1);
+  assert.equal((html.match(/class="toolbar"/g) || []).length, 1);
+  const ids = [...html.matchAll(/\\bid="([^"]+)"/g)].map(m => m[1]);
+  assert.equal(ids.length, new Set(ids).size, "HTML IDs must be unique");
+  assert.doesNotMatch(ui, /bar\\.appendChild\\(b\\)/);
+  assert.match(ui, /window\\.VoltProPlatformActions=actions/);
+  assert.match(html, /service-worker\\.js\\?v=20261012a/);
 });
 
 test("colour console accepts standard HEX lengths but not five-digit HEX", () => {
