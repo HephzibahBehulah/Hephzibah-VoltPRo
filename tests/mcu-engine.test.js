@@ -13,3 +13,9 @@ test("INPUT_PULLUP is represented as a digital input mode",()=>{
  const r=MCU.simulate("pinMode(2,INPUT_PULLUP);");
  assert.equal(r.pins["2"].mode,"INPUT_PULLUP");
 });
+
+test("digitalRead if/else branches select the matching output state",()=>{
+ const sketch="pinMode(2,INPUT);pinMode(13,OUTPUT);if(digitalRead(2)==HIGH){digitalWrite(13,HIGH);}else{digitalWrite(13,LOW);}";
+ assert.equal(MCU.simulate(sketch,{inputs:{"2":true}}).pins["13"].voltage,5);
+ assert.equal(MCU.simulate(sketch,{inputs:{"2":false}}).pins["13"].voltage,0);
+});
