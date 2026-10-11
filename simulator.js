@@ -145,6 +145,8 @@ function renderPalette(){const entries=paletteEntries();paletteRenderKey=[cat,se
 function canvasPhoto(c,d){
  const visuals=window.VoltProRealisticDevices;
  const key=visuals?.kind?.(c.type,d.name);
+ // Keep pin-accurate schematic artwork visible: stock photos belong in the palette/panel, not over mapped terminals.
+ if(key==="arduino"||key==="breadboard")return "";
  const url=visuals?.photoCatalog?.[key]?.url;
  if(!url)return "";
  const resistor=key==="resistor",x=resistor?-40:-30,y=resistor?-22:-33,w=resistor?80:60,h=resistor?44:64;
