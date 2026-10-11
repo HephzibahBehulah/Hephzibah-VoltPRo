@@ -10,3 +10,5 @@ test('defines 1P, 2P and 4P breakers as independent switching paths',()=>{const 
 
 test('models an auxiliary contact block with one NO and three NC pairs',()=>{const d=load().definitionFor('auxiliary-contact-block');assert.equal(d.terminals.length,8);assert.equal(d.paths.length,4);assert.equal(JSON.stringify(Array.from(d.paths,p=>p.from+'-'+p.to)),JSON.stringify(['13-14','21-22','31-32','41-42']));assert.equal(d.paths[0].closedWhen,true);assert.ok(d.paths.slice(1).every(p=>p.closedWhen===false))});
 test("three-phase source exposes L1/L2/L3 and neutral terminals",()=>{const d=load().definitionFor("threephase");assert.equal(d.terminals.length,4);assert.deepEqual(Array.from(d.terminals,t=>t.id),["L1","L2","L3","N"])});
+
+test("overload relay exposes three thermal elements and 95/96 plus 97/98 contacts",()=>{const d=load().definitionFor("overload-relay");assert.equal(d.terminals.length,10);assert.equal(d.paths.filter(p=>p.kind==="thermal-element").length,3);assert.ok(d.paths.some(p=>p.id==="aux-nc-95-96"));assert.ok(d.paths.some(p=>p.id==="aux-no-97-98"))});
