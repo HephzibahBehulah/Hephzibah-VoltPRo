@@ -107,6 +107,17 @@
       terminal("11","11",-24,0,{domain:"control"}),terminal("12","12",24,0,{domain:"control"}),terminal("14","14",24,12,{domain:"control"}),
       terminal("21","21",-24,24,{domain:"control"}),terminal("22","22",24,24,{domain:"control"}),terminal("24","24",24,36,{domain:"control"})
     ], paths:[path("coil","A1","A2","coil",{domain:"control"}),path("changeover-1-nc","11","12","switchable",{stateKey:"energized",closedWhen:false,domain:"control"}),path("changeover-1-no","11","14","switchable",{stateKey:"energized",closedWhen:true,domain:"control"}),path("changeover-2-nc","21","22","switchable",{stateKey:"energized",closedWhen:false,domain:"control"}),path("changeover-2-no","21","24","switchable",{stateKey:"energized",closedWhen:true,domain:"control"})] },
+    "overload-relay": { terminals:[
+      terminal("L1","L1",-32,-20,{domain:"ac3",phase:"L1"}),terminal("T1","T1",32,-20,{domain:"ac3",phase:"L1"}),
+      terminal("L2","L2",-32,0,{domain:"ac3",phase:"L2"}),terminal("T2","T2",32,0,{domain:"ac3",phase:"L2"}),
+      terminal("L3","L3",-32,20,{domain:"ac3",phase:"L3"}),terminal("T3","T3",32,20,{domain:"ac3",phase:"L3"}),
+      terminal("95","95",-32,40,{domain:"control"}),terminal("96","96",32,40,{domain:"control"}),
+      terminal("97","97",-32,52,{domain:"control"}),terminal("98","98",32,52,{domain:"control"})
+    ], paths:[
+      path("heater-L1","L1","T1","thermal-element",{phase:"L1"}),path("heater-L2","L2","T2","thermal-element",{phase:"L2"}),path("heater-L3","L3","T3","thermal-element",{phase:"L3"}),
+      path("aux-nc-95-96","95","96","switchable",{stateKey:"tripped",closedWhen:false,domain:"control"}),
+      path("aux-no-97-98","97","98","switchable",{stateKey:"tripped",closedWhen:true,domain:"control"})
+    ] },
     ground: { terminals:[terminal("PE","PE",0,0,{domain:"ground",polarity:"protective-earth"})], paths:[] },
     threephase: { terminals:[terminal("L1","L1",24,-12,{domain:"ac3",phase:"L1"}),terminal("L2","L2",24,0,{domain:"ac3",phase:"L2"}),terminal("L3","L3",24,12,{domain:"ac3",phase:"L3"}),terminal("N","N",-24,24,{domain:"ac3"})], paths:[] },
     motor: { terminals:[terminal("U1","U1",-24,-12,{domain:"ac3",phase:"L1"}),terminal("V1","V1",-24,0,{domain:"ac3",phase:"L2"}),terminal("W1","W1",-24,12,{domain:"ac3",phase:"L3"}),terminal("U2","U2",24,-12,{domain:"ac3"}),terminal("V2","V2",24,0,{domain:"ac3"}),terminal("W2","W2",24,12,{domain:"ac3"}),terminal("PE","PE",0,24,{domain:"ground",polarity:"protective-earth"})], paths:[path("phase-U","U1","U2","motor-winding",{phase:"L1"}),path("phase-V","V1","V2","motor-winding",{phase:"L2"}),path("phase-W","W1","W2","motor-winding",{phase:"L3"})] },
@@ -122,7 +133,7 @@
 
   function definitionFor(type) {
     const normalized = String(type || "").toLowerCase().replace(/[_ ]+/g,"-");
-    const aliases = { "abb-aux-cb-11":"auxiliary-contact-block", arduino:"arduino-uno-r3", uno:"arduino-uno-r3", bb400:"breadboard-bb400", breadboard:"breadboard-bb400", pushbutton:"pushbutton-no", contactor3p:"contactor", motor3phase:"motor", "circuitbreaker":"circuit-breaker", mcb1p:"circuit-breaker-1p", "mcb-1p":"circuit-breaker-1p", "1-pole-mcb":"circuit-breaker-1p", mcb2p:"circuit-breaker-2p", "mcb-2p":"circuit-breaker-2p", "2-pole-mcb":"circuit-breaker-2p", mcb3p:"circuit-breaker-3p", "3-pole-mcb":"circuit-breaker-3p", "mcb-3p":"circuit-breaker-3p", mcb4p:"circuit-breaker-4p", "mcb-4p":"circuit-breaker-4p", "4-pole-mcb":"circuit-breaker-4p", "terminalblock":"terminal-block", "plc-input-module":"plc-input", "plc-output-module":"plc-output", sensor:"sensor", lamp:"lamp", voltmeter:"measurement-instrument", ammeter:"measurement-instrument", multimeter:"measurement-instrument" };
+    const aliases = { "abb-aux-cb-11":"auxiliary-contact-block", "industrial-industrial-overload-relay":"overload-relay", "thermal-overload-relay":"overload-relay", arduino:"arduino-uno-r3", uno:"arduino-uno-r3", bb400:"breadboard-bb400", breadboard:"breadboard-bb400", pushbutton:"pushbutton-no", contactor3p:"contactor", motor3phase:"motor", "circuitbreaker":"circuit-breaker", mcb1p:"circuit-breaker-1p", "mcb-1p":"circuit-breaker-1p", "1-pole-mcb":"circuit-breaker-1p", mcb2p:"circuit-breaker-2p", "mcb-2p":"circuit-breaker-2p", "2-pole-mcb":"circuit-breaker-2p", mcb3p:"circuit-breaker-3p", "3-pole-mcb":"circuit-breaker-3p", "mcb-3p":"circuit-breaker-3p", mcb4p:"circuit-breaker-4p", "mcb-4p":"circuit-breaker-4p", "4-pole-mcb":"circuit-breaker-4p", "terminalblock":"terminal-block", "plc-input-module":"plc-input", "plc-output-module":"plc-output", sensor:"sensor", lamp:"lamp", voltmeter:"measurement-instrument", ammeter:"measurement-instrument", multimeter:"measurement-instrument" };
     const def = DEFINITIONS[aliases[normalized] || normalized];
     return def ? clone(def) : null;
   }
