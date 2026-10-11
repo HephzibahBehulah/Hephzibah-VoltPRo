@@ -56,3 +56,8 @@ test("catalog combinational logic gates expose A/B/Y and NOT exposes A/Y",()=>{
  for(const id of ["logic-logic-and","logic-logic-or","logic-logic-nand","logic-logic-nor","logic-logic-xor","logic-logic-xnor"])assert.equal(T.definitionFor(id).terminals.map(t=>t.id).join(","),"A,B,Y",id);
  assert.equal(T.definitionFor("logic-logic-not").terminals.map(t=>t.id).join(","),"A,Y");
 });
+
+test("catalog comparator and Schmitt trigger expose A/B/Y terminals",()=>{
+ const T=load();
+ for(const id of ["logic-logic-comparator","logic-logic-schmitt"])assert.equal(T.definitionFor(id).terminals.map(t=>t.id).join(","),"A,B,Y",id);
+});
