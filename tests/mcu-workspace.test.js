@@ -26,7 +26,8 @@ test("MCU runner lifecycle clears timers and supports a changing tick interval",
 
 test("simulator and breadboard load the current MCU workspace and engine assets",()=>{
   for(const page of [simulator,breadboard]){
-    assert.match(page,/platform\/mcu-engine\.js\?v=20261013a/);\n    assert.match(page,/platform\/mcu-circuit-bridge\.js\?v=20261013a/);
+    assert.match(page,/platform\/mcu-engine\.js\?v=20261013a/);
+    assert.match(page,/platform\/mcu-circuit-bridge\.js\?v=20261013a/);
     assert.match(page,/platform\/mcu-lab-ui\.js\?v=20261013a/);
   }
 });
