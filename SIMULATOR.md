@@ -9,6 +9,7 @@ VoltPRo Simulator is the interactive simulation workspace for VoltPRo Academy.
 - Switch, source, resistor, lamp, LED, motor, heater, fuse, breaker and protection models.
 - Balanced three-phase AC source with L1/L2/L3/N terminals, complex phasor MNA analysis, phase-neutral motor winding currents, and voltage-driven contactor poles.
 - DC direct-on-line control circuits with normally-open/normally-closed pushbuttons, contactor auxiliary seal-in contacts, and stop-button drop-out.
+- Three-phase thermal overload relay with current-threshold trip, latched 95/96 NC and 97/98 NO auxiliary contacts, and contactor drop-out through the control circuit.
 - Undo/redo, project persistence, `.voltpro` JSON export/import.
 - Component registry designed for progressive expansion.
 - Explicit 1P/2P/3P/4P breaker pole paths and an ABB AUX-CB-11 front auxiliary contact block (1NO + 3NC).
