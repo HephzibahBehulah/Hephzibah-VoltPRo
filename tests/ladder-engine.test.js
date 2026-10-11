@@ -43,6 +43,7 @@ test("invalid ladder programs return a diagnostic instead of silently producing 
 test("TP timer emits a pulse for the preset scan duration",()=>{
  const p={rungs:[{id:"pulse",contacts:[{address:"I0",type:"NO"}],coils:[{address:"Q0",type:"TP",presetMs:200}]}]};
  let r=ladder.scan(p,{I0:true},{},{dtMs:100});assert.equal(r.outputs.Q0,true);
+ r=ladder.scan(p,{I0:true},r.state,{dtMs:100});assert.equal(r.outputs.Q0,true);
  r=ladder.scan(p,{I0:true},r.state,{dtMs:100});assert.equal(r.outputs.Q0,false);
  r=ladder.scan(p,{I0:false},r.state,{dtMs:100});assert.equal(r.outputs.Q0,false);
  r=ladder.scan(p,{I0:true},r.state,{dtMs:100});assert.equal(r.outputs.Q0,true,"a new rising edge should start another pulse");
