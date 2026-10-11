@@ -42,7 +42,7 @@ function scan(program,inputs={},previousState={},options={}){
     let elapsed=old.elapsedMs,done=false;
     if(kind==="TON"){elapsed=powered?Math.min(preset,elapsed+dt):0;done=powered&&elapsed>=preset}
     else if(kind==="TOF"){elapsed=powered?0:old.done?Math.min(preset,elapsed+dt):preset;done=powered||elapsed<preset}
-    else {elapsed=powered&&!old.triggered?0:old.elapsedMs;done=powered&&elapsed<preset; if(powered&&!old.triggered)elapsed=0; if(!powered)elapsed=preset; }
+    else {const rising=powered&&!old.triggered;if(rising)elapsed=0;else if(old.done)elapsed=Math.min(preset,elapsed+dt);else elapsed=preset;done=elapsed<preset&&(rising||old.done)}
     state.timers[key]={elapsedMs:elapsed,done,triggered:powered};
     writeBit(tag,done,state);
    }
@@ -57,7 +57,7 @@ function scan(program,inputs={},previousState={},options={}){
    else writeBit(tag,powered,state);
   }
   state.rungPower[rungKey]=powered;
-  rungResults.push({id:rung.id??String(rungResults.length),powered,branches:branchResults,coils:coils.map(c=>({address:address(c.address??c.tag??c.output),energized:bit(state.outputs[address(c.address??c.tag??c.output)]),type:String(c.type??c.kind??"COIL").toUpperCase()}))});
+  rungResults.push({id:rung.id??String(rungResults.length),powered,branches:branchResults,coils:coils.map(c=>({address:address(c.address??c.tag??c.output),energized:readBit(address(c.address??c.tag??c.output),inputs,state),type:String(c.type??c.kind??"COIL").toUpperCase()}))});
  }
  state.previousBits={...currentBits};
  return {ok:true,outputs:{...state.outputs},memory:{...state.memory},timers:{...state.timers},counters:{...state.counters},rungs:rungResults,state};
