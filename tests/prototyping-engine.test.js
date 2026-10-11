@@ -255,3 +255,13 @@ test("Arduino digitalRead input voltage changes the output pin in the live circu
  assert.equal(low.deviceStates.UNO.pins["13"].voltage,0);
  assert.ok(Math.abs(low.branches.find(b=>b.id==="R1").current)<1e-9);
 });
+
+test("Arduino delay loop changes a wired output as live solver ticks advance",()=>{
+ const sketch="void setup(){pinMode(13,OUTPUT);}void loop(){digitalWrite(13,HIGH);delay(100);digitalWrite(13,LOW);delay(100);}";
+ const p={components:[comp("UNO","arduino-uno-r3",38,{logicVoltage:5,scanTimeMs:50,sketch}),comp("R1","resistor",2,{resistance:220})],wires:[wire("UNO:13","R1:0"),wire("R1:1","UNO:15")]};
+ let r=E.analyze(p,{dc:{scanTimeMs:50}}).dc;
+ assert.equal(r.ok,true,JSON.stringify(r));assert.equal(r.deviceStates.UNO.pins["13"].voltage,5);assert.ok(r.branches.find(b=>b.id==="R1").current>.02);
+ p.components.find(c=>c.id==="UNO").state={...r.deviceStates.UNO};
+ r=E.analyze(p,{dc:{scanTimeMs:50}}).dc;
+ assert.equal(r.ok,true,JSON.stringify(r));assert.equal(r.deviceStates.UNO.pins["13"].voltage,0);assert.ok(Math.abs(r.branches.find(b=>b.id==="R1").current)<1e-9);
+});
