@@ -238,7 +238,7 @@ function operatingPoint(project,options={}){
 }
 function dc(project,options={}){return operatingPoint(project,options)}
 function ac(project,{start=1,stop=1e5,points=50,frequency=50,groundRef}={}){
- const freqs=points<=1?[frequency]:Array.from({length:points},(_,i)=>start*Math.pow(stop/start,i/(points-1))),rows=[];const ladderAdvanced=new Set();
+ const freqs=points<=1?[frequency]:Array.from({length:points},(_,i)=>start*Math.pow(stop/start,i/(points-1))),rows=[];const ladderAdvanced=new Set(),mcuAdvanced=new Set();
  for(const f of freqs){
   const scale=2*Math.PI*f;let stateOverrides={},b,result;
   // Resolve coil state from AC RMS phasor voltage, then solve the changed network.
