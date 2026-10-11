@@ -80,3 +80,31 @@ test("independent current sources stamp without creating floating voltage-source
  assert.ok(Math.abs(result.branches.find(b=>b.id==="R1").current-.012)<1e-9);
  assert.ok(Math.abs(result.totalCurrent-.022)<1e-8);
 });
+
+test("DOL control circuit seals in through the contactor auxiliary NO contact and stops on NC stop",()=>{
+ const p={components:[
+  comp("CS1","controlsource",2,{voltage:24}),comp("V1","battery",2,{voltage:230}),
+  comp("S0","pushbutton-nc",2,{pressed:false}),comp("S1","pushbutton-no",2,{pressed:true}),
+  comp("KM1","contactor",12,{coilVoltage:24,coilResistance:100}),comp("R1","resistor",2,{resistance:100})
+ ],wires:[
+  wire("CS1:0","S0:0"),wire("S0:1","S1:0"),wire("S0:1","KM1:8"),
+  wire("S1:1","KM1:0"),wire("KM1:9","KM1:0"),wire("KM1:1","CS1:1"),
+  wire("CS1:1","V1:1"),wire("V1:0","KM1:2"),wire("KM1:3","R1:0"),wire("R1:1","V1:1")
+ ]};
+ const started=E.analyze(p).dc;
+ assert.equal(started.ok,true,JSON.stringify(started));
+ assert.equal(started.deviceStates.KM1,true,"start pushbutton should energize contactor");
+ assert.ok(started.branches.find(b=>b.id==="R1").current>2,"main pole should feed the load");
+ p.components.find(c=>c.id==="KM1").state={energized:started.deviceStates.KM1};
+ p.components.find(c=>c.id==="S1").props.pressed=false;
+ const held=E.analyze(p).dc;
+ assert.equal(held.ok,true,JSON.stringify(held));
+ assert.equal(held.deviceStates.KM1,true,"auxiliary NO contact should hold the coil after start is released");
+ assert.ok(held.branches.find(b=>b.id==="R1").current>2);
+ p.components.find(c=>c.id==="KM1").state={energized:held.deviceStates.KM1};
+ p.components.find(c=>c.id==="S0").props.pressed=true;
+ const stopped=E.analyze(p).dc;
+ assert.equal(stopped.ok,true,JSON.stringify(stopped));
+ assert.equal(stopped.deviceStates.KM1,false,"stop NC contact should drop out the coil");
+ assert.ok(Math.abs(stopped.branches.find(b=>b.id==="R1").current)<1e-8,"main poles should open after stop");
+});
