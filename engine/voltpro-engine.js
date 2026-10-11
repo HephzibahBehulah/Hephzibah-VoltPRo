@@ -75,6 +75,17 @@ function build(project,options={}){
    for(const winding of definition?.paths||[]){if(winding.kind!=="motor-winding")continue;const a=index.get(String(winding.from)),b=index.get(String(winding.to));if(!a||!b||!wired.has(a)||!wired.has(b))continue;addBranch(x,a,b,"resistor",{R:Math.max(EPS,value(x,["windingResistance","resistance"],24)),contactId:winding.id,phase:winding.phase||null})}
    continue;
   }
+  if(["overload_relay","thermal_overload_relay","industrial_industrial_overload_relay"].includes(ty)){
+   const index=new Map((definition?.terminals||[]).map((t,i)=>[String(t.id),p[i]]));
+   const tripped=Boolean(options.stateOverrides?.[x.id]?.tripped??x.state?.tripped??x.props?.tripped??false);
+   for(const contact of definition?.paths||[]){const a=index.get(String(contact.from)),b=index.get(String(contact.to));if(!a||!b||!wired.has(a)||!wired.has(b))continue;
+    if(contact.kind==="thermal-element"){addBranch(x,a,b,"resistor",{R:Math.max(EPS,value(x,["heaterResistance","elementResistance"],.01)),contactId:contact.id,phase:contact.phase||null,thermal:true});continue}
+    if(contact.kind!=="switchable")continue;
+    const closed=Boolean(tripped)===Boolean(contact.closedWhen??true);
+    addBranch(x,a,b,"resistor",{R:closed?Math.max(EPS,value(x,["onResistance"],1e-6)):Math.max(EPS,value(x,["offResistance"],3e10)),contactId:contact.id});
+   }
+   continue;
+  }
   if(definition?.paths?.some(contact=>contact.kind==="switchable")){
    const index=new Map((definition.terminals||[]).map((t,i)=>[String(t.id),p[i]]));
    for(const contact of definition.paths){if(contact.kind!=="switchable")continue;const a=index.get(String(contact.from)),b=index.get(String(contact.to));if(!a||!b||!wired.has(a)||!wired.has(b))continue;
@@ -156,6 +167,7 @@ function operatingPoint(project,options={}){
   const nodeVoltage=n=>n===0?0:(result.x[n-1]?.re||0);
   let changed=false;
   for(const q of b.branches){if(!q.coil)continue;const coilVoltage=Math.abs(nodeVoltage(q.a)-nodeVoltage(q.b));const rated=Math.max(EPS,value(q.comp,["coilVoltage","ratedCoilVoltage"],q.comp.type==="contactor"?230:24));const next=coilVoltage>=rated*0.8;const previous=Boolean(stateOverrides[q.comp.id]??q.comp.state?.energized??q.comp.props?.energized??false);if(next!==previous){stateOverrides[q.comp.id]=next;changed=true}else if(stateOverrides[q.comp.id]===undefined){stateOverrides[q.comp.id]=next}}
+  for(const device of b.comps){if(!["overload_relay","thermal_overload_relay","industrial_industrial_overload_relay"].includes(typeOf(device)))continue;const alreadyTripped=Boolean(stateOverrides[device.id]?.tripped??device.state?.tripped??device.props?.tripped??false);if(alreadyTripped){if(stateOverrides[device.id]===undefined)stateOverrides[device.id]={tripped:true};continue}const peak=(b.branches.filter(q=>q.comp.id===device.id&&q.thermal).reduce((max,q)=>Math.max(max,Math.abs(nodeVoltage(q.a)-nodeVoltage(q.b))/q.R),0)),rated=Math.max(EPS,value(device,["ratedCurrent","currentRating","setting"],10)),multiplier=Math.max(1,value(device,["tripMultiplier"],1.05));if(peak>rated*multiplier){stateOverrides[device.id]={tripped:true};changed=true}else if(stateOverrides[device.id]===undefined)stateOverrides[device.id]={tripped:false}}
   if(!changed)break;
  }
  const nodeVoltage=n=>n===0?0:(result.x[n-1]?.re||0);
@@ -177,9 +189,10 @@ function ac(project,{start=1,stop=1e5,points=50,frequency=50,groundRef}={}){
    if(!result.ok)return {ok:false,analysis:"AC sweep",error:result.error};
    const nodeV=n=>n===0?C():result.x[n-1]||C();let changed=false;
    for(const q of b.branches){if(!q.coil)continue;const coilVoltage=mag(sub(nodeV(q.a),nodeV(q.b))),rated=Math.max(EPS,value(q.comp,["coilVoltage","ratedCoilVoltage"],q.comp.type==="contactor"?230:24)),next=coilVoltage>=rated*.8,previous=Boolean(stateOverrides[q.comp.id]??q.comp.state?.energized??q.comp.props?.energized??false);if(next!==previous){stateOverrides[q.comp.id]=next;changed=true}else if(stateOverrides[q.comp.id]===undefined)stateOverrides[q.comp.id]=next}
+   for(const device of b.comps){if(!["overload_relay","thermal_overload_relay","industrial_industrial_overload_relay"].includes(typeOf(device)))continue;const alreadyTripped=Boolean(stateOverrides[device.id]?.tripped??device.state?.tripped??device.props?.tripped??false);if(alreadyTripped){if(stateOverrides[device.id]===undefined)stateOverrides[device.id]={tripped:true};continue}const peak=b.branches.filter(q=>q.comp.id===device.id&&q.thermal).reduce((max,q)=>Math.max(max,mag(div(sub(nodeV(q.a),nodeV(q.b)),C(q.R)))),0),rated=Math.max(EPS,value(device,["ratedCurrent","currentRating","setting"],10)),multiplier=Math.max(1,value(device,["tripMultiplier"],1.05));if(peak>rated*multiplier){stateOverrides[device.id]={tripped:true};changed=true}else if(stateOverrides[device.id]===undefined)stateOverrides[device.id]={tripped:false}}
    if(!changed)break;
   }
-  const x=result.x,nodeV=n=>n===0?C():x[n-1]||C(),vs=b.voltageSources[0],vout=vs?sub(nodeV(vs.a),nodeV(vs.b)):C(),z=vs&&x[b.N]?div(vout,x[b.N]):C(Infinity,0);
+  const x=result.x,nodeV=n=>n===0?C():x[n-1]||C(),vs=b.voltageSources[0],vout=vs?sub(nodeV(vs.a),nodeV(vs.b)):C(),z=vs&&x[b.N]&&mag(x[b.N])>EPS?div(vout,x[b.N]):C(Infinity,0);
   const branches=b.branches.map(q=>{
    const v=sub(nodeV(q.a),nodeV(q.b));let i=C();
    if(q.kind==="resistor")i=div(v,C(q.R));
