@@ -5,10 +5,11 @@ const vm = require("node:vm");
 
 function loadAdapters() {
   const window = { defs: { resistor: { pins: 2 }, battery: { pins: 2 } } };
-  const context = { window, structuredClone, Map, Set, String, Number, Array, Boolean, Object, JSON, Date, Error };
+  const context = { window, structuredClone, Map, Set, String, Number, Array, Boolean, Object, JSON, Date, Error, Math };
   vm.createContext(context);
   vm.runInContext(fs.readFileSync("platform/v5-runtime.js", "utf8"), context);
   vm.runInContext(fs.readFileSync("platform/project-format.js", "utf8"), context);
+  window.__voltproTestContext = context;
   return window;
 }
 
@@ -63,4 +64,28 @@ test("canonical v5 project converts back to the legacy canvas endpoint conventio
   assert.equal(legacy.wires[0].width, 4);
   assert.equal(legacy.wireStyle.cableType, "flexible");
   assert.deepEqual(JSON.parse(JSON.stringify(legacy.viewport)), { zoom: 1.2, pan: { x: 5, y: 6 } });
+});
+
+test("canonical import preserves connectivity through the legacy MNA solver", () => {
+  const window = loadAdapters();
+  const context = window.__voltproTestContext;
+  assert.ok(context, "adapter VM context should be available");
+  vm.runInContext(fs.readFileSync("engine/voltpro-engine.js", "utf8"), context);
+  const canonical = window.VoltProProject.normalize({
+    version: 5,
+    devices: [
+      { id: "V1", type: "battery", terminals: [{ id: "+", label: "+" }, { id: "-", label: "-" }], position: { x: 0, y: 0 }, parameters: { voltage: 12 } },
+      { id: "R1", type: "resistor", terminals: [{ id: "1", label: "1" }, { id: "2", label: "2" }], position: { x: 100, y: 0 }, parameters: { resistance: 1000 } }
+    ],
+    wires: [
+      { id: "W1", from: "V1:+", to: "R1:1" },
+      { id: "W2", from: "R1:2", to: "V1:-" }
+    ]
+  });
+  const legacy = window.VoltProProject.toLegacy(canonical);
+  const result = context.window.VoltProEngine.dc({ components: legacy.components, wires: legacy.wires });
+  assert.equal(result.ok, true, JSON.stringify(result));
+  const resistor = result.branches.find(branch => branch.id === "R1");
+  assert.ok(resistor, "imported resistor must be present in solver results");
+  assert.ok(Math.abs(resistor.current - 0.012) < 1e-8, "12 V / 1 kΩ should draw 12 mA after canonical import");
 });
