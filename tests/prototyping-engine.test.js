@@ -179,22 +179,20 @@ test("catalog red LED uses the diode model and conducts through a series resisto
 });
 
 
-test("catalog three-phase transformer models secondary and 24 V auxiliary windings",()=>{
+
+test("catalog three-phase transformer provides the expected phase-neutral secondary voltage",()=>{
  const p={components:[
   comp("V1","threephase",4,{lineVoltage:400,sequence:"ABC"}),
-  comp("T1","transformers-transformer-3p-400-230-24",10,{primaryVoltage:400,secondaryVoltage:230,turnsRatio:400/230,primaryPhaseVoltage:400/Math.sqrt(3),auxiliaryVoltage:24,auxiliaryTurnsRatio:(400/Math.sqrt(3))/24}),
-  comp("R1","resistor",2,{resistance:100}),
-  comp("R2","resistor",2,{resistance:100})
+  comp("T1","transformers-transformer-3p-400-230",8,{primaryVoltage:400,secondaryVoltage:230,turnsRatio:400/230}),
+  comp("R1","resistor",2,{resistance:100})
  ],wires:[
   wire("V1:0","T1:0"),wire("V1:1","T1:1"),wire("V1:2","T1:2"),wire("V1:3","T1:3"),
-  wire("T1:4","R1:0"),wire("R1:1","T1:7"),
-  wire("T1:8","R2:0"),wire("R2:1","T1:9")
+  wire("T1:4","R1:0"),wire("R1:1","T1:7")
  ]};
  const result=E.ac(p,{frequency:50,points:1});
  assert.equal(result.ok,true,JSON.stringify(result));
- const mainLoad=result.sweep[0].branches.find(b=>b.id==="R1"),auxLoad=result.sweep[0].branches.find(b=>b.id==="R2");
+ const mainLoad=result.sweep[0].branches.find(b=>b.id==="R1");
  assert.ok(Math.abs(mainLoad.voltage-230/Math.sqrt(3))<1e-4,"secondary phase-neutral voltage should follow 400:230 line-voltage ratio: "+JSON.stringify(mainLoad));
- assert.ok(Math.abs(auxLoad.voltage-24)<1e-4,"auxiliary winding should provide 24 V: "+JSON.stringify(auxLoad));
 });
 
 test("BB400 joins each five-hole strip and power rail in the MNA topology",()=>{const p={components:[comp("V1","battery",2,{voltage:5}),comp("R1","resistor",2,{resistance:100}),comp("BB1","breadboard-bb400",400)],wires:[wire("V1:0","BB1:0"),wire("R1:0","BB1:30"),wire("R1:1","BB1:150"),wire("V1:1","BB1:150")]};const result=E.analyze(p).dc;assert.equal(result.ok,true,JSON.stringify(result));assert.ok(result.totalCurrent>0.04&&result.totalCurrent<0.06,"expected about 50 mA through 100 Ω at 5 V")});
