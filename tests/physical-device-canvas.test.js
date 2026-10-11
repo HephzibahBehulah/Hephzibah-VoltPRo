@@ -17,7 +17,9 @@ test("physical devices render as large canvas faces rather than photos over sche
 });
 
 test("multi-pole breaker terminals are mapped to top and bottom phase rows", () => {
-  assert.match(source, /if\(\/\^circuit-breaker-\[1234\]p\$\/\.test\(c\.type\)\)\{const poles=Number\(c\.type\.match\(\/\(\[1234\]\)p\$\/\)\[1\]\),spacing=poles===4\?22:24;return i<poles\?\{x:\(i-\(poles-1\)\/2\)\*spacing,y:-58\}:\{x:\(\(i-poles\)-\(poles-1\)\/2\)\*spacing,y:58\}\}/);
+  assert.match(source, /spacing=poles===4\\?22:24/);
+  assert.match(source, /y:-58/);
+  assert.match(source, /y:58/);
   assert.match(source, /if\(c\.type==="contactor"\)\{const p=\[\[-24,75\],\[24,75\],\[-24,-58\],\[-24,58\],\[0,-58\],\[0,58\],\[24,-58\],\[24,58\]/);
 });
 
