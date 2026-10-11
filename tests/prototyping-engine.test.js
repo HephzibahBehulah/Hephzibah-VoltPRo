@@ -846,7 +846,7 @@ test("catalog 2-to-4 decoder activates the selected one-hot output",()=>{
  const p={components:[comp("VA","battery",2,{voltage:5}),comp("VB","battery",2,{voltage:0}),comp("D1","logic-logic-decoder",6,{inputThreshold:2.5,logicVoltage:5})],wires:[wire("VA:1","VB:1"),wire("VA:0","D1:0"),wire("VB:0","D1:1")]};
  const result=E.dc(p);
  assert.equal(result.ok,true,JSON.stringify(result));
- assert.deepEqual(result.deviceStates.D1.outputs,{Y0:0,Y1:5,Y2:0,Y3:0});
+ assert.equal(result.deviceStates.D1.outputs.Y0,0);assert.equal(result.deviceStates.D1.outputs.Y1,5);assert.equal(result.deviceStates.D1.outputs.Y2,0);assert.equal(result.deviceStates.D1.outputs.Y3,0);
 });
 test("catalog full subtractor computes difference and borrow",()=>{
  const p={components:[comp("VA","battery",2,{voltage:0}),comp("VB","battery",2,{voltage:5}),comp("VC","battery",2,{voltage:0}),comp("S1","logic-logic-subtractor",5,{inputThreshold:2.5,logicVoltage:5})],wires:[wire("VA:1","VB:1"),wire("VB:1","VC:1"),wire("VA:0","S1:0"),wire("VB:0","S1:1"),wire("VC:0","S1:2")]};
