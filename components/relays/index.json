@@ -10,12 +10,36 @@
       "category": "relays",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "A1",
+          "name": "Coil A1"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "A2",
+          "name": "Coil A2"
+        },
+        {
+          "id": "11",
+          "name": "Common 1"
+        },
+        {
+          "id": "12",
+          "name": "NC 1"
+        },
+        {
+          "id": "14",
+          "name": "NO 1"
+        },
+        {
+          "id": "21",
+          "name": "Common 2"
+        },
+        {
+          "id": "22",
+          "name": "NC 2"
+        },
+        {
+          "id": "24",
+          "name": "NO 2"
         }
       ],
       "parameters": {
@@ -36,6 +60,38 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "coilVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 24,
+          "min": 1,
+          "max": 1000
+        },
+        "coilResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 240,
+          "min": 1,
+          "max": 100000
+        },
+        "energized": {
+          "type": "boolean",
+          "default": false
+        },
+        "onResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 0.000001,
+          "min": 0.000001,
+          "max": 1
+        },
+        "offResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 30000000000,
+          "min": 1,
+          "max": 1000000000000
         }
       },
       "ratings": {
@@ -52,15 +108,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "relay",
+        "engine": "VoltPRo MNA electromechanical",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "relay",
         "states": [
-          "enabled",
-          "disabled"
+          "deenergized",
+          "energized"
         ]
       },
       "faultModes": [
@@ -82,12 +138,36 @@
       "category": "relays",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "A1",
+          "name": "Coil A1"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "A2",
+          "name": "Coil A2"
+        },
+        {
+          "id": "11",
+          "name": "Common 1"
+        },
+        {
+          "id": "12",
+          "name": "NC 1"
+        },
+        {
+          "id": "14",
+          "name": "NO 1"
+        },
+        {
+          "id": "21",
+          "name": "Common 2"
+        },
+        {
+          "id": "22",
+          "name": "NC 2"
+        },
+        {
+          "id": "24",
+          "name": "NO 2"
         }
       ],
       "parameters": {
@@ -108,6 +188,38 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "coilVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 24,
+          "min": 1,
+          "max": 1000
+        },
+        "coilResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 240,
+          "min": 1,
+          "max": 100000
+        },
+        "energized": {
+          "type": "boolean",
+          "default": false
+        },
+        "onResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 0.000001,
+          "min": 0.000001,
+          "max": 1
+        },
+        "offResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 30000000000,
+          "min": 1,
+          "max": 1000000000000
         }
       },
       "ratings": {
@@ -124,15 +236,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "relay",
+        "engine": "VoltPRo MNA electromechanical",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "relay",
         "states": [
-          "enabled",
-          "disabled"
+          "deenergized",
+          "energized"
         ]
       },
       "faultModes": [
@@ -154,12 +266,36 @@
       "category": "relays",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "A1",
+          "name": "Coil A1"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "A2",
+          "name": "Coil A2"
+        },
+        {
+          "id": "11",
+          "name": "Common 1"
+        },
+        {
+          "id": "12",
+          "name": "NC 1"
+        },
+        {
+          "id": "14",
+          "name": "NO 1"
+        },
+        {
+          "id": "21",
+          "name": "Common 2"
+        },
+        {
+          "id": "22",
+          "name": "NC 2"
+        },
+        {
+          "id": "24",
+          "name": "NO 2"
         }
       ],
       "parameters": {
@@ -180,6 +316,38 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "coilVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 48,
+          "min": 1,
+          "max": 1000
+        },
+        "coilResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 240,
+          "min": 1,
+          "max": 100000
+        },
+        "energized": {
+          "type": "boolean",
+          "default": false
+        },
+        "onResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 0.000001,
+          "min": 0.000001,
+          "max": 1
+        },
+        "offResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 30000000000,
+          "min": 1,
+          "max": 1000000000000
         }
       },
       "ratings": {
@@ -196,15 +364,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "relay",
+        "engine": "VoltPRo MNA electromechanical",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "relay",
         "states": [
-          "enabled",
-          "disabled"
+          "deenergized",
+          "energized"
         ]
       },
       "faultModes": [
@@ -226,12 +394,36 @@
       "category": "relays",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "A1",
+          "name": "Coil A1"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "A2",
+          "name": "Coil A2"
+        },
+        {
+          "id": "11",
+          "name": "Common 1"
+        },
+        {
+          "id": "12",
+          "name": "NC 1"
+        },
+        {
+          "id": "14",
+          "name": "NO 1"
+        },
+        {
+          "id": "21",
+          "name": "Common 2"
+        },
+        {
+          "id": "22",
+          "name": "NC 2"
+        },
+        {
+          "id": "24",
+          "name": "NO 2"
         }
       ],
       "parameters": {
@@ -252,6 +444,38 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "coilVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 48,
+          "min": 1,
+          "max": 1000
+        },
+        "coilResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 240,
+          "min": 1,
+          "max": 100000
+        },
+        "energized": {
+          "type": "boolean",
+          "default": false
+        },
+        "onResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 0.000001,
+          "min": 0.000001,
+          "max": 1
+        },
+        "offResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 30000000000,
+          "min": 1,
+          "max": 1000000000000
         }
       },
       "ratings": {
@@ -268,15 +492,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "relay",
+        "engine": "VoltPRo MNA electromechanical",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "relay",
         "states": [
-          "enabled",
-          "disabled"
+          "deenergized",
+          "energized"
         ]
       },
       "faultModes": [
@@ -298,12 +522,36 @@
       "category": "relays",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "A1",
+          "name": "Coil A1"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "A2",
+          "name": "Coil A2"
+        },
+        {
+          "id": "11",
+          "name": "Common 1"
+        },
+        {
+          "id": "12",
+          "name": "NC 1"
+        },
+        {
+          "id": "14",
+          "name": "NO 1"
+        },
+        {
+          "id": "21",
+          "name": "Common 2"
+        },
+        {
+          "id": "22",
+          "name": "NC 2"
+        },
+        {
+          "id": "24",
+          "name": "NO 2"
         }
       ],
       "parameters": {
@@ -324,6 +572,38 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "coilVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 110,
+          "min": 1,
+          "max": 1000
+        },
+        "coilResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 240,
+          "min": 1,
+          "max": 100000
+        },
+        "energized": {
+          "type": "boolean",
+          "default": false
+        },
+        "onResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 0.000001,
+          "min": 0.000001,
+          "max": 1
+        },
+        "offResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 30000000000,
+          "min": 1,
+          "max": 1000000000000
         }
       },
       "ratings": {
@@ -340,15 +620,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "relay",
+        "engine": "VoltPRo MNA electromechanical",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "relay",
         "states": [
-          "enabled",
-          "disabled"
+          "deenergized",
+          "energized"
         ]
       },
       "faultModes": [
@@ -370,12 +650,36 @@
       "category": "relays",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "A1",
+          "name": "Coil A1"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "A2",
+          "name": "Coil A2"
+        },
+        {
+          "id": "11",
+          "name": "Common 1"
+        },
+        {
+          "id": "12",
+          "name": "NC 1"
+        },
+        {
+          "id": "14",
+          "name": "NO 1"
+        },
+        {
+          "id": "21",
+          "name": "Common 2"
+        },
+        {
+          "id": "22",
+          "name": "NC 2"
+        },
+        {
+          "id": "24",
+          "name": "NO 2"
         }
       ],
       "parameters": {
@@ -396,6 +700,38 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "coilVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 110,
+          "min": 1,
+          "max": 1000
+        },
+        "coilResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 240,
+          "min": 1,
+          "max": 100000
+        },
+        "energized": {
+          "type": "boolean",
+          "default": false
+        },
+        "onResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 0.000001,
+          "min": 0.000001,
+          "max": 1
+        },
+        "offResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 30000000000,
+          "min": 1,
+          "max": 1000000000000
         }
       },
       "ratings": {
@@ -412,15 +748,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "relay",
+        "engine": "VoltPRo MNA electromechanical",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "relay",
         "states": [
-          "enabled",
-          "disabled"
+          "deenergized",
+          "energized"
         ]
       },
       "faultModes": [
@@ -442,12 +778,36 @@
       "category": "relays",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "A1",
+          "name": "Coil A1"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "A2",
+          "name": "Coil A2"
+        },
+        {
+          "id": "11",
+          "name": "Common 1"
+        },
+        {
+          "id": "12",
+          "name": "NC 1"
+        },
+        {
+          "id": "14",
+          "name": "NO 1"
+        },
+        {
+          "id": "21",
+          "name": "Common 2"
+        },
+        {
+          "id": "22",
+          "name": "NC 2"
+        },
+        {
+          "id": "24",
+          "name": "NO 2"
         }
       ],
       "parameters": {
@@ -468,6 +828,38 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "coilVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 230,
+          "min": 1,
+          "max": 1000
+        },
+        "coilResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 240,
+          "min": 1,
+          "max": 100000
+        },
+        "energized": {
+          "type": "boolean",
+          "default": false
+        },
+        "onResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 0.000001,
+          "min": 0.000001,
+          "max": 1
+        },
+        "offResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 30000000000,
+          "min": 1,
+          "max": 1000000000000
         }
       },
       "ratings": {
@@ -484,15 +876,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "relay",
+        "engine": "VoltPRo MNA electromechanical",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "relay",
         "states": [
-          "enabled",
-          "disabled"
+          "deenergized",
+          "energized"
         ]
       },
       "faultModes": [
@@ -514,12 +906,36 @@
       "category": "relays",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "A1",
+          "name": "Coil A1"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "A2",
+          "name": "Coil A2"
+        },
+        {
+          "id": "11",
+          "name": "Common 1"
+        },
+        {
+          "id": "12",
+          "name": "NC 1"
+        },
+        {
+          "id": "14",
+          "name": "NO 1"
+        },
+        {
+          "id": "21",
+          "name": "Common 2"
+        },
+        {
+          "id": "22",
+          "name": "NC 2"
+        },
+        {
+          "id": "24",
+          "name": "NO 2"
         }
       ],
       "parameters": {
@@ -540,6 +956,38 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "coilVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 230,
+          "min": 1,
+          "max": 1000
+        },
+        "coilResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 240,
+          "min": 1,
+          "max": 100000
+        },
+        "energized": {
+          "type": "boolean",
+          "default": false
+        },
+        "onResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 0.000001,
+          "min": 0.000001,
+          "max": 1
+        },
+        "offResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 30000000000,
+          "min": 1,
+          "max": 1000000000000
         }
       },
       "ratings": {
@@ -556,15 +1004,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "relay",
+        "engine": "VoltPRo MNA electromechanical",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "relay",
         "states": [
-          "enabled",
-          "disabled"
+          "deenergized",
+          "energized"
         ]
       },
       "faultModes": [
@@ -874,12 +1322,36 @@
       "category": "relays",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "A1",
+          "name": "Coil A1"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "A2",
+          "name": "Coil A2"
+        },
+        {
+          "id": "11",
+          "name": "Common 1"
+        },
+        {
+          "id": "12",
+          "name": "NC 1"
+        },
+        {
+          "id": "14",
+          "name": "NO 1"
+        },
+        {
+          "id": "21",
+          "name": "Common 2"
+        },
+        {
+          "id": "22",
+          "name": "NC 2"
+        },
+        {
+          "id": "24",
+          "name": "NO 2"
         }
       ],
       "parameters": {
@@ -900,6 +1372,38 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "coilVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 24,
+          "min": 1,
+          "max": 1000
+        },
+        "coilResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 240,
+          "min": 1,
+          "max": 100000
+        },
+        "energized": {
+          "type": "boolean",
+          "default": false
+        },
+        "onResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 0.000001,
+          "min": 0.000001,
+          "max": 1
+        },
+        "offResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 30000000000,
+          "min": 1,
+          "max": 1000000000000
         }
       },
       "ratings": {
@@ -916,15 +1420,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "relay",
+        "engine": "VoltPRo MNA electromechanical",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "relay",
         "states": [
-          "enabled",
-          "disabled"
+          "deenergized",
+          "energized"
         ]
       },
       "faultModes": [
@@ -1018,12 +1522,36 @@
       "category": "relays",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "A1",
+          "name": "Coil A1"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "A2",
+          "name": "Coil A2"
+        },
+        {
+          "id": "11",
+          "name": "Common 1"
+        },
+        {
+          "id": "12",
+          "name": "NC 1"
+        },
+        {
+          "id": "14",
+          "name": "NO 1"
+        },
+        {
+          "id": "21",
+          "name": "Common 2"
+        },
+        {
+          "id": "22",
+          "name": "NC 2"
+        },
+        {
+          "id": "24",
+          "name": "NO 2"
         }
       ],
       "parameters": {
@@ -1044,6 +1572,38 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "coilVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 24,
+          "min": 1,
+          "max": 1000
+        },
+        "coilResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 240,
+          "min": 1,
+          "max": 100000
+        },
+        "energized": {
+          "type": "boolean",
+          "default": false
+        },
+        "onResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 0.000001,
+          "min": 0.000001,
+          "max": 1
+        },
+        "offResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 30000000000,
+          "min": 1,
+          "max": 1000000000000
         }
       },
       "ratings": {
@@ -1060,15 +1620,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "relay",
+        "engine": "VoltPRo MNA electromechanical",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "relay",
         "states": [
-          "enabled",
-          "disabled"
+          "deenergized",
+          "energized"
         ]
       },
       "faultModes": [
@@ -1090,12 +1650,36 @@
       "category": "relays",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "A1",
+          "name": "Coil A1"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "A2",
+          "name": "Coil A2"
+        },
+        {
+          "id": "11",
+          "name": "Common 1"
+        },
+        {
+          "id": "12",
+          "name": "NC 1"
+        },
+        {
+          "id": "14",
+          "name": "NO 1"
+        },
+        {
+          "id": "21",
+          "name": "Common 2"
+        },
+        {
+          "id": "22",
+          "name": "NC 2"
+        },
+        {
+          "id": "24",
+          "name": "NO 2"
         }
       ],
       "parameters": {
@@ -1116,6 +1700,38 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "coilVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 24,
+          "min": 1,
+          "max": 1000
+        },
+        "coilResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 240,
+          "min": 1,
+          "max": 100000
+        },
+        "energized": {
+          "type": "boolean",
+          "default": false
+        },
+        "onResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 0.000001,
+          "min": 0.000001,
+          "max": 1
+        },
+        "offResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 30000000000,
+          "min": 1,
+          "max": 1000000000000
         }
       },
       "ratings": {
@@ -1132,15 +1748,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "relay",
+        "engine": "VoltPRo MNA electromechanical",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "relay",
         "states": [
-          "enabled",
-          "disabled"
+          "deenergized",
+          "energized"
         ]
       },
       "faultModes": [
