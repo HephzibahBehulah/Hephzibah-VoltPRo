@@ -23,7 +23,8 @@ test("canonical v5 serialization preserves topology, viewport, and wire styling"
     ],
     wires: [
       { id: "W1", a: "V1:0", b: "R1:0", color: "#65d8ff", cableType: "control", size: "1.5", gauge: "16", width: 3, pattern: "solid", bends: [{ x: 60, y: 20 }] }
-    ]
+    ],
+    faults: [{ id: "F1", type: "open-wire", target: "W1", active: true }]
   };
   const canonical = window.VoltProV5Runtime.adapt(legacy);
   canonical.metadata = { name: "Styled test circuit", created: "2026-10-11T00:00:00.000Z" };
@@ -32,7 +33,9 @@ test("canonical v5 serialization preserves topology, viewport, and wire styling"
   const encoded = window.VoltProProject.encode(canonical);
   const decoded = window.VoltProProject.decode(encoded);
   assert.equal(decoded.version, 5);
-  assert.equal(decoded.devices.length, 2);\n  assert.equal(decoded.devices[1].registryId, "catalog-resistor");\n  assert.equal(decoded.faults[0].id, "F1");
+  assert.equal(decoded.devices.length, 2);
+  assert.equal(decoded.devices[1].registryId, "catalog-resistor");
+  assert.equal(decoded.faults[0].id, "F1");
   assert.equal(decoded.wires.length, 1);
   assert.equal(decoded.wires[0].from, "V1:0");
   assert.equal(decoded.wires[0].to, "R1:0");
