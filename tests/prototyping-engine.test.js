@@ -11,6 +11,34 @@ function comp(id,type,pins,props={}){return {id,type,pins:Array.from({length:pin
 function wire(a,b){return {a,b}}
 test("BB400 joins each five-hole strip and power rail in the MNA topology",()=>{const p={components:[comp("V1","battery",2,{voltage:5}),comp("R1","resistor",2,{resistance:100}),comp("BB1","breadboard-bb400",400)],wires:[wire("V1:0","BB1:0"),wire("R1:0","BB1:30"),wire("R1:1","BB1:150"),wire("V1:1","BB1:150")]};const result=E.analyze(p).dc;assert.equal(result.ok,true,JSON.stringify(result));assert.ok(result.totalCurrent>0.04&&result.totalCurrent<0.06,"expected about 50 mA through 100 Ω at 5 V")});
 test("one-pole breaker opens and closes its actual line/load path",()=>{const base={components:[comp("V1","battery",2,{voltage:12}),comp("Q1","circuit-breaker-1p",2,{rating:16,closed:1}),comp("R1","resistor",2,{resistance:100})],wires:[wire("V1:0","Q1:0"),wire("Q1:1","R1:0"),wire("R1:1","V1:1")]};const closed=E.analyze(base).dc;assert.equal(closed.ok,true,JSON.stringify(closed));assert.ok(closed.totalCurrent>0.1);const opened=E.analyze({...base,components:base.components.map(c=>c.id==="Q1"?{...c,props:{...c.props,closed:0}}:c)}).dc;assert.equal(opened.ok,true,JSON.stringify(opened));assert.ok(Math.abs(opened.totalCurrent)<1e-9)});
+
+test("overcurrent trips a multi-pole breaker and opens its load path",()=>{
+ const make=(resistance)=>({components:[
+  comp("V1","battery",2,{voltage:12}),
+  comp("Q1","circuit-breaker-1p",2,{rating:2,tripMultiplier:5,closed:1}),
+  comp("R1","resistor",2,{resistance})
+ ],wires:[wire("V1:0","Q1:0"),wire("Q1:1","R1:0"),wire("R1:1","V1:1")]});
+ const overload=E.analyze(make(1)).dc;
+ assert.equal(overload.ok,true,JSON.stringify(overload));
+ assert.equal(overload.deviceStates.Q1.tripped,true,"12 A exceeds the 10 A instantaneous pickup");
+ assert.ok(Math.abs(overload.branches.find(b=>b.id==="R1").current)<1e-8,"tripped breaker must interrupt the load");
+ const normal=E.analyze(make(10)).dc;
+ assert.equal(normal.ok,true,JSON.stringify(normal));
+ assert.equal(normal.deviceStates.Q1.tripped,false,"1.2 A should remain below pickup");
+ assert.ok(Math.abs(normal.branches.find(b=>b.id==="R1").current-1.2)<1e-8);
+});
+test("fuse opens when current exceeds its simplified pickup threshold",()=>{
+ const p={components:[
+  comp("V1","battery",2,{voltage:12}),
+  comp("F1","fuse",2,{rating:1,tripMultiplier:1.5}),
+  comp("R1","resistor",2,{resistance:4})
+ ],wires:[wire("V1:0","F1:0"),wire("F1:1","R1:0"),wire("R1:1","V1:1")]};
+ const result=E.analyze(p).dc;
+ assert.equal(result.ok,true,JSON.stringify(result));
+ assert.equal(result.deviceStates.F1.tripped,true);
+ assert.ok(Math.abs(result.branches.find(b=>b.id==="R1").current)<1e-8);
+});
+
 test("four-pole breaker exposes independent phase and neutral paths without shorting different poles",()=>{const def=T.definitionFor("circuit-breaker-4p");assert.equal(def.paths.length,4);assert.deepEqual(Array.from(def.paths,p=>[p.from,p.to]),[["L1","T1"],["L2","T2"],["L3","T3"],["N","TN"]]);});
 
 test("Arduino Uno R3 aliases shared power, ground, reset and I2C terminals in the MNA topology",()=>{const p={components:[comp("V1","battery",2,{voltage:5}),comp("R1","resistor",2,{resistance:100}),comp("U1","arduino-uno-r3",38)],wires:[wire("V1:0","U1:21"),wire("R1:0","U1:33"),wire("R1:1","V1:1")]};const result=E.analyze(p).dc;assert.equal(result.ok,true,JSON.stringify(result));assert.ok(result.totalCurrent>0.04&&result.totalCurrent<0.06,"5V and ICSP VCC should share a net")});
