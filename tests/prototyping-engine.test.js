@@ -645,3 +645,24 @@ test("Arduino delay loop changes a wired output as live solver ticks advance",()
  r=E.analyze(p,{dc:{scanTimeMs:50}}).dc;
  assert.equal(r.ok,true,JSON.stringify(r));assert.equal(r.deviceStates.UNO.pins["13"].voltage,0);assert.ok(Math.abs(r.branches.find(b=>b.id==="R1").current)<1e-9);
 });
+
+test("inductive catalog sensor switches from measured distance threshold",()=>{
+ const make=distanceMm=>({components:[comp("V1","battery",2,{voltage:12}),comp("S1","sensors-sensor-inductive-m12",2,{distanceMm,threshold:50}),comp("R1","resistor",2,{resistance:100})],wires:[wire("V1:0","S1:0"),wire("S1:1","R1:0"),wire("R1:1","V1:1")]});
+ const near=E.dc(make(20)),far=E.dc(make(80));
+ assert.equal(near.ok,true,JSON.stringify(near));assert.equal(far.ok,true,JSON.stringify(far));
+ assert.ok(Math.abs(near.branches.find(b=>b.id==="R1").current-.12)<1e-6,"near target should close the sensor output");
+ assert.ok(Math.abs(far.branches.find(b=>b.id==="R1").current)<1e-8,"distant target should open the sensor output");
+});
+test("pressure catalog sensor evaluates its pressure setpoint",()=>{
+ const make=pressureBar=>({components:[comp("V1","battery",2,{voltage:12}),comp("S1","sensors-sensor-pressure-10bar",2,{pressureBar,thresholdBar:5}),comp("R1","resistor",2,{resistance:100})],wires:[wire("V1:0","S1:0"),wire("S1:1","R1:0"),wire("R1:1","V1:1")]});
+ const above=E.dc(make(7)),below=E.dc(make(2));
+ assert.equal(above.ok,true,JSON.stringify(above));assert.equal(below.ok,true,JSON.stringify(below));
+ assert.ok(above.branches.find(b=>b.id==="R1").current>.119);
+ assert.ok(Math.abs(below.branches.find(b=>b.id==="R1").current)<1e-8);
+});
+test("explicit sensor contact state overrides the physical threshold",()=>{
+ const p={components:[comp("V1","battery",2,{voltage:12}),comp("S1","sensors-sensor-inductive-m12",2,{distanceMm:10,threshold:50,active:false}),comp("R1","resistor",2,{resistance:100})],wires:[wire("V1:0","S1:0"),wire("S1:1","R1:0"),wire("R1:1","V1:1")]};
+ const result=E.dc(p);
+ assert.equal(result.ok,true,JSON.stringify(result));
+ assert.ok(Math.abs(result.branches.find(b=>b.id==="R1").current)<1e-8);
+});
