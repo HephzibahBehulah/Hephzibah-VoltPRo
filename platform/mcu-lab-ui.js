@@ -4,7 +4,8 @@ let timer=null, activeControls=null;
 const $=selector=>document.querySelector(selector);
 const UNO_DIGITAL=Array.from({length:14},(_,i)=>String(i));
 const UNO_ANALOG=["A0","A1","A2","A3","A4","A5"];
-const pinNumber=label=>/^A[0-5]$/.test(label)?String(14+Number(label.slice(1))):String(label);\nfunction stopTimer(){if(timer!==null){clearTimeout(timer);timer=null}if(activeControls){activeControls.run.disabled=false;activeControls.stop.disabled=true}}
+const pinNumber=label=>/^A[0-5]$/.test(label)?String(14+Number(label.slice(1))):String(label);
+function stopTimer(){if(timer!==null){clearTimeout(timer);timer=null}if(activeControls){activeControls.run.disabled=false;activeControls.stop.disabled=true}}
 function open(options={}){
  stopTimer();
  const workbench=window.VoltProWorkbench;
