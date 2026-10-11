@@ -13,6 +13,7 @@ function runtime(defs = {}) {
   return window.VoltProV5Runtime;
 }
 
+test("ABB AUX-CB-11 maps numeric pins to NO/NC terminal pairs",()=>{const result=runtime({"abb-aux-cb-11":{pins:8}}).adapt({components:[{id:"AUX1",type:"abb-aux-cb-11"}],wires:[{a:"AUX1:0",b:"AUX1:4"}]});assert.deepEqual(Array.from(result.devices[0].terminals,t=>t.id),["13","21","31","41","14","22","32","42"]);assert.equal(result.wires[0].from,"AUX1:13");assert.equal(result.wires[0].to,"AUX1:14")});
 test("BB400 numeric pins map to unique breadboard holes",()=>{const result=runtime({"breadboard-bb400":{pins:400}}).adapt({components:[{id:"BB1",type:"breadboard-bb400",x:0,y:0}],wires:[{a:"BB1:0",b:"BB1:399"}]});assert.equal(result.devices[0].terminals.length,400);assert.equal(result.wires[0].from,"BB1:A1");assert.equal(result.wires[0].to,"BB1:NMINUS25");assert.equal(T.build(result).validateTopology().valid,true)});
 test("legacy numeric pins adapt to stable model terminal IDs", () => {
   const result = runtime({resistor:{pins:2}}).adapt({
