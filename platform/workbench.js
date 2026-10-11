@@ -2,7 +2,7 @@
 const $=s=>document.querySelector(s);
 const esc=x=>String(x??"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
 const symbolLabel=x=>{const v=x?.symbol;if(typeof v==="string")return v==="generic"?"◇":v;if(v&&typeof v==="object")return String(v.label||v.text||v.name||v.id||"◇");return "◇"};
-let catalog=[];
+let catalog=[],ladderScanTimer=null;
 function ensureStyle(){
  if($("#vpWorkbenchStyle"))return;
  const s=document.createElement("style");s.id="vpWorkbenchStyle";s.textContent=`
@@ -24,7 +24,7 @@ function ensureStyle(){
 @media(max-width:900px){#vpWorkbench{inset:58px 8px 30px 8px}.vpw-panel,.vpw-plc{grid-template-columns:1fr}.vpw-sidebox{max-height:220px;overflow:auto}}@media(max-width:760px){#vpWorkbench{inset:54px 5px 24px 5px;border-radius:10px}.vpw-head{padding:9px 10px}.vpw-head span{display:none}.vpw-body{grid-template-columns:1fr}.vpw-side{max-height:145px;border-right:0;border-bottom:1px solid #29475f}.vpw-main{padding:9px}.vpw-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:7px}.vpw-card{padding:8px}.vpw-symbol{height:48px}.vpw-rail{min-height:300px;padding:12px;overflow:auto}.vpw-device{min-width:62px}.vpw-ladder{overflow:auto;white-space:pre;max-width:100%}}@media(max-width:430px){#vpWorkbench{inset:50px 3px 20px 3px}.vpw-grid{grid-template-columns:1fr 1fr}.vpw-head b{font-size:10px}.vpw-cat{padding:7px}.vpw-side input{padding:7px}}
 `;document.head.appendChild(s);
 }
-function open(title,body){ensureStyle();let x=$("#vpWorkbench");if(!x){x=document.createElement("section");x.id="vpWorkbench";document.body.appendChild(x)}x.innerHTML='<div class="vpw-head"><b>'+esc(title)+'</b><span>FREE · LOCAL · NO SUBSCRIPTION</span><button id="vpwClose">Close</button></div><div class="vpw-body">'+body+'</div>';x.classList.add("open");$("#vpwClose").onclick=()=>x.classList.remove("open")}
+function open(title,body){if(ladderScanTimer){clearInterval(ladderScanTimer);ladderScanTimer=null}ensureStyle();let x=$("#vpWorkbench");if(!x){x=document.createElement("section");x.id="vpWorkbench";document.body.appendChild(x)}x.innerHTML='<div class="vpw-head"><b>'+esc(title)+'</b><span>FREE · LOCAL · NO SUBSCRIPTION</span><button id="vpwClose">Close</button></div><div class="vpw-body">'+body+'</div>';x.classList.add("open");$("#vpwClose").onclick=()=>{x.classList.remove("open");if(ladderScanTimer){clearInterval(ladderScanTimer);ladderScanTimer=null}}}
 async function loadCatalog(){if(catalog.length)return catalog;try{if(window.VoltProRegistry?.ready)await window.VoltProRegistry.ready;catalog=window.VoltProRegistry?.search?.("")||[];if(!catalog.length)catalog=await fetch("components.json",{cache:"no-store"}).then(r=>r.ok?r.json():Promise.reject()).then(x=>x.library||[])}catch{catalog=[]}return catalog}
 function reference(){
  loadCatalog().then(items=>{let cat="All",q="";const draw=()=>{const cats=["All",...new Set(items.map(x=>x.category))];const filtered=items.filter(x=>(cat==="All"||x.category===cat)&&x.name.toLowerCase().includes(q.toLowerCase()));open("COMPONENT REFERENCE LIBRARY",'<aside class="vpw-side"><input id="vpwSearch" placeholder="Search 700+ components...">'+cats.map(c=>'<button class="vpw-cat '+(cat===c?"active":"")+'" data-c="'+esc(c)+'">'+esc(c)+'</button>').join("")+'</aside><main class="vpw-main"><div id="vpwDetail" class="vpw-detail"></div><div class="vpw-grid">'+filtered.map((x,i)=>'<article class="vpw-card" data-i="'+i+'"><div class="vpw-symbol">'+esc(symbolLabel(x))+'</div><b>'+esc(x.name)+'</b><small>'+esc(x.category||"Component")+'</small></article>').join("")+'</div></main>');$("#vpwSearch").value=q;$("#vpwSearch").oninput=e=>{q=e.target.value;draw()};document.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{cat=b.dataset.c;draw()});document.querySelectorAll("[data-i]").forEach((c,i)=>c.onclick=()=>{const x=filtered[i],d=$("#vpwDetail");d.innerHTML="<h3>"+esc(x.name)+"</h3><p><b>Category:</b> "+esc(x.category)+"<br><b>Symbol:</b> "+esc(symbolLabel(x))+"<br><b>Model:</b> "+esc(x.electricalModel?.type||x.model||"catalog reference")+"<br><b>License:</b> VoltPRo original catalog entry. Verify third-party manufacturer assets before redistribution.</p>";d.classList.add("open")})};draw()})
@@ -70,11 +70,32 @@ function panel(){
  syncDevices();draw();
 }
 function plc(){
- const io={i0:false,i1:false,i2:false,q0:false,q1:false};
- const draw=()=>{io.q0=io.i0&&!io.i1&&!io.i2;io.q1=io.q0;const state=io.i2?"EMERGENCY STOP ACTIVE":io.i1?"STOP PRESSED":io.q0?"MOTOR RUNNING":"READY · MOTOR OFF";const ladder="PLC LADDER LOGIC\n\n|----[ I0 START ]----[/ I1 STOP ]----[/ I2 E-STOP ]----( Q0 MOTOR )----|\n|-----------------------------------------------[ Q0 MOTOR ]----( Q1 LAMP )----|\n\nState: "+state+"\n\nInputs: I0="+(io.i0?"ON":"OFF")+" · I1="+(io.i1?"PRESSED":"RELEASED")+" · I2="+(io.i2?"ACTIVE":"SAFE")+"\nOutputs: Q0="+(io.q0?"ON":"OFF")+" · Q1="+(io.q1?"ON":"OFF")+"\n\nEducational logic only. No physical PLC is connected.";const el=$("#vpwLadder");if(el)el.textContent=ladder;document.querySelectorAll("[data-plc]").forEach(btn=>{const key=btn.dataset.plc;btn.classList.toggle("active",io[key]);btn.setAttribute("aria-pressed",String(io[key]));btn.textContent=(key==="i0"?"I0 Start":key==="i1"?"I1 Stop":"I2 E-Stop")+(io[key]?" · ACTIVE":"")})};
- open("PLC LOGIC LAB",'<aside class="vpw-side"><div class="vpw-logic-card"><b>Digital inputs</b><p>Toggle an input to see the ladder outputs update.</p><button data-plc="i0">I0 Start</button><button data-plc="i1">I1 Stop</button><button data-plc="i2">I2 E-Stop</button></div><div class="vpw-logic-card"><b>Calculated outputs</b><p>Q0 Motor: <strong id="vpwQ0">OFF</strong></p><p>Q1 Lamp: <strong id="vpwQ1">OFF</strong></p></div></aside><main class="vpw-main"><div class="vpw-ladder" id="vpwLadder"></div></main>');
- document.querySelectorAll("[data-plc]").forEach(btn=>btn.onclick=()=>{const key=btn.dataset.plc;io[key]=!io[key];draw();$("#vpwQ0").textContent=io.q0?"ON":"OFF";$("#vpwQ1").textContent=io.q1?"ON":"OFF";$("#vpwQ0").style.color=io.q0?"#65e6ad":"#8da4bd";$("#vpwQ1").style.color=io.q1?"#65e6ad":"#8da4bd"});
- draw();
+ const program={rungs:[
+  {id:"motor-seal-in",branches:[
+   [{address:"I1",type:"NC"},{address:"I2",type:"NC"},{address:"I0",type:"NO"}],
+   [{address:"I1",type:"NC"},{address:"I2",type:"NC"},{address:"Q0",type:"NO"}]
+  ],coils:[{address:"Q0",type:"COIL"}]},
+  {id:"run-lamp",branches:[[{address:"Q0",type:"NO"}]],coils:[{address:"Q1",type:"COIL"}]}
+ ]};
+ const io={i0:false,i1:false,i2:false,q0:false,q1:false,state:{}};
+ const draw=(dtMs=0)=>{
+  const result=window.VoltProLadder?.scan(program,{I0:io.i0,I1:io.i1,I2:io.i2},io.state,{dtMs});
+  if(!result?.ok){io.q0=false;io.q1=false;const el=$("#vpwLadder");if(el)el.textContent="LADDER ENGINE UNAVAILABLE\n\nNo simulated outputs were updated.";return}
+  io.state=result.state;io.q0=Boolean(result.outputs.Q0);io.q1=Boolean(result.outputs.Q1);
+  const state=io.i2?"EMERGENCY STOP ACTIVE":io.i1?"STOP PRESSED":io.q0?"MOTOR RUNNING":"READY · MOTOR OFF";
+  const rungText=program.rungs.map((r,i)=>{
+   const live=result.rungs[i],branches=r.branches.map((branch,j)=>branch.map(c=>(c.type==="NC"?"[/ ":"[ ")+c.address+(c.type==="NC"?" ]":" ]")).join("──"));
+   return (live.powered?"●":"○")+" "+branches.join("  ||  ")+" ── ("+r.coils.map(c=>c.address).join(", ")+")";
+  }).join("\n");
+  const ladder="PLC LADDER LOGIC · EXECUTING\n\n"+rungText+"\n\nState: "+state+"\n\nInputs: I0="+(io.i0?"ON":"OFF")+" · I1="+(io.i1?"PRESSED":"RELEASED")+" · I2="+(io.i2?"ACTIVE":"SAFE")+"\nOutputs: Q0="+(io.q0?"ON":"OFF")+" · Q1="+(io.q1?"ON":"OFF")+"\n\nEngine: scan-based ladder evaluation · Seal-in contact Q0 · NC stop and E-stop interlocks.\nEducational logic only. No physical PLC is connected.";
+  const el=$("#vpwLadder");if(el)el.textContent=ladder;
+  document.querySelectorAll("[data-plc]").forEach(btn=>{const key=btn.dataset.plc;btn.classList.toggle("active",io[key]);btn.setAttribute("aria-pressed",String(io[key]));btn.textContent=(key==="i0"?"I0 Start":key==="i1"?"I1 Stop":"I2 E-Stop")+(io[key]?" · ACTIVE":"")});
+  $("#vpwQ0").textContent=io.q0?"ON":"OFF";$("#vpwQ1").textContent=io.q1?"ON":"OFF";
+  $("#vpwQ0").style.color=io.q0?"#65e6ad":"#8da4bd";$("#vpwQ1").style.color=io.q1?"#65e6ad":"#8da4bd";
+ };
+ open("PLC LOGIC LAB",'<aside class="vpw-side"><div class="vpw-logic-card"><b>Digital inputs</b><p>Toggle an input to scan the ladder program.</p><button data-plc="i0">I0 Start</button><button data-plc="i1">I1 Stop</button><button data-plc="i2">I2 E-Stop</button></div><div class="vpw-logic-card"><b>Calculated outputs</b><p>Q0 Motor: <strong id="vpwQ0">OFF</strong></p><p>Q1 Lamp: <strong id="vpwQ1">OFF</strong></p></div></aside><main class="vpw-main"><div class="vpw-ladder" id="vpwLadder"></div></main>');
+ document.querySelectorAll("[data-plc]").forEach(btn=>btn.onclick=()=>{const key=btn.dataset.plc;io[key]=!io[key];draw(10)});
+ draw(0);
 }
 function micro(){
  open("MICROCONTROLLER LAB",'<main class="vpw-main"><div class="vpw-logic-card"><b>Local educational sketch runner</b><p>Models a safe static subset of pinMode, digitalWrite and Serial print statements. It does not compile or upload firmware.</p><label>Board <select id="vpwBoard"><option>Arduino UNO</option><option>Generic GPIO</option></select></label></div><textarea id="vpwCode" rows="12" style="width:100%;margin:10px 0;background:#06101b;color:#eaf5ff;border:1px solid #31516d;border-radius:8px;padding:12px;font:12px/1.6 ui-monospace,monospace">void setup(){\n  pinMode(13, OUTPUT);\n  Serial.println("VoltPRo ready");\n}\nvoid loop(){\n  digitalWrite(13, HIGH);\n}</textarea><button id="vpwRunMcu">Run educational simulation</button><pre id="vpwMcuOut" style="white-space:pre-wrap;overflow-wrap:anywhere;background:#06101b;border:1px solid #29475f;border-radius:8px;padding:12px">Ready. Run the sketch to inspect modeled pin states.</pre></main>');
