@@ -90,7 +90,7 @@ function build(project,options={}){
    const index=new Map((definition.terminals||[]).map((t,i)=>[String(t.id),p[i]]));
    for(const contact of definition.paths){if(contact.kind!=="switchable")continue;const a=index.get(String(contact.from)),b=index.get(String(contact.to));if(!a||!b||!wired.has(a)||!wired.has(b))continue;
     const stateValue=options.stateOverrides?.[x.id]?.[contact.stateKey]??x.state?.[contact.stateKey]??x.props?.[contact.stateKey]??(contact.stateKey==="pressed"?false:undefined);
-    const closed=stateValue===undefined?contact.closedWhen!==false:Boolean(stateValue)===Boolean(contact.closedWhen??true);
+    const closed=typeof contact.closedWhen==="string"?String(stateValue??"off")===contact.closedWhen:(stateValue===undefined?contact.closedWhen!==false:Boolean(stateValue)===Boolean(contact.closedWhen??true));
     const tripped=x.state?.tripped===true||x.props?.tripped===true;
     addBranch(x,a,b,"resistor",{R:closed&&!tripped?Math.max(EPS,value(x,["onResistance"],1e-6)):Math.max(EPS,value(x,["offResistance"],3e10)),contactId:contact.id});
    }
@@ -100,7 +100,7 @@ function build(project,options={}){
    const index=new Map((definition?.terminals||[]).map((t,i)=>[String(t.id),p[i]]));
    for(const contact of definition?.paths||[]){if(contact.kind!=="switchable")continue;const a=index.get(String(contact.from)),b=index.get(String(contact.to));if(!a||!b||!wired.has(a)||!wired.has(b))continue;
     const stateValue=x.state?.[contact.stateKey]??x.props?.[contact.stateKey]??(contact.stateKey==="closed"?x.props?.closed:undefined);
-    const closed=stateValue===undefined?contact.closedWhen!==false:Boolean(stateValue)===Boolean(contact.closedWhen??true);
+    const closed=typeof contact.closedWhen==="string"?String(stateValue??"off")===contact.closedWhen:(stateValue===undefined?contact.closedWhen!==false:Boolean(stateValue)===Boolean(contact.closedWhen??true));
     const tripped=x.state?.tripped===true;
     addBranch(x,a,b,"resistor",{R:closed&&!tripped?Math.max(EPS,value(x,["onResistance"],1e-6)):Math.max(EPS,value(x,["offResistance"],3e10)),contactId:contact.id});
    }
