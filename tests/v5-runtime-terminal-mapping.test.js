@@ -25,6 +25,10 @@ test("legacy numeric pins adapt to stable model terminal IDs", () => {
   assert.equal(T.build(result).validateTopology().valid,true);
 });
 
+test("four-pole breaker maps all eight legacy pins to stable phase and neutral terminals",()=>{const result=runtime({"circuit-breaker-4p":{pins:8}}).adapt({components:[{id:"QF4",type:"circuit-breaker-4p",x:0,y:0}],wires:[{a:"QF4:3",b:"QF4:7"}]});assert.deepEqual(Array.from(result.devices[0].terminals,t=>t.id),["L1","L2","L3","N","T1","T2","T3","TN"]);assert.equal(result.wires[0].from,"QF4:N");assert.equal(result.wires[0].to,"QF4:TN");assert.equal(T.build(result).validateTopology().valid,true)});
+
+test("auxiliary contact block exposes four separately addressable contact pairs",()=>{const result=runtime({"auxiliary-contact-block":{pins:8}}).adapt({components:[{id:"AUX1",type:"auxiliary-contact-block",x:0,y:0}],wires:[{a:"AUX1:0",b:"AUX1:4"},{a:"AUX1:1",b:"AUX1:5"}]});assert.deepEqual(Array.from(result.devices[0].terminals,t=>t.id),["13","21","31","41","14","22","32","42"]);assert.equal(result.wires[0].from,"AUX1:13");assert.equal(result.wires[0].to,"AUX1:14");assert.equal(T.build(result).validateTopology().valid,true)});
+
 test("three-phase source and three-pole breaker adapt to phase-labelled terminals", () => {
   const result = runtime({ "circuit-breaker-3p":{pins:6}, threephase:{pins:3} }).adapt({
     components:[
