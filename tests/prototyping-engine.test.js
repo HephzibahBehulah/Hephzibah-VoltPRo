@@ -108,3 +108,30 @@ test("DOL control circuit seals in through the contactor auxiliary NO contact an
  assert.equal(stopped.deviceStates.KM1,false,"stop NC contact should drop out the coil");
  assert.ok(Math.abs(stopped.branches.find(b=>b.id==="R1").current)<1e-8,"main poles should open after stop");
 });
+
+test("overload relay trips on sustained overcurrent and drops out the contactor",()=>{
+ const p={components:[
+  comp("CS1","controlsource",2,{voltage:24}),comp("PS1","threephase",4,{voltage:400,frequency:50}),
+  comp("S0","pushbutton-nc",2,{pressed:false}),comp("S1","pushbutton-no",2,{pressed:true}),
+  comp("KM1","contactor",12,{coilVoltage:24,coilResistance:100}),
+  comp("OL1","overload-relay",10,{ratedCurrent:10,tripMultiplier:1.05,heaterResistance:.01,tripped:0}),
+  comp("M1","motor",7,{resistance:2})
+ ],wires:[
+  wire("CS1:0","S0:0"),wire("S0:1","OL1:6"),wire("OL1:7","S1:0"),wire("OL1:7","KM1:8"),
+  wire("S1:1","KM1:0"),wire("KM1:9","KM1:0"),wire("KM1:1","CS1:1"),
+  wire("PS1:3","CS1:1"),
+  wire("PS1:0","KM1:2"),wire("KM1:3","OL1:0"),wire("OL1:1","M1:0"),
+  wire("PS1:1","KM1:4"),wire("KM1:5","OL1:2"),wire("OL1:3","M1:1"),
+  wire("PS1:2","KM1:6"),wire("KM1:7","OL1:4"),wire("OL1:5","M1:2"),
+  wire("M1:3","PS1:3"),wire("M1:4","PS1:3"),wire("M1:5","PS1:3")
+ ]};
+ const dc=E.analyze(p).dc;
+ assert.equal(dc.ok,true,JSON.stringify(dc));
+ assert.equal(dc.deviceStates.OL1.tripped,true,"overload should latch after phase current exceeds the setting");
+ assert.equal(dc.deviceStates.KM1,false,"opening overload NC contact should drop out the contactor");
+ assert.ok(Math.abs(dc.branches.find(b=>b.id==="M1").current)<1e-6,"contactor main poles should interrupt motor current");
+ const ac=E.ac(p,{frequency:50,points:1});
+ assert.equal(ac.ok,true,JSON.stringify(ac));
+ assert.equal(ac.sweep[0].deviceStates.OL1.tripped,true,"AC RMS phase current should also trip the overload");
+ assert.equal(ac.sweep[0].deviceStates.KM1,false);
+});
