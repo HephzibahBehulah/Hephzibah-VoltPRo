@@ -3,5 +3,5 @@ const TYPES={open:{label:"Open circuit",effect:"No current flows through the aff
 function apply(project,fault){if(!TYPES[fault.type])throw Error("Unknown fault");return {...fault,active:true,diagnosis:TYPES[fault.type],timestamp:new Date().toISOString()}}
 function clear(project){return {...project,faults:[]}}
 function analyze(project){return (project.faults||[]).filter(f=>f.active).map(f=>({...f,...(TYPES[f.type]||{})}))}
-window.VoltProFaults={TYPES,apply,clear,analyze};
+window.VoltProFaultCatalog={TYPES,apply,clear,analyze};if(window.VoltProFaults)window.VoltProFaults.catalog=window.VoltProFaultCatalog;
 })();
