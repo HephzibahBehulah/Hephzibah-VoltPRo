@@ -3,6 +3,7 @@ const esc=value=>String(value??"").replace(/[&<>"]/g,ch=>({"&":"&amp;","<":"&lt;
 const legacyMicro=window.VoltProWorkbench?.micro;
 let timer=null;
 function open(options={}){
+ if(timer){clearInterval(timer);timer=null}
  if(typeof legacyMicro!=="function"){window.alert("The VoltPRo Workbench did not load. Reload the simulator and try again.");return}
  window.VoltPRoMCULabOpeningLegacy=true;
  try{legacyMicro()}finally{delete window.VoltPRoMCULabOpeningLegacy}
