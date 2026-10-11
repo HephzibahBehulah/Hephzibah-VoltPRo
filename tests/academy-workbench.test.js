@@ -37,13 +37,22 @@ test("curated template inventory contains only relevant technical domains", () =
   assert.ok(index.tools.some(tool => tool.category === "Automation & PLC"));
 });
 
-test("simulator links to the workbench and supports its project handoff", () => {
+test("simulator exposes one in-page dropdown system without duplicated controls", () => {
   const html = read("simulator.html");
   const js = read("simulator.js");
-  assert.match(html, /academy-workbench\.html/);
-  assert.match(js, /voltpro-library-import/);
-  assert.match(js, /libraryImport/);
-  assert.match(js, /loadProject\(pending\)/);
+  const ui = read("platform/ui.js");
+  for (const menu of ["demos","faults","challenges","tutorials","mcu"]) assert.ok(html.includes('data-vp-menu="' + menu + '"'));
+  assert.ok(!html.includes('href="academy-workbench.html'));
+  assert.ok(js.includes("voltpro-library-import"));
+  assert.ok(js.includes("libraryImport"));
+  assert.ok(js.includes("loadProject(pending)"));
+  assert.equal((html.match(/class="sim-top"/g) || []).length, 1);
+  assert.equal((html.match(/class="toolbar"/g) || []).length, 1);
+  const ids = Array.from(html.matchAll(new RegExp('id="([^"]+)"', "g")), m => m[1]);
+  assert.equal(ids.length, new Set(ids).size, "HTML IDs must be unique");
+  assert.ok(!ui.includes("bar.appendChild(b)"));
+  assert.ok(ui.includes("window.VoltProPlatformActions=actions"));
+  assert.ok(html.includes("service-worker.js?v=20261012a"));
 });
 
 test("colour console accepts standard HEX lengths but not five-digit HEX", () => {
@@ -52,24 +61,20 @@ test("colour console accepts standard HEX lengths but not five-digit HEX", () =>
   assert.match(js, /Invalid or incomplete HEX \/ RGB/);
 });
 
-test("simulator toolbar is organised into task groups without duplicate workbench shortcuts", () => {
+test("simulator toolbar has one authored menu system with no duplicate injected controls", () => {
   const html = read("simulator.html");
-  assert.match(html, /role="toolbar" aria-label="Simulator controls"/);
-  const header = html.slice(html.indexOf('<header class="sim-top"'), html.indexOf("</header>"));
-  for (const id of ["newBtn", "saveBtn", "loadBtn", "exportBtn", "pngBtn"]) {
-    assert.doesNotMatch(header, new RegExp('id="' + id + '"'));
-  }
-  for (const id of ["runBtn", "stopBtn", "undoBtn", "redoBtn", "deleteBtn", "wireBtn", "wireMenuBtn", "paletteBtn", "fitBtn", "newBtn", "saveBtn", "loadBtn", "exportBtn", "pngBtn"]) {
-    assert.match(html, new RegExp('id="' + id + '"'));
-  }
-  assert.equal((html.match(/href="academy-workbench\.html"/g) || []).length, 1);
-  assert.match(html, /href="academy-workbench\.html#demos"/);
-  assert.match(html, /href="academy-workbench\.html#faults"/);
-  assert.match(html, /href="academy-workbench\.html#challenges"/);
-  assert.match(html, /href="academy-workbench\.html#tutorials"/);
-  assert.match(html, /href="academy-workbench\.html#logic-lab"/);
-  assert.match(html, /href="academy-workbench\.html#projects"/);
-  assert.match(read("simulator.js"), /getBoundingClientRect\(\)/);
+  const ui = read("platform/ui.js");
+  assert.ok(html.includes('role="toolbar" aria-label="Simulator controls"'));
+  assert.equal((html.match(/class="sim-top"/g) || []).length, 1);
+  assert.equal((html.match(/class="toolbar"/g) || []).length, 1);
+  assert.equal((html.match(/class="top-actions"/g) || []).length, 1);
+  const ids = Array.from(html.matchAll(new RegExp('id="([^"]+)"', "g")), m => m[1]);
+  assert.equal(ids.length, new Set(ids).size, "HTML IDs must be unique");
+  for (const id of ["runBtn","stopBtn","undoBtn","redoBtn","deleteBtn","wireBtn","wireMenuBtn","paletteBtn","fitBtn","newBtn","saveBtn","loadBtn","exportBtn","pngBtn"]) assert.ok(html.includes('id="' + id + '"'));
+  assert.ok(!ui.includes("bar.appendChild(b)"));
+  assert.ok(ui.includes("window.VoltProPlatformActions=actions"));
+  assert.ok(!html.includes('href="academy-workbench.html'));
+  assert.ok(html.includes("service-worker.js?v=20261012a"));
 });
 
 test("primary destinations are consistent across the practical and engineering pages", () => {

@@ -75,7 +75,7 @@ test("terminal clicks use pointer input and avoid rebuilding the full palette on
 test("reference symbols render as labels rather than object coercions and MCU workspace is wired", () => {
   const source = fs.readFileSync(path.join(root, "platform/workbench.js"), "utf8");
   assert.ok(source.includes("const symbolLabel="));
-  assert.ok(source.includes('else if(b.dataset.mode==="micro")micro()'));
+  assert.ok(source.includes('else if(b.dataset.mode==="micro"){if(window.VoltProMCULab?.open)window.VoltProMCULab.open();else micro()}'));
   assert.ok(source.includes("VoltProMCU?.simulate"));
 });
 

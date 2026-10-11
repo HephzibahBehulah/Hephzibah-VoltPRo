@@ -6,20 +6,15 @@ const path = require("node:path");
 const root = path.resolve(__dirname, "..");
 const read = file => fs.readFileSync(path.join(root, file), "utf8");
 
-test("simulator toolbar destinations point to real Workbench or MCU destinations", () => {
+test("simulator learning tools are in-page dropdowns rather than outbound Workbench links", () => {
   const html = read("simulator.html");
-  for (const target of [
-    'href="academy-workbench.html#demos"',
-    'href="academy-workbench.html?focus=motor#demos"',
-    'href="academy-workbench.html#logic-lab"',
-    'href="academy-workbench.html#faults"',
-    'href="academy-workbench.html#challenges"',
-    'href="academy-workbench.html#tutorials"',
-    'href="breadboard.html"'
-  ]) assert.ok(html.includes(target), "missing toolbar destination: " + target);
-  assert.match(html, /id="pngBtn"[^>]*>SVG<\/button>/);
-  assert.match(html, /id="paletteBtn"/);
-  assert.match(html, /id="inspectorBtn"/);
+  for (const menu of ["demos","motor","logic","projects","faults","challenges","tutorials","mcu","tools"]) assert.ok(html.includes('data-vp-menu="' + menu + '"'));
+  assert.ok(!html.includes('href="academy-workbench.html'));
+  assert.ok(html.includes('id="pngBtn"'));
+  assert.ok(html.includes('>SVG</button>'));
+  assert.ok(html.includes('id="paletteBtn"'));
+  assert.ok(html.includes('id="inspectorBtn"'));
+  assert.ok(html.includes('data-ui-build="2026.10.12-dropdown-menus"'));
 });
 
 test("SVG export serializes the current schematic and reports success or failure", () => {
