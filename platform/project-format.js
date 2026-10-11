@@ -50,7 +50,7 @@ function toLegacy(input){
  }
  const wires=(p.wires||[]).map((w,i)=>({...w,id:w.id||"W"+String(i+1).padStart(3,"0"),a:endpoint(w.from||w.a),b:endpoint(w.to||w.b)}));
  const workspace=typeof p.workspace==="string"?p.workspace:(p.workspace?.mode||"schematic");
- return {format:"voltpro",version:2,mode:raw.mode||workspace,viewport:structuredClone(raw.viewport||{}),components,wires,wireStyle:structuredClone(raw.wireStyle||{}),panel:structuredClone(p.panel||{rails:[],items:[],width:600,height:400}),metadata:structuredClone(p.metadata||{})};
+ return {format:"voltpro",version:2,mode:raw.mode||workspace,viewport:structuredClone(p.viewport||raw.viewport||{}),components,wires,wireStyle:structuredClone(p.wireStyle||raw.wireStyle||{}),panel:structuredClone(p.panel||{rails:[],items:[],width:600,height:400}),faults:structuredClone(p.faults||[]),metadata:structuredClone(p.metadata||{})};
 }
 window.VoltProProject={CURRENT,normalize,encode,decode,migrate,toLegacy};
 })();
