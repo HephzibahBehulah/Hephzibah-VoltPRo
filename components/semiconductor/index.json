@@ -1018,12 +1018,16 @@
       "category": "semiconductor",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "G",
+          "name": "Gate"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "D",
+          "name": "Drain"
+        },
+        {
+          "id": "S",
+          "name": "Source"
         }
       ],
       "parameters": {
@@ -1044,6 +1048,20 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "gateThreshold": {
+          "type": "number",
+          "unit": "V",
+          "default": 2,
+          "min": 0,
+          "max": 10
+        },
+        "onResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 0.05,
+          "min": 0.001,
+          "max": 100
         }
       },
       "ratings": {
@@ -1060,15 +1078,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "mosfet",
+        "engine": "VoltPro three-terminal educational switch model",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "gate-controlled-switch",
         "states": [
-          "enabled",
-          "disabled"
+          "off",
+          "on"
         ]
       },
       "faultModes": [
@@ -1077,8 +1095,8 @@
         "parameter-out-of-range"
       ],
       "documentation": {
-        "summary": "Educational Device model for MOSFET-N.",
-        "usage": "Double-click to edit parameters, connect terminals and run simulation.",
+        "summary": "Three-terminal educational transistor model with explicit control and current terminals.",
+        "usage": "Connect control, collector/drain and emitter/source terminals; set threshold and on-resistance for the device.",
         "standards": [
           "IEC-oriented educational representation"
         ]
@@ -1090,12 +1108,16 @@
       "category": "semiconductor",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "G",
+          "name": "Gate"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "D",
+          "name": "Drain"
+        },
+        {
+          "id": "S",
+          "name": "Source"
         }
       ],
       "parameters": {
@@ -1116,6 +1138,20 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "gateThreshold": {
+          "type": "number",
+          "unit": "V",
+          "default": 2,
+          "min": 0,
+          "max": 10
+        },
+        "onResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 0.05,
+          "min": 0.001,
+          "max": 100
         }
       },
       "ratings": {
@@ -1132,15 +1168,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "mosfet",
+        "engine": "VoltPro three-terminal educational switch model",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "gate-controlled-switch",
         "states": [
-          "enabled",
-          "disabled"
+          "off",
+          "on"
         ]
       },
       "faultModes": [
@@ -1149,8 +1185,8 @@
         "parameter-out-of-range"
       ],
       "documentation": {
-        "summary": "Educational Device model for MOSFET-P.",
-        "usage": "Double-click to edit parameters, connect terminals and run simulation.",
+        "summary": "Three-terminal educational transistor model with explicit control and current terminals.",
+        "usage": "Connect control, collector/drain and emitter/source terminals; set threshold and on-resistance for the device.",
         "standards": [
           "IEC-oriented educational representation"
         ]
@@ -1162,12 +1198,16 @@
       "category": "semiconductor",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "G",
+          "name": "Gate"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "C",
+          "name": "Collector"
+        },
+        {
+          "id": "E",
+          "name": "Emitter"
         }
       ],
       "parameters": {
@@ -1188,6 +1228,20 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "gateThreshold": {
+          "type": "number",
+          "unit": "V",
+          "default": 4,
+          "min": 0,
+          "max": 15
+        },
+        "onResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 0.1,
+          "min": 0.001,
+          "max": 100
         }
       },
       "ratings": {
@@ -1204,15 +1258,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "mosfet",
+        "engine": "VoltPro three-terminal educational switch model",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "gate-controlled-switch",
         "states": [
-          "enabled",
-          "disabled"
+          "off",
+          "on"
         ]
       },
       "faultModes": [
@@ -1221,8 +1275,8 @@
         "parameter-out-of-range"
       ],
       "documentation": {
-        "summary": "Educational Device model for IGBT.",
-        "usage": "Double-click to edit parameters, connect terminals and run simulation.",
+        "summary": "Three-terminal educational transistor model with explicit control and current terminals.",
+        "usage": "Connect control, collector/drain and emitter/source terminals; set threshold and on-resistance for the device.",
         "standards": [
           "IEC-oriented educational representation"
         ]
@@ -1234,12 +1288,16 @@
       "category": "semiconductor",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "B",
+          "name": "Base"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "C",
+          "name": "Collector"
+        },
+        {
+          "id": "E",
+          "name": "Emitter"
         }
       ],
       "parameters": {
@@ -1260,6 +1318,33 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "baseThreshold": {
+          "type": "number",
+          "unit": "V",
+          "default": 0.7,
+          "min": 0.1,
+          "max": 1.2
+        },
+        "baseResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 10,
+          "min": 1,
+          "max": 1000
+        },
+        "onResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 0.1,
+          "min": 0.001,
+          "max": 100
+        },
+        "beta": {
+          "type": "number",
+          "default": 100,
+          "min": 1,
+          "max": 1000
         }
       },
       "ratings": {
@@ -1276,15 +1361,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "bjt",
+        "engine": "VoltPro three-terminal educational switch model",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "base-controlled-switch",
         "states": [
-          "enabled",
-          "disabled"
+          "off",
+          "on"
         ]
       },
       "faultModes": [
@@ -1293,8 +1378,8 @@
         "parameter-out-of-range"
       ],
       "documentation": {
-        "summary": "Educational Device model for BJT-NPN.",
-        "usage": "Double-click to edit parameters, connect terminals and run simulation.",
+        "summary": "Three-terminal educational transistor model with explicit control and current terminals.",
+        "usage": "Connect control, collector/drain and emitter/source terminals; set threshold and on-resistance for the device.",
         "standards": [
           "IEC-oriented educational representation"
         ]
@@ -1306,12 +1391,16 @@
       "category": "semiconductor",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "B",
+          "name": "Base"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "C",
+          "name": "Collector"
+        },
+        {
+          "id": "E",
+          "name": "Emitter"
         }
       ],
       "parameters": {
@@ -1332,6 +1421,33 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "baseThreshold": {
+          "type": "number",
+          "unit": "V",
+          "default": 0.7,
+          "min": 0.1,
+          "max": 1.2
+        },
+        "baseResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 10,
+          "min": 1,
+          "max": 1000
+        },
+        "onResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 0.1,
+          "min": 0.001,
+          "max": 100
+        },
+        "beta": {
+          "type": "number",
+          "default": 100,
+          "min": 1,
+          "max": 1000
         }
       },
       "ratings": {
@@ -1348,15 +1464,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "bjt",
+        "engine": "VoltPro three-terminal educational switch model",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "base-controlled-switch",
         "states": [
-          "enabled",
-          "disabled"
+          "off",
+          "on"
         ]
       },
       "faultModes": [
@@ -1365,8 +1481,8 @@
         "parameter-out-of-range"
       ],
       "documentation": {
-        "summary": "Educational Device model for BJT-PNP.",
-        "usage": "Double-click to edit parameters, connect terminals and run simulation.",
+        "summary": "Three-terminal educational transistor model with explicit control and current terminals.",
+        "usage": "Connect control, collector/drain and emitter/source terminals; set threshold and on-resistance for the device.",
         "standards": [
           "IEC-oriented educational representation"
         ]
@@ -1378,12 +1494,16 @@
       "category": "semiconductor",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "G",
+          "name": "Gate"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "D",
+          "name": "Drain"
+        },
+        {
+          "id": "S",
+          "name": "Source"
         }
       ],
       "parameters": {
@@ -1404,6 +1524,20 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "gateThreshold": {
+          "type": "number",
+          "unit": "V",
+          "default": -4,
+          "min": -10,
+          "max": 0
+        },
+        "onResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 100,
+          "min": 1,
+          "max": 100000
         }
       },
       "ratings": {
@@ -1420,15 +1554,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "mosfet",
+        "engine": "VoltPro three-terminal educational switch model",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "gate-controlled-switch",
         "states": [
-          "enabled",
-          "disabled"
+          "off",
+          "on"
         ]
       },
       "faultModes": [
@@ -1437,8 +1571,8 @@
         "parameter-out-of-range"
       ],
       "documentation": {
-        "summary": "Educational Device model for JFET-N.",
-        "usage": "Double-click to edit parameters, connect terminals and run simulation.",
+        "summary": "Three-terminal educational transistor model with explicit control and current terminals.",
+        "usage": "Connect control, collector/drain and emitter/source terminals; set threshold and on-resistance for the device.",
         "standards": [
           "IEC-oriented educational representation"
         ]
@@ -1450,12 +1584,16 @@
       "category": "semiconductor",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "G",
+          "name": "Gate"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "D",
+          "name": "Drain"
+        },
+        {
+          "id": "S",
+          "name": "Source"
         }
       ],
       "parameters": {
@@ -1476,6 +1614,20 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "gateThreshold": {
+          "type": "number",
+          "unit": "V",
+          "default": -4,
+          "min": -10,
+          "max": 0
+        },
+        "onResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 100,
+          "min": 1,
+          "max": 100000
         }
       },
       "ratings": {
@@ -1492,15 +1644,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "mosfet",
+        "engine": "VoltPro three-terminal educational switch model",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "gate-controlled-switch",
         "states": [
-          "enabled",
-          "disabled"
+          "off",
+          "on"
         ]
       },
       "faultModes": [
@@ -1509,8 +1661,8 @@
         "parameter-out-of-range"
       ],
       "documentation": {
-        "summary": "Educational Device model for JFET-P.",
-        "usage": "Double-click to edit parameters, connect terminals and run simulation.",
+        "summary": "Three-terminal educational transistor model with explicit control and current terminals.",
+        "usage": "Connect control, collector/drain and emitter/source terminals; set threshold and on-resistance for the device.",
         "standards": [
           "IEC-oriented educational representation"
         ]
