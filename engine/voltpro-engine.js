@@ -45,6 +45,23 @@ function plcScan(device,b,voltageAt,stateOverrides,ladderAdvanced,scanTimeMsOver
 }
 function magnitudeDifference(a,b){if(a===null||b===null||a===undefined||b===undefined)return 0;if(typeof a==="number"&&typeof b==="number")return Math.abs(a-b);return mag(sub(a,b))}
 function topology(project){
+ // Prefer the canonical terminal graph/net resolver when the complete v5 stack is present.
+ // Keep the legacy union-find as a compatibility fallback for standalone engine consumers.
+ try{
+  const runtime=window.VoltProV5Runtime,graph=window.VoltProTerminalGraph,resolver=window.VoltProNetResolver;
+  if(runtime?.adapt&&graph?.build&&resolver?.resolve){
+   const canonical=runtime.adapt(project),terminalGraph=graph.build(canonical),resolved=resolver.resolve(canonical,terminalGraph);
+   if(resolved?.valid){
+    const pinToTerminal=new Map();
+    for(const component of project.components||[]){
+     const device=canonical.devices.find(d=>String(d.id)===String(component.id));if(!device)continue;
+     const pins=pinsOf(component);
+     device.terminals.forEach((terminal,index)=>{if(pins[index]!=null)pinToTerminal.set(String(pins[index]),String(device.id)+":"+String(terminal.id))});
+    }
+    return {find:pin=>resolved.terminalToNet.get(pinToTerminal.get(String(pin)))||String(pin),source:"canonical-net-resolver"};
+   }
+  }
+ }catch(error){console.warn?.("VoltPRo canonical topology fallback:",error?.message||error)}
  const parent=new Map(), find=x=>{if(!parent.has(x))parent.set(x,x);let r=x;while(parent.get(r)!==r)r=parent.get(r);while(parent.get(x)!==x){const q=parent.get(x);parent.set(x,r);x=q}return r};
  const union=(a,b)=>{const x=find(a),y=find(b);if(x!==y)parent.set(x,y)};
  (project.components||[]).forEach(x=>pinsOf(x).forEach(p=>find(p)));
