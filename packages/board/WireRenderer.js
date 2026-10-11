@@ -1,0 +1,13 @@
+/* Wire path geometry in board millimeters; renderer can draw these paths on Canvas/SVG. */
+(function(root,factory){const api=factory();if(typeof module!=="undefined"&&module.exports)module.exports=api;if(root)root.VoltProWireRenderer=api;})(typeof globalThis!=="undefined"?globalThis:this,function(){
+'use strict';
+const PALETTE=['#d94b4b','#20252a','#e3bd4f','#4caa68','#4b82d0','#f4f4f0','#e28c43','#9871c8','#858b91'];
+function makeWire(id,from,to,options={}){return {id,from,to,color:options.color||PALETTE[options.index%PALETTE.length]||PALETTE[0],createdAt:options.createdAt??Date.now(),selected:false,hovered:false,control:options.control||null};}
+function geometry(w,source,target){const dx=target.x-source.x,dy=target.y-source.y;const c=w.control||{x:(source.x+target.x)/2+Math.sign(dx||1)*Math.abs(dx)*0.15,y:(source.y+target.y)/2+8};return {p0:source,p1:c,p2:{x:c.x,y:c.y},p3:target,d:'M '+source.x+' '+source.y+' C '+c.x+' '+c.y+', '+c.x+' '+c.y+', '+target.x+' '+target.y};}
+function plugs(source,target,control){const angleA=Math.atan2(control.y-source.y,control.x-source.x),angleB=Math.atan2(target.y-control.y,target.x-control.x);return [{x:source.x,y:source.y,angle:angleA,length:1.2,width:0.6},{x:target.x,y:target.y,angle:angleB+Math.PI,length:1.2,width:0.6}];}
+function bundles(wires){const groups=new Map();for(const w of wires){const a=String(w.from),b=String(w.to),key=a<b?a+'|'+b:b+'|'+a;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(w);}return [...groups.values()].map(xs=>({wires:xs,bundled:xs.length>3,count:xs.length}));}
+function crossingHops(wires,resolve){const ordered=[...wires].sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));const hops=[];for(let i=0;i<ordered.length;i++){const a=resolve(ordered[i].from),b=resolve(ordered[i].to);if(!a||!b)continue;for(let j=0;j<i;j++){const c=resolve(ordered[j].from),d=resolve(ordered[j].to);if(c&&d&&segmentsCross(a,b,c,d))hops.push({wireId:ordered[i].id,overWireId:ordered[j].id});}}return hops;}
+function segmentsCross(a,b,c,d){const orient=(p,q,r)=>(q.x-p.x)*(r.y-p.y)-(q.y-p.y)*(r.x-p.x);return orient(a,b,c)*orient(a,b,d)<0&&orient(c,d,a)*orient(c,d,b)<0;}
+function colorForRails(fromRail,toRail,index=0){const s=String(fromRail||'')+' '+String(toRail||'');if(s.includes('+'))return PALETTE[0];if(s.includes('-'))return PALETTE[1];return PALETTE[index%PALETTE.length];}
+return {PALETTE,makeWire,geometry,plugs,bundles,crossingHops,segmentsCross,colorForRails};
+});
