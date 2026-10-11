@@ -18,4 +18,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: npm test
+      - name: Check JavaScript syntax
+        run: |
+          node --check simulator.js
+          node --check src/ui/project-workspace.js
+          node --check src/ui/engineering-workspaces.js
+          node --check src/ui/realistic-devices.js
+      - name: Run tests and validators
+        run: npm test
