@@ -12,3 +12,5 @@ test('models an auxiliary contact block with one NO and three NC pairs',()=>{con
 test("three-phase source exposes L1/L2/L3 and neutral terminals",()=>{const d=load().definitionFor("threephase");assert.equal(d.terminals.length,4);assert.deepEqual(Array.from(d.terminals,t=>t.id),["L1","L2","L3","N"])});
 
 test("overload relay exposes three thermal elements and 95/96 plus 97/98 contacts",()=>{const d=load().definitionFor("overload-relay");assert.equal(d.terminals.length,10);assert.equal(d.paths.filter(p=>p.kind==="thermal-element").length,3);assert.ok(d.paths.some(p=>p.id==="aux-nc-95-96"));assert.ok(d.paths.some(p=>p.id==="aux-no-97-98"))});
+
+test("automatic transfer switch exposes two four-pole source paths with no overlap",()=>{const d=load().definitionFor("automatic-transfer-switch");assert.equal(d.terminals.length,12);assert.equal(d.paths.length,8);assert.equal(d.paths.filter(p=>p.id.startsWith("normal-")).length,4);assert.equal(d.paths.filter(p=>p.id.startsWith("emergency-")).length,4)});

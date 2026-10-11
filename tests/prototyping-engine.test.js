@@ -135,3 +135,28 @@ test("overload relay trips on sustained overcurrent and drops out the contactor"
  assert.equal(ac.sweep[0].deviceStates.OL1.tripped,true,"AC RMS phase current should also trip the overload");
  assert.equal(ac.sweep[0].deviceStates.KM1,false);
 });
+
+test("automatic transfer switch selects normal source when both supplies are healthy",()=>{
+ const p={components:[comp("VN","battery",2,{voltage:230}),comp("VE","battery",2,{voltage:220}),comp("ATS1","automatic-transfer-switch",12,{minVoltage:180,transferSource:"normal"}),comp("R1","resistor",2,{resistance:100})],wires:[
+  wire("VN:0","ATS1:0"),wire("VN:1","ATS1:3"),
+  wire("VE:0","ATS1:4"),wire("VE:1","ATS1:7"),wire("VE:1","VN:1"),
+  wire("ATS1:8","R1:0"),wire("R1:1","ATS1:11")
+ ]};
+ const result=E.analyze(p).dc;
+ assert.equal(result.ok,true,JSON.stringify(result));
+ assert.equal(result.deviceStates.ATS1.transferSource,"normal");
+ assert.ok(result.branches.find(b=>b.id==="ATS1"&&b.contactId==="normal-L1").current>2);
+ assert.ok(Math.abs(result.branches.find(b=>b.id==="ATS1"&&b.contactId==="emergency-L1").current)<1e-8,"emergency pole must remain open while normal source is healthy");
+});
+test("automatic transfer switch transfers to emergency source when normal voltage is lost",()=>{
+ const p={components:[comp("VN","battery",2,{voltage:0}),comp("VE","battery",2,{voltage:230}),comp("ATS1","automatic-transfer-switch",12,{minVoltage:180,transferSource:"normal"}),comp("R1","resistor",2,{resistance:100})],wires:[
+  wire("VN:0","ATS1:0"),wire("VN:1","ATS1:3"),
+  wire("VE:0","ATS1:4"),wire("VE:1","ATS1:7"),wire("VE:1","VN:1"),
+  wire("ATS1:8","R1:0"),wire("R1:1","ATS1:11")
+ ]};
+ const result=E.analyze(p).dc;
+ assert.equal(result.ok,true,JSON.stringify(result));
+ assert.equal(result.deviceStates.ATS1.transferSource,"emergency");
+ assert.ok(result.branches.find(b=>b.id==="ATS1"&&b.contactId==="emergency-L1").current>2);
+ assert.ok(Math.abs(result.branches.find(b=>b.id==="ATS1"&&b.contactId==="normal-L1").current)<1e-8,"normal pole must remain open after transfer");
+});

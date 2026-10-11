@@ -58,7 +58,7 @@ function build(project,options={}){
     }
     if(contact.kind!=="switchable")continue;
     const stateValue=contact.stateKey==="energized"?energized:(x.state?.[contact.stateKey]??x.props?.[contact.stateKey]);
-    const closed=stateValue===undefined?contact.closedWhen!==false:Boolean(stateValue)===Boolean(contact.closedWhen??true);
+    const closed=typeof contact.closedWhen==="string"?String(stateValue??"off")===contact.closedWhen:(stateValue===undefined?contact.closedWhen!==false:Boolean(stateValue)===Boolean(contact.closedWhen??true));
     addBranch(x,a,b,"resistor",{R:closed?Math.max(EPS,value(x,["onResistance"],1e-6)):Math.max(EPS,value(x,["offResistance"],3e10)),contactId:contact.id});
    }
    continue;
@@ -89,8 +89,8 @@ function build(project,options={}){
   if(definition?.paths?.some(contact=>contact.kind==="switchable")){
    const index=new Map((definition.terminals||[]).map((t,i)=>[String(t.id),p[i]]));
    for(const contact of definition.paths){if(contact.kind!=="switchable")continue;const a=index.get(String(contact.from)),b=index.get(String(contact.to));if(!a||!b||!wired.has(a)||!wired.has(b))continue;
-    const stateValue=x.state?.[contact.stateKey]??x.props?.[contact.stateKey]??(contact.stateKey==="pressed"?false:undefined);
-    const closed=stateValue===undefined?contact.closedWhen!==false:Boolean(stateValue)===Boolean(contact.closedWhen??true);
+    const stateValue=options.stateOverrides?.[x.id]?.[contact.stateKey]??x.state?.[contact.stateKey]??x.props?.[contact.stateKey]??(contact.stateKey==="pressed"?false:undefined);
+    const closed=typeof contact.closedWhen==="string"?String(stateValue??"off")===contact.closedWhen:(stateValue===undefined?contact.closedWhen!==false:Boolean(stateValue)===Boolean(contact.closedWhen??true));
     const tripped=x.state?.tripped===true||x.props?.tripped===true;
     addBranch(x,a,b,"resistor",{R:closed&&!tripped?Math.max(EPS,value(x,["onResistance"],1e-6)):Math.max(EPS,value(x,["offResistance"],3e10)),contactId:contact.id});
    }
@@ -100,7 +100,7 @@ function build(project,options={}){
    const index=new Map((definition?.terminals||[]).map((t,i)=>[String(t.id),p[i]]));
    for(const contact of definition?.paths||[]){if(contact.kind!=="switchable")continue;const a=index.get(String(contact.from)),b=index.get(String(contact.to));if(!a||!b||!wired.has(a)||!wired.has(b))continue;
     const stateValue=x.state?.[contact.stateKey]??x.props?.[contact.stateKey]??(contact.stateKey==="closed"?x.props?.closed:undefined);
-    const closed=stateValue===undefined?contact.closedWhen!==false:Boolean(stateValue)===Boolean(contact.closedWhen??true);
+    const closed=typeof contact.closedWhen==="string"?String(stateValue??"off")===contact.closedWhen:(stateValue===undefined?contact.closedWhen!==false:Boolean(stateValue)===Boolean(contact.closedWhen??true));
     const tripped=x.state?.tripped===true;
     addBranch(x,a,b,"resistor",{R:closed&&!tripped?Math.max(EPS,value(x,["onResistance"],1e-6)):Math.max(EPS,value(x,["offResistance"],3e10)),contactId:contact.id});
    }
@@ -123,7 +123,7 @@ function build(project,options={}){
   else if(["vcvs","dependent_voltage_source"].includes(ty))voltageSources.push({comp:x,a:nodeFor(a),b:nodeFor(b),kind:"vcvs",gain:value(x,["gain"],1),cp:nodeFor(p[2]||a),cm:nodeFor(p[3]||b)});
   else if(["vccs","dependent_current_source"].includes(ty))addBranch(x,a,b,"vccs",{gm:value(x,["transconductance","gm"],1e-3),cp:nodeFor(p[2]||a),cm:nodeFor(p[3]||b)});
  }
- return {t,comps,nodeFor,nodeKeys,ground,branches,voltageSources,currentSources,N:nodeKeys.length};
+ return {t,comps,nodeFor,nodeKeys,ground,branches,voltageSources,currentSources,wired,N:nodeKeys.length};
 }
 function stampG(A,a,b,g){
  if(a>0)A[a-1][a-1]=add(A[a-1][a-1],g);
@@ -168,6 +168,7 @@ function operatingPoint(project,options={}){
   let changed=false;
   for(const q of b.branches){if(!q.coil)continue;const coilVoltage=Math.abs(nodeVoltage(q.a)-nodeVoltage(q.b));const rated=Math.max(EPS,value(q.comp,["coilVoltage","ratedCoilVoltage"],q.comp.type==="contactor"?230:24));const next=coilVoltage>=rated*0.8;const previous=Boolean(stateOverrides[q.comp.id]??q.comp.state?.energized??q.comp.props?.energized??false);if(next!==previous){stateOverrides[q.comp.id]=next;changed=true}else if(stateOverrides[q.comp.id]===undefined){stateOverrides[q.comp.id]=next}}
   for(const device of b.comps){if(!["overload_relay","thermal_overload_relay","industrial_industrial_overload_relay"].includes(typeOf(device)))continue;const alreadyTripped=Boolean(stateOverrides[device.id]?.tripped??device.state?.tripped??device.props?.tripped??false);if(alreadyTripped){if(stateOverrides[device.id]===undefined)stateOverrides[device.id]={tripped:true};continue}const peak=(b.branches.filter(q=>q.comp.id===device.id&&q.thermal).reduce((max,q)=>Math.max(max,Math.abs(nodeVoltage(q.a)-nodeVoltage(q.b))/q.R),0)),rated=Math.max(EPS,value(device,["ratedCurrent","currentRating","setting"],10)),multiplier=Math.max(1,value(device,["tripMultiplier"],1.05));if(peak>rated*multiplier){stateOverrides[device.id]={tripped:true};changed=true}else if(stateOverrides[device.id]===undefined)stateOverrides[device.id]={tripped:false}}
+  for(const device of b.comps){if(typeOf(device)!=="automatic_transfer_switch")continue;const def=window.VoltProTerminalGraph?.definitionFor?.(device.type),pins=pinsOf(device),map=new Map((def?.terminals||[]).map((t,i)=>[String(t.id),pins[i]])),nL1=map.get("N-L1"),nN=map.get("N-N"),eL1=map.get("E-L1"),eN=map.get("E-N"),normalVoltage=b.wired.has(nL1)&&b.wired.has(nN)?Math.abs(nodeVoltage(b.nodeFor(nL1))-nodeVoltage(b.nodeFor(nN))):0,emergencyVoltage=b.wired.has(eL1)&&b.wired.has(eN)?Math.abs(nodeVoltage(b.nodeFor(eL1))-nodeVoltage(b.nodeFor(eN))):0,minVoltage=Math.max(EPS,value(device,["minVoltage","pickupVoltage"],180)),next=normalVoltage>=minVoltage?"normal":emergencyVoltage>=minVoltage?"emergency":"off",previous=stateOverrides[device.id]?.transferSource??device.state?.transferSource??device.props?.transferSource??"normal";if(next!==previous){stateOverrides[device.id]={...(typeof stateOverrides[device.id]==="object"?stateOverrides[device.id]:{}),transferSource:next};changed=true}else if(stateOverrides[device.id]===undefined)stateOverrides[device.id]={transferSource:next}}
   if(!changed)break;
  }
  const nodeVoltage=n=>n===0?0:(result.x[n-1]?.re||0);
@@ -190,6 +191,7 @@ function ac(project,{start=1,stop=1e5,points=50,frequency=50,groundRef}={}){
    const nodeV=n=>n===0?C():result.x[n-1]||C();let changed=false;
    for(const q of b.branches){if(!q.coil)continue;const coilVoltage=mag(sub(nodeV(q.a),nodeV(q.b))),rated=Math.max(EPS,value(q.comp,["coilVoltage","ratedCoilVoltage"],q.comp.type==="contactor"?230:24)),next=coilVoltage>=rated*.8,previous=Boolean(stateOverrides[q.comp.id]??q.comp.state?.energized??q.comp.props?.energized??false);if(next!==previous){stateOverrides[q.comp.id]=next;changed=true}else if(stateOverrides[q.comp.id]===undefined)stateOverrides[q.comp.id]=next}
    for(const device of b.comps){if(!["overload_relay","thermal_overload_relay","industrial_industrial_overload_relay"].includes(typeOf(device)))continue;const alreadyTripped=Boolean(stateOverrides[device.id]?.tripped??device.state?.tripped??device.props?.tripped??false);if(alreadyTripped){if(stateOverrides[device.id]===undefined)stateOverrides[device.id]={tripped:true};continue}const peak=b.branches.filter(q=>q.comp.id===device.id&&q.thermal).reduce((max,q)=>Math.max(max,mag(div(sub(nodeV(q.a),nodeV(q.b)),C(q.R)))),0),rated=Math.max(EPS,value(device,["ratedCurrent","currentRating","setting"],10)),multiplier=Math.max(1,value(device,["tripMultiplier"],1.05));if(peak>rated*multiplier){stateOverrides[device.id]={tripped:true};changed=true}else if(stateOverrides[device.id]===undefined)stateOverrides[device.id]={tripped:false}}
+   for(const device of b.comps){if(typeOf(device)!=="automatic_transfer_switch")continue;const def=window.VoltProTerminalGraph?.definitionFor?.(device.type),pins=pinsOf(device),map=new Map((def?.terminals||[]).map((t,i)=>[String(t.id),pins[i]])),nL1=map.get("N-L1"),nN=map.get("N-N"),eL1=map.get("E-L1"),eN=map.get("E-N"),normalVoltage=b.wired.has(nL1)&&b.wired.has(nN)?mag(sub(nodeV(b.nodeFor(nL1)),nodeV(b.nodeFor(nN)))):0,emergencyVoltage=b.wired.has(eL1)&&b.wired.has(eN)?mag(sub(nodeV(b.nodeFor(eL1)),nodeV(b.nodeFor(eN)))):0,minVoltage=Math.max(EPS,value(device,["minVoltage","pickupVoltage"],180)),next=normalVoltage>=minVoltage?"normal":emergencyVoltage>=minVoltage?"emergency":"off",previous=stateOverrides[device.id]?.transferSource??device.state?.transferSource??device.props?.transferSource??"normal";if(next!==previous){stateOverrides[device.id]={...(typeof stateOverrides[device.id]==="object"?stateOverrides[device.id]:{}),transferSource:next};changed=true}else if(stateOverrides[device.id]===undefined)stateOverrides[device.id]={transferSource:next}}
    if(!changed)break;
   }
   const x=result.x,nodeV=n=>n===0?C():x[n-1]||C(),vs=b.voltageSources[0],vout=vs?sub(nodeV(vs.a),nodeV(vs.b)):C(),z=vs&&x[b.N]&&mag(x[b.N])>EPS?div(vout,x[b.N]):C(Infinity,0);
