@@ -18,13 +18,16 @@ function simulate(code,opts={}){
  if(loop===null){runWrites(source,pins);runConditionals(source,pins,inputs)}
  else if(!hasTimedLoop){runWrites(source,pins);runConditionals(source,pins,inputs)}
  else if(instructions.length){
-  let dtLeft=Math.max(0,Number(opts.dtMs)||0),steps=0,allowZeroTimeTail=false;
-  while((dtLeft>0||allowZeroTimeTail)&&steps++<500){
-   if(delayRemainingMs>0){if(dtLeft<=0)break;const used=Math.min(dtLeft,delayRemainingMs);delayRemainingMs-=used;dtLeft-=used;if(delayRemainingMs>0)break;allowZeroTimeTail=true;continue}
-   if(pc>=instructions.length)pc=0;
-   const instruction=instructions[pc++];
-   if(instruction.type==="delay"){delayRemainingMs=instruction.ms;if(delayRemainingMs>0&&dtLeft<=0)break;if(delayRemainingMs===0)allowZeroTimeTail=true}
-   else applyWrite(pins,instruction.method,instruction.pin,instruction.value);
+  if(!instructions.some(instruction=>instruction.type==="delay")){for(const instruction of instructions)if(instruction.type==="write")applyWrite(pins,instruction.method,instruction.pin,instruction.value);pc=0;delayRemainingMs=0}
+  else {
+   let dtLeft=Math.max(0,Number(opts.dtMs)||0),steps=0,allowZeroTimeTail=false;
+   while((dtLeft>0||allowZeroTimeTail)&&steps++<500){
+    if(delayRemainingMs>0){if(dtLeft<=0)break;const used=Math.min(dtLeft,delayRemainingMs);delayRemainingMs-=used;dtLeft-=used;if(delayRemainingMs>0)break;allowZeroTimeTail=true;continue}
+    if(pc>=instructions.length)pc=0;
+    const instruction=instructions[pc++];
+    if(instruction.type==="delay"){delayRemainingMs=instruction.ms;if(delayRemainingMs>0&&dtLeft<=0)break;if(delayRemainingMs===0)allowZeroTimeTail=true}
+    else applyWrite(pins,instruction.method,instruction.pin,instruction.value);
+   }
   }
  }
  const prints=source.match(/Serial\.println?\s*\(([^)]*)\)/g)||[];prints.forEach(x=>serial.push(x.replace(/^.*?\((.*)\).*$/,"$1")));
