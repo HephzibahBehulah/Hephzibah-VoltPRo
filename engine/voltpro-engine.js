@@ -33,7 +33,7 @@ function topology(project){
  return {find};
 }
 function build(project,options={}){
- const t=topology(project), comps=project.components||[], source=comps.find(x=>["battery","dcsource","voltage_source","ac_source"].includes(typeOf(x)));
+ const t=topology(project), comps=project.components||[], source=comps.find(x=>["battery","dcsource","voltage_source","ac_source","acsource"].includes(typeOf(x)));
  const explicit=options.groundRef||project.groundRef||"GND";
  let ground=explicit;
  if(!comps.some(x=>pinsOf(x).includes(explicit)) && source)ground=pinsOf(source)[1];
@@ -46,6 +46,23 @@ function build(project,options={}){
  const addBranch=(comp,a,b,kind,extra={})=>branches.push({comp,a:nodeFor(a),b:nodeFor(b),kind,...extra});
  for(const x of comps){
   const p=pinsOf(x),ty=typeOf(x),definition=window.VoltProTerminalGraph?.definitionFor?.(x.type);
+  if(ty==="contactor"||ty==="relay"){
+   // Coil and every main/auxiliary contact are separate electrical branches.
+   // The operating-point loop derives energized state from solved coil voltage.
+   const index=new Map((definition?.terminals||[]).map((t,i)=>[String(t.id),p[i]]));
+   const energized=options.stateOverrides?.[x.id]??x.state?.energized??x.props?.energized??false;
+   for(const contact of definition?.paths||[]){const a=index.get(String(contact.from)),b=index.get(String(contact.to));if(!a||!b||!wired.has(a)||!wired.has(b))continue;
+    if(contact.kind==="coil"){
+     addBranch(x,a,b,"resistor",{R:Math.max(EPS,value(x,["coilResistance"],ty==="contactor"?82:240)),contactId:contact.id,coil:true});
+     continue;
+    }
+    if(contact.kind!=="switchable")continue;
+    const stateValue=contact.stateKey==="energized"?energized:(x.state?.[contact.stateKey]??x.props?.[contact.stateKey]);
+    const closed=stateValue===undefined?contact.closedWhen!==false:Boolean(stateValue)===Boolean(contact.closedWhen??true);
+    addBranch(x,a,b,closed?"resistor":"open",{R:Math.max(EPS,value(x,["onResistance"],1e-6)),contactId:contact.id});
+   }
+   continue;
+  }
   if(/^circuit-breaker-[1234]p$/.test(String(x.type))||x.type==="auxiliary-contact-block"||x.type==="abb-aux-cb-11"){
    const index=new Map((definition?.terminals||[]).map((t,i)=>[String(t.id),p[i]]));
    for(const contact of definition?.paths||[]){if(contact.kind!=="switchable")continue;const a=index.get(String(contact.from)),b=index.get(String(contact.to));if(!a||!b||!wired.has(a)||!wired.has(b))continue;
@@ -59,15 +76,17 @@ function build(project,options={}){
   if(p.length<2)continue;
   const a=p[0],b=p[1];
   if(["resistor","lamp","heater","buzzer"].includes(ty))addBranch(x,a,b,"resistor",{R:Math.max(EPS,value(x,["resistance","resistance_ohm","value"],1000))});
-  else if(ty==="switch"||["fuse","breaker","mcb","mccb","rcd","rcbo","relay","contactor","emergency_stop"].includes(ty)){
-   const closed=x.props?.closed!==false && x.props?.closed!==0 && x.props?.closed!=="0" && x.props?.state!=="open";addBranch(x,a,b,closed?"resistor":"open",{R:closed?Math.max(EPS,value(x,["onResistance"],1e-6)):1e30});
+  else if(ty==="switch"||["fuse","breaker","mcb","mccb","rcd","rcbo","emergency_stop"].includes(ty)){
+   const raw=x.state?.closed??x.props?.closed??x.props?.state;
+   const closed=raw===undefined?true:!(raw===false||raw===0||raw==="0"||String(raw).toLowerCase()==="open"||String(raw).toLowerCase()==="false");
+   addBranch(x,a,b,closed?"resistor":"open",{R:closed?Math.max(EPS,value(x,["onResistance"],1e-6)):1e30});
   } else if(["capacitor","c"].includes(ty))addBranch(x,a,b,"capacitor",{C:Math.max(EPS,value(x,["capacitance","value"],1e-6))});
   else if(["inductor","l"].includes(ty))addBranch(x,a,b,"inductor",{L:Math.max(EPS,value(x,["inductance","value"],1e-3))});
   else if(["diode","zener","led"].includes(ty))addBranch(x,a,b,"diode",{vf:Math.max(0,value(x,["forward","forwardVoltage","vf"],ty==="led"?2:0.7)),rd:Math.max(1e-6,value(x,["resistance","dynamicResistance"],10)),reverse:Math.max(1e-9,value(x,["reverseLeakage"],1e-9))});
   else if(["bjt","transistor","npn","pnp"].includes(ty))addBranch(x,a,b,"bjt",{beta:Math.max(1,value(x,["beta","gain"],100)),vt:0.7});
   else if(["mosfet","nmos","pmos","igbt"].includes(ty))addBranch(x,a,b,"mosfet",{threshold:value(x,["threshold","vth"],3),onResistance:Math.max(1e-6,value(x,["onResistance","rdsOn"],1))});
   else if(["current_source","isource"].includes(ty))voltageSources.push({comp:x,a:nodeFor(a),b:nodeFor(b),kind:"current",value:value(x,["current","amplitude"],1)});
-  else if(["battery","dcsource","voltage_source","ac_source"].includes(ty))voltageSources.push({comp:x,a:nodeFor(a),b:nodeFor(b),kind:"voltage",value:value(x,["voltage","amplitude"],12),phase:value(x,["phase","phaseDeg"],0)});
+  else if(["battery","dcsource","voltage_source","ac_source","acsource"].includes(ty))voltageSources.push({comp:x,a:nodeFor(a),b:nodeFor(b),kind:"voltage",value:value(x,["voltage","amplitude"],12),phase:value(x,["phase","phaseDeg"],0)});
   else if(["vcvs","dependent_voltage_source"].includes(ty))voltageSources.push({comp:x,a:nodeFor(a),b:nodeFor(b),kind:"vcvs",gain:value(x,["gain"],1),cp:nodeFor(p[2]||a),cm:nodeFor(p[3]||b)});
   else if(["vccs","dependent_current_source"].includes(ty))addBranch(x,a,b,"vccs",{gm:value(x,["transconductance","gm"],1e-3),cp:nodeFor(p[2]||a),cm:nodeFor(p[3]||b)});
  }
@@ -104,12 +123,24 @@ function linearSolve(b,options,history={}){
  return {ok:true,x,nodeCount:n,sourceCount:vs};
 }
 function operatingPoint(project,options={}){
- const b=build(project,options);let xPrev=Array.from({length:b.N},()=>C()),result;
- for(let it=0;it<12;it++){const previous=xPrev.slice();result=linearSolve(b,{...options,xPrev});if(!result.ok)return {ok:false,analysis:"DC operating point",error:result.error};xPrev=result.x.slice(0,b.N);if(xPrev.every((v,i)=>mag(sub(v,previous[i]||C()))<1e-9))break}
- const x=result.x, nodeVoltage=n=>n===0?0:(x[n-1]?.re||0), branches=b.branches.map(q=>{const u=nodeVoltage(q.a)-nodeVoltage(q.b);let i=0;if(q.kind==="resistor")i=u/q.R;else if(q.kind==="diode")i=u>=q.vf?(u-q.vf)/q.rd:u*q.reverse;else if(q.kind==="bjt")i=u>q.vt?(u-q.vt)/q.beta/Math.max(q.vt,EPS):u*1e-9;else if(q.kind==="mosfet")i=u>q.threshold?u/q.onResistance:u*1e-9;return {id:q.comp.id,type:q.comp.type,voltage:u,current:i,power:u*i}});
+ let stateOverrides={},b,result,xPrev;
+ // Electromechanical coupling: solve coil voltage, update contact state, then solve
+ // the changed network again until the relay/contactor state stabilizes.
+ for(let stateIteration=0;stateIteration<8;stateIteration++){
+  b=build(project,{...options,stateOverrides});
+  xPrev=Array.from({length:b.N},()=>C());
+  for(let it=0;it<12;it++){const previous=xPrev.slice();result=linearSolve(b,{...options,xPrev});if(!result.ok)return {ok:false,analysis:"DC operating point",error:result.error};xPrev=result.x.slice(0,b.N);if(xPrev.every((v,i)=>mag(sub(v,previous[i]||C()))<1e-9))break}
+  const nodeVoltage=n=>n===0?0:(result.x[n-1]?.re||0);
+  let changed=false;
+  for(const q of b.branches){if(!q.coil)continue;const coilVoltage=Math.abs(nodeVoltage(q.a)-nodeVoltage(q.b));const rated=Math.max(EPS,value(q.comp,["coilVoltage","ratedCoilVoltage"],q.comp.type==="contactor"?230:24));const next=coilVoltage>=rated*0.8;const previous=Boolean(stateOverrides[q.comp.id]??q.comp.state?.energized??q.comp.props?.energized??false);if(next!==previous){stateOverrides[q.comp.id]=next;changed=true}else if(stateOverrides[q.comp.id]===undefined){stateOverrides[q.comp.id]=next}}
+  if(!changed)break;
+ }
+ const nodeVoltage=n=>n===0?0:(result.x[n-1]?.re||0);
+ const x=result.x;
+ const branches=b.branches.map(q=>{const u=nodeVoltage(q.a)-nodeVoltage(q.b);let i=0;if(q.kind==="resistor")i=u/q.R;else if(q.kind==="diode")i=u>=q.vf?(u-q.vf)/q.rd:u*q.reverse;else if(q.kind==="bjt")i=u>q.vt?(u-q.vt)/q.beta/Math.max(q.vt,EPS):u*1e-9;else if(q.kind==="mosfet")i=u>q.threshold?u/q.onResistance:u*1e-9;return {id:q.comp.id,type:q.comp.type,contactId:q.contactId||null,voltage:u,current:i,power:u*i}});
  const sourceCurrents=b.voltageSources.map((q,k)=>({id:q.comp.id,type:q.comp.type,current:x[b.N+k]?.re||0}));
  const totalCurrent=sourceCurrents.reduce((s,q)=>s+Math.abs(q.current),0);
- return {ok:true,analysis:"DC operating point (MNA)",engine:"VoltPRo MNA",sourceVoltage:b.voltageSources[0]?.value||0,totalCurrent,totalPower:branches.reduce((s,q)=>s+q.power,0),nodes:b.N,branches,sourceCurrents,nodeVoltages:Array.from({length:b.N},(_,i)=>({node:i+1,voltage:nodeVoltage(i+1)})),iterations:12};
+ return {ok:true,analysis:"DC operating point (MNA)",engine:"VoltPRo MNA",sourceVoltage:b.voltageSources[0]?.value||0,totalCurrent,totalPower:branches.reduce((s,q)=>s+q.power,0),nodes:b.N,branches,sourceCurrents,nodeVoltages:Array.from({length:b.N},(_,i)=>({node:i+1,voltage:nodeVoltage(i+1)})),deviceStates:Object.fromEntries(Object.entries(stateOverrides)),iterations:12};
 }
 function dc(project,options={}){return operatingPoint(project,options)}
 function ac(project,{start=1,stop=1e5,points=50,frequency=50,groundRef}={}){
