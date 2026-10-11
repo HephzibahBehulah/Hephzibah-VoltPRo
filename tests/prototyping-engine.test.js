@@ -152,6 +152,19 @@ test("catalog proximity sensor opens and closes as its active state changes",()=
  assert.ok(Math.abs(active.branches.find(b=>b.id==="R1").current-.12)<1e-6);
 });
 
+
+test("rated fluorescent catalog lamps use their nameplate power",()=>{
+ const p={components:[
+  comp("V1","ac_source",2,{voltage:230,frequency:50}),
+  comp("L1","lighting-lamp-fluorescent-18w",2,{ratedVoltage:230,ratedPower:18})
+ ],wires:[wire("V1:0","L1:0"),wire("L1:1","V1:1")]};
+ const result=E.ac(p,{frequency:50,points:1});
+ assert.equal(result.ok,true,JSON.stringify(result));
+ const lamp=result.sweep[0].branches.find(b=>b.id==="L1");
+ assert.ok(Math.abs(lamp.current-18/230)<1e-5);
+ assert.ok(Math.abs(lamp.power-18)<1e-3);
+});
+
 test("BB400 joins each five-hole strip and power rail in the MNA topology",()=>{const p={components:[comp("V1","battery",2,{voltage:5}),comp("R1","resistor",2,{resistance:100}),comp("BB1","breadboard-bb400",400)],wires:[wire("V1:0","BB1:0"),wire("R1:0","BB1:30"),wire("R1:1","BB1:150"),wire("V1:1","BB1:150")]};const result=E.analyze(p).dc;assert.equal(result.ok,true,JSON.stringify(result));assert.ok(result.totalCurrent>0.04&&result.totalCurrent<0.06,"expected about 50 mA through 100 Ω at 5 V")});
 test("one-pole breaker opens and closes its actual line/load path",()=>{const base={components:[comp("V1","battery",2,{voltage:12}),comp("Q1","circuit-breaker-1p",2,{rating:16,closed:1}),comp("R1","resistor",2,{resistance:100})],wires:[wire("V1:0","Q1:0"),wire("Q1:1","R1:0"),wire("R1:1","V1:1")]};const closed=E.analyze(base).dc;assert.equal(closed.ok,true,JSON.stringify(closed));assert.ok(closed.totalCurrent>0.1);const opened=E.analyze({...base,components:base.components.map(c=>c.id==="Q1"?{...c,props:{...c.props,closed:0}}:c)}).dc;assert.equal(opened.ok,true,JSON.stringify(opened));assert.ok(Math.abs(opened.totalCurrent)<1e-9)});
 
