@@ -157,10 +157,18 @@ function operatingPoint(project,options={}){
 }
 function dc(project,options={}){return operatingPoint(project,options)}
 function ac(project,{start=1,stop=1e5,points=50,frequency=50,groundRef}={}){
- const b=build(project,{groundRef}), freqs=points<=1?[frequency]:Array.from({length:points},(_,i)=>start*Math.pow(stop/start,i/(points-1))),rows=[];
+ const freqs=points<=1?[frequency]:Array.from({length:points},(_,i)=>start*Math.pow(stop/start,i/(points-1))),rows=[];
  for(const f of freqs){
-  const scale=2*Math.PI*f,result=linearSolve(b,{frequency:f,omega:scale,ac:true,xPrev:Array.from({length:b.N},()=>C())},{});
-  if(!result.ok)return {ok:false,analysis:"AC sweep",error:result.error};
+  const scale=2*Math.PI*f;let stateOverrides={},b,result;
+  // Resolve coil state from AC RMS phasor voltage, then solve the changed network.
+  for(let stateIteration=0;stateIteration<8;stateIteration++){
+   b=build(project,{groundRef,stateOverrides});
+   result=linearSolve(b,{frequency:f,omega:scale,ac:true,xPrev:Array.from({length:b.N},()=>C())},{});
+   if(!result.ok)return {ok:false,analysis:"AC sweep",error:result.error};
+   const nodeV=n=>n===0?C():result.x[n-1]||C();let changed=false;
+   for(const q of b.branches){if(!q.coil)continue;const coilVoltage=mag(sub(nodeV(q.a),nodeV(q.b))),rated=Math.max(EPS,value(q.comp,["coilVoltage","ratedCoilVoltage"],q.comp.type==="contactor"?230:24)),next=coilVoltage>=rated*.8,previous=Boolean(stateOverrides[q.comp.id]??q.comp.state?.energized??q.comp.props?.energized??false);if(next!==previous){stateOverrides[q.comp.id]=next;changed=true}else if(stateOverrides[q.comp.id]===undefined)stateOverrides[q.comp.id]=next}
+   if(!changed)break;
+  }
   const x=result.x,nodeV=n=>n===0?C():x[n-1]||C(),vs=b.voltageSources[0],vout=vs?sub(nodeV(vs.a),nodeV(vs.b)):C(),z=vs&&x[b.N]?div(vout,x[b.N]):C(Infinity,0);
   const branches=b.branches.map(q=>{
    const v=sub(nodeV(q.a),nodeV(q.b));let i=C();
@@ -173,7 +181,7 @@ function ac(project,{start=1,stop=1e5,points=50,frequency=50,groundRef}={}){
   });
   const sourceCurrents=b.voltageSources.map((q,k)=>{const i=x[b.N+k]||C();return {id:q.comp.id,type:q.comp.type,phaseName:q.phaseName||null,current:mag(i),phaseDeg:deg(i),real:i.re,imag:i.im}});
   const nodeVoltages=Array.from({length:b.N},(_,i)=>({node:i+1,voltage:mag(x[i]||C()),phaseDeg:deg(x[i]||C()),real:(x[i]||C()).re,imag:(x[i]||C()).im}));
-  rows.push({frequency:f,magnitude:mag(vout),phaseDeg:deg(vout),impedanceMagnitude:mag(z),impedancePhaseDeg:deg(z),branches,nodeVoltages,sourceCurrents,totalCurrent:sourceCurrents.length?sourceCurrents.reduce((sum,q)=>sum+q.current,0)/sourceCurrents.length:0,totalPower:branches.reduce((sum,q)=>sum+q.power,0)});
+  rows.push({frequency:f,magnitude:mag(vout),phaseDeg:deg(vout),impedanceMagnitude:mag(z),impedancePhaseDeg:deg(z),branches,nodeVoltages,sourceCurrents,deviceStates:{...stateOverrides},totalCurrent:sourceCurrents.length?sourceCurrents.reduce((sum,q)=>sum+q.current,0)/sourceCurrents.length:0,totalPower:branches.reduce((sum,q)=>sum+q.power,0)});
  }
  return {ok:true,analysis:"AC sweep (MNA)",frequency,points:freqs.length,start,stop,sweep:rows};
 }
