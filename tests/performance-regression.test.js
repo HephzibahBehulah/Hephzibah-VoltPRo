@@ -172,3 +172,5 @@ test("wire inspector exposes cable type, colour, cross-section, width and line p
   assert.ok(source.includes("wire-bend-handle"));
   assert.ok(source.includes("if(wireBending)"));
 });
+
+test("PLC workbench executes the ladder scan engine instead of hard-coded output equations",()=>{const source=fs.readFileSync(path.join(root,"platform/workbench.js"),"utf8");assert.ok(source.includes("window.VoltProLadder?.scan"));assert.ok(source.includes('{address:"Q0",type:"NO"}'));assert.ok(source.includes("Seal-in contact Q0"))});
