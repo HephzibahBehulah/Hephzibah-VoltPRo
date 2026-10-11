@@ -828,3 +828,30 @@ test("catalog clock output toggles with its configured frequency and scan interv
  p.components.find(c=>c.id==="CLK").state={...r.deviceStates.CLK};
  r=E.dc(p,{scanTimeMs:50});assert.equal(r.ok,true,JSON.stringify(r));assert.equal(r.deviceStates.CLK.outputHigh,false);
 });
+
+test("catalog 2-to-1 multiplexer selects the requested input and drives its output",()=>{
+ const make=select=>({components:[comp("VA","battery",2,{voltage:5}),comp("VB","battery",2,{voltage:0}),comp("VS","battery",2,{voltage:select?5:0}),comp("M1","logic-logic-multiplexer",4,{inputThreshold:2.5,logicVoltage:5}),comp("R1","resistor",2,{resistance:1000})],wires:[wire("VA:1","VB:1"),wire("VB:1","VS:1"),wire("VB:1","R1:1"),wire("VA:0","M1:0"),wire("VB:0","M1:1"),wire("VS:0","M1:2"),wire("M1:3","R1:0")]});
+ const a=E.dc(make(false)),b=E.dc(make(true));
+ assert.equal(a.ok,true,JSON.stringify(a));assert.equal(b.ok,true,JSON.stringify(b));
+ assert.equal(a.deviceStates.M1.outputs.Y,5);assert.equal(b.deviceStates.M1.outputs.Y,0);
+});
+test("catalog full adder produces correct sum and carry outputs",()=>{
+ const p={components:[comp("VA","battery",2,{voltage:5}),comp("VB","battery",2,{voltage:5}),comp("VC","battery",2,{voltage:0}),comp("A1","logic-logic-adder",5,{inputThreshold:2.5,logicVoltage:5})],wires:[wire("VA:1","VB:1"),wire("VB:1","VC:1"),wire("VA:0","A1:0"),wire("VB:0","A1:1"),wire("VC:0","A1:2")]};
+ const result=E.dc(p);
+ assert.equal(result.ok,true,JSON.stringify(result));
+ assert.equal(result.deviceStates.A1.outputs.Sum,0);
+ assert.equal(result.deviceStates.A1.outputs.Cout,5);
+});
+test("catalog 2-to-4 decoder activates the selected one-hot output",()=>{
+ const p={components:[comp("VA","battery",2,{voltage:5}),comp("VB","battery",2,{voltage:0}),comp("D1","logic-logic-decoder",6,{inputThreshold:2.5,logicVoltage:5})],wires:[wire("VA:1","VB:1"),wire("VA:0","D1:0"),wire("VB:0","D1:1")]};
+ const result=E.dc(p);
+ assert.equal(result.ok,true,JSON.stringify(result));
+ assert.deepEqual(result.deviceStates.D1.outputs,{Y0:0,Y1:5,Y2:0,Y3:0});
+});
+test("catalog full subtractor computes difference and borrow",()=>{
+ const p={components:[comp("VA","battery",2,{voltage:0}),comp("VB","battery",2,{voltage:5}),comp("VC","battery",2,{voltage:0}),comp("S1","logic-logic-subtractor",5,{inputThreshold:2.5,logicVoltage:5})],wires:[wire("VA:1","VB:1"),wire("VB:1","VC:1"),wire("VA:0","S1:0"),wire("VB:0","S1:1"),wire("VC:0","S1:2")]};
+ const result=E.dc(p);
+ assert.equal(result.ok,true,JSON.stringify(result));
+ assert.equal(result.deviceStates.S1.outputs.Diff,5);
+ assert.equal(result.deviceStates.S1.outputs.Borrow,5);
+});
