@@ -55,3 +55,28 @@ test("balanced three-phase MNA source drives all three motor windings at phase v
  for(const winding of windings){assert.ok(Math.abs(winding.voltage-400/Math.sqrt(3))<.1,"expected phase voltage: "+JSON.stringify(winding));assert.ok(Math.abs(winding.current-(400/Math.sqrt(3))/24)<.01,"expected winding current: "+JSON.stringify(winding))}
  assert.equal(row.sourceCurrents.filter(s=>s.id==="PS1").length,3);
 });
+
+test("three-phase contactor coil energizes from phase-neutral AC voltage and closes motor poles",()=>{
+ const p={components:[comp("PS1","threephase",4,{voltage:400,frequency:50}),comp("KM1","contactor",12,{coilVoltage:230,coilResistance:82}),comp("M1","motor",7,{resistance:24})],wires:[
+ wire("PS1:0","KM1:0"),wire("KM1:1","PS1:3"),
+ wire("PS1:0","KM1:2"),wire("KM1:3","M1:0"),
+ wire("PS1:1","KM1:4"),wire("KM1:5","M1:1"),
+ wire("PS1:2","KM1:6"),wire("KM1:7","M1:2"),
+ wire("M1:3","PS1:3"),wire("M1:4","PS1:3"),wire("M1:5","PS1:3")
+ ]};
+ const result=E.ac(p,{frequency:50,points:1});
+ assert.equal(result.ok,true,JSON.stringify(result));
+ const row=result.sweep[0];
+ assert.equal(row.deviceStates.KM1,true,"phase-neutral voltage should energize the 230 V coil");
+ assert.ok(row.branches.some(b=>b.id==="KM1"&&b.contactId==="main-1"&&b.current>9),"contactor main pole should carry motor phase current");
+ assert.equal(row.branches.filter(b=>b.id==="M1").length,3);
+});
+test("independent current sources stamp without creating floating voltage-source unknowns",()=>{
+ const p={components:[comp("V1","battery",2,{voltage:12}),comp("I1","current_source",2,{current:.01}),comp("R1","resistor",2,{resistance:1000})],wires:[
+ wire("V1:0","I1:0"),wire("I1:1","V1:1"),wire("V1:0","R1:0"),wire("R1:1","V1:1")
+ ]};
+ const result=E.analyze(p).dc;
+ assert.equal(result.ok,true,JSON.stringify(result));
+ assert.ok(Math.abs(result.branches.find(b=>b.id==="R1").current-.012)<1e-9);
+ assert.ok(Math.abs(result.totalCurrent-.022)<1e-8);
+});
