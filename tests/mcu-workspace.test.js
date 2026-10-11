@@ -6,6 +6,9 @@ const ui=fs.readFileSync("platform/mcu-lab-ui.js","utf8");
 const simulator=fs.readFileSync("simulator.html","utf8");
 const breadboard=fs.readFileSync("breadboard.html","utf8");
 const worker=fs.readFileSync("service-worker.js","utf8");
+const runtime=fs.readFileSync("simulator.js","utf8");
+const css=fs.readFileSync("simulator.css","utf8");
+const bridge=fs.readFileSync("platform/mcu-circuit-bridge.js","utf8");
 
 test("Microcontroller Lab exposes a board pinout, sketch controls and modeled virtual I/O",()=>{
   for(const id of ["vpwBoard","vpwCode","vpwRunMcu","vpwStepMcu","vpwStopMcu","vpwResetMcu","vpwDigitalPins","vpwAnalogPins","vpwLedPin","vpwButtonPin","vpwMcuPins","vpwMcuOut","vpwMcuDetails"]){
@@ -27,12 +30,22 @@ test("MCU runner lifecycle clears timers and supports a changing tick interval",
 test("simulator and breadboard load the current MCU workspace and engine assets",()=>{
   for(const page of [simulator,breadboard]){
     assert.match(page,/platform\/mcu-engine\.js\?v=20261013a/);
+    assert.match(page,/platform\/mcu-circuit-bridge\.js\?v=20261013a/);
     assert.match(page,/platform\/mcu-lab-ui\.js\?v=20261013a/);
   }
 });
 
 test("service worker cache version is advanced for the MCU workspace release",()=>{
-  assert.match(worker,/const CACHE="voltpro-v70"/);
-  assert.match(worker,/"\.\/platform\/mcu-lab-ui\.js"/);
-  assert.match(worker,/"\.\/platform\/mcu-engine\.js"/);
+  assert.match(worker,/const CACHE="voltpro-v71"/); 
+  assert.ok(worker.includes('"./platform/mcu-circuit-bridge.js"'));
+  assert.ok(worker.includes('"./platform/mcu-lab-ui.js"'));
+  assert.ok(worker.includes('"./platform/mcu-engine.js"'));
+});
+
+test("MCU outputs propagate into correctly wired schematic LED visuals",()=>{
+  assert.match(runtime,/syncMcuOutputs:outputs=>/);
+  assert.match(runtime,/mcu-led-lit/);
+  assert.match(css,/\.component\.mcu-led-lit/);
+  assert.match(bridge,/function evaluate\(components,wires,outputs=\{\}\)/);
+  assert.match(bridge,/No series current-limiting resistor found/);
 });
