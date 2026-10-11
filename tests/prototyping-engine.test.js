@@ -693,3 +693,28 @@ test("catalog potentiometer variants resolve their encoded resistance",()=>{
  assert.equal(result.ok,true,JSON.stringify(result));
  assert.ok(Math.abs(result.branches.find(b=>b.id==="P1").current-.01)<1e-7);
 });
+
+test("catalog DC power module uses its encoded 5 V rating instead of generic catalog defaults",()=>{
+ const p={components:[comp("V1","power-power-dc-5v",2,{ratedVoltage:230,value:50}),comp("R1","resistor",2,{resistance:100})],wires:[wire("V1:0","R1:0"),wire("R1:1","V1:1")]};
+ const result=E.dc(p);
+ assert.equal(result.ok,true,JSON.stringify(result));
+ assert.ok(Math.abs(result.branches.find(b=>b.id==="R1").current-.05)<1e-7);
+});
+test("catalog AC power module provides its encoded 230 V output",()=>{
+ const p={components:[comp("V1","power-power-ac-230v",2,{ratedVoltage:230,value:50}),comp("R1","resistor",2,{resistance:100})],wires:[wire("V1:0","R1:0"),wire("R1:1","V1:1")]};
+ const result=E.ac(p,{frequency:50,points:1});
+ assert.equal(result.ok,true,JSON.stringify(result));
+ assert.ok(Math.abs(result.sweep[0].branches.find(b=>b.id==="R1").current-2.3)<1e-6);
+});
+test("catalog 415 V three-phase power module exposes phase-neutral voltage",()=>{
+ const p={components:[comp("V1","power-power-3p-415v",4,{ratedVoltage:230,value:50}),comp("R1","resistor",2,{resistance:100})],wires:[wire("V1:0","R1:0"),wire("R1:1","V1:3")]};
+ const result=E.ac(p,{frequency:50,points:1});
+ assert.equal(result.ok,true,JSON.stringify(result));
+ assert.ok(Math.abs(result.sweep[0].branches.find(b=>b.id==="R1").current-(415/Math.sqrt(3)/100))<1e-5);
+});
+test("catalog DC bus internally joins both terminals without adding a voltage source",()=>{
+ const p={components:[comp("V1","battery",2,{voltage:5}),comp("B1","power-power-dc-bus",2),comp("R1","resistor",2,{resistance:100})],wires:[wire("V1:0","B1:0"),wire("B1:1","R1:0"),wire("R1:1","V1:1")]};
+ const result=E.dc(p);
+ assert.equal(result.ok,true,JSON.stringify(result));
+ assert.ok(Math.abs(result.branches.find(b=>b.id==="R1").current-.05)<1e-7);
+});
