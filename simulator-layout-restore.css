@@ -170,3 +170,30 @@
     padding-inline: 8px;
   }
 }
+
+
+/* Functional toolbar navigation and reliable canvas-first panel collapse. */
+.simulator-page .toolbar .academy-toolbar-link {
+  display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center;
+  min-height: 30px; padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px;
+  background: #0d1b2b; color: var(--muted); text-decoration: none; font-size: 11px;
+  line-height: 1.2; white-space: nowrap;
+}
+.simulator-page .toolbar .academy-toolbar-link:hover,
+.simulator-page .toolbar .academy-toolbar-link:focus-visible {
+  color: var(--text); border-color: var(--cyan); background: #123047; outline-offset: 2px;
+}
+.simulator-page .workspace.palette-hidden { grid-template-columns: minmax(0, 1fr) 290px !important; }
+.simulator-page .workspace.inspector-hidden { grid-template-columns: 260px minmax(0, 1fr) !important; }
+.simulator-page .workspace.palette-hidden.inspector-hidden { grid-template-columns: minmax(0, 1fr) !important; }
+@media (min-width: 801px) {
+  .simulator-page .workspace.palette-hidden #palette,
+  .simulator-page .workspace.inspector-hidden #inspectorPanel { display: none !important; }
+}
+@media (max-width: 800px) {
+  .simulator-page .workspace.palette-hidden,
+  .simulator-page .workspace.inspector-hidden,
+  .simulator-page .workspace.palette-hidden.inspector-hidden { grid-template-columns: minmax(0, 1fr) !important; }
+  .simulator-page .workspace.palette-hidden #palette,
+  .simulator-page .workspace.inspector-hidden #inspectorPanel { display: block !important; }
+}

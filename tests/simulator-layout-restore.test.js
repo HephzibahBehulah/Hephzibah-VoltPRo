@@ -11,7 +11,7 @@ const worker = fs.readFileSync(path.join(root, 'service-worker.js'), 'utf8');
 test('simulator layout restoration stylesheet loads after the visual theme layers', () => {
   const cyber = html.indexOf('cyber-theme.css');
   const hb = html.indexOf('voltpro-hb-theme.css');
-  const restore = html.indexOf('simulator-layout-restore.css?v=20261010a');
+  const restore = html.indexOf('simulator-layout-restore.css?v=20261011b');
   assert.ok(cyber >= 0 && hb > cyber && restore > hb);
 });
 
@@ -32,7 +32,7 @@ test('component category tabs cannot shrink into unreadable fragments', () => {
 });
 
 test('service worker refreshes and caches the restored simulator layout', () => {
-  assert.match(worker, /const CACHE="voltpro-v66"/);
+  assert.match(worker, /const CACHE="voltpro-v67"/);
   assert.match(worker, /"\.\/simulator-layout-restore\.css"/);
   assert.match(worker, /"\.\/voltpro-hb-theme\.css"/);
 });
