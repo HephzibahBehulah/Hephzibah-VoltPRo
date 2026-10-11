@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "units": "mm",
+  "body": {
+    "width": 165,
+    "height": 55,
+    "thickness": 8.5,
+    "cornerRadius": 2,
+    "surfaceRecess": 0.8,
+    "adhesiveInset": 1,
+    "bevel": 1,
+    "mountingSlot": {
+      "width": 4,
+      "height": 8,
+      "endsPerSide": 2
+    }
+  },
+  "holes": {
+    "pitch": 2.54,
+    "diameter": 0.95,
+    "contactDiameter": 0.55,
+    "rows": [
+      "a",
+      "b",
+      "c",
+      "d",
+      "e",
+      "f",
+      "g",
+      "h",
+      "i",
+      "j"
+    ],
+    "columns": 63,
+    "rowsPerTerminalStrip": 5,
+    "terminalColumns": 63,
+    "trench": {
+      "width": 3.81,
+      "depth": 1.5,
+      "spine": true
+    },
+    "contactStrip": "vertical-five-hole-column"
+  },
+  "rails": {
+    "holesPerRail": 50,
+    "pitch": 2.54,
+    "offsetFromField": 5.08,
+    "splitAt": 25,
+    "bridgedVariantSupported": true,
+    "stripWidth": 0.8,
+    "positive": "#c94a4a",
+    "negative": "#477ac0",
+    "labelsEvery": 10
+  },
+  "render": {
+    "backgroundDark": "#1e1e1e",
+    "backgroundLight": "#f2f2f2",
+    "holeFill": "#0a0a0a",
+    "holeStroke": "#3a3a3a",
+    "labelDark": "#cfcfcf",
+    "labelLight": "#2a2a2a",
+    "zoomBuckets": [
+      25,
+      50,
+      100,
+      200,
+      400,
+      800
+    ],
+    "defaultZoom": 100,
+    "fitPaddingPx": 40,
+    "devicePixelRatioAware": true
+  },
+  "camera": {
+    "minZoom": 0.25,
+    "maxZoom": 8,
+    "wheelFactor": 1.1,
+    "minVisibleBoardFraction": 0.2,
+    "minimap": {
+      "width": 180,
+      "height": 60
+    }
+  },
+  "wires": {
+    "width": 1,
+    "sagMm": 8,
+    "horizontalControlFraction": 0.15,
+    "plug": {
+      "length": 1.2,
+      "width": 0.6
+    },
+    "hoverWidth": 1.4,
+    "selectedWidth": 1.4,
+    "bundleThreshold": 3
+  },
+  "interaction": {
+    "snapRadiusMm": 1.5,
+    "hoverFadeMs": 150,
+    "ghostOpacity": 0.4
+  },
+  "accessibility": {
+    "keyboardHoleNavigation": true,
+    "screenReaderLabels": true,
+    "highContrastLabelCapHeightMm": 2.2
+  }
+}
