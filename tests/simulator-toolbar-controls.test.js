@@ -8,12 +8,13 @@ const read = file => fs.readFileSync(path.join(root, file), "utf8");
 
 test("simulator learning tools are in-page dropdowns rather than outbound Workbench links", () => {
   const html = read("simulator.html");
-  for (const menu of ["demos","motor","logic","projects","faults","challenges","tutorials","mcu","tools"]) assert.match(html, new RegExp('data-vp-menu="' + menu + '"'));
-  assert.doesNotMatch(html, /href="academy-workbench\\.html/);
-  assert.match(html, /id="pngBtn"[^>]*>SVG<\\/button>/);
-  assert.match(html, /id="paletteBtn"/);
-  assert.match(html, /id="inspectorBtn"/);
-  assert.match(html, /data-ui-build="2026\\.10\\.12-dropdown-menus"/);
+  for (const menu of ["demos","motor","logic","projects","faults","challenges","tutorials","mcu","tools"]) assert.ok(html.includes('data-vp-menu="' + menu + '"'));
+  assert.ok(!html.includes('href="academy-workbench.html'));
+  assert.ok(html.includes('id="pngBtn"'));
+  assert.ok(html.includes('>SVG</button>'));
+  assert.ok(html.includes('id="paletteBtn"'));
+  assert.ok(html.includes('id="inspectorBtn"'));
+  assert.ok(html.includes('data-ui-build="2026.10.12-dropdown-menus"'));
 });
 
 test("SVG export serializes the current schematic and reports success or failure", () => {
