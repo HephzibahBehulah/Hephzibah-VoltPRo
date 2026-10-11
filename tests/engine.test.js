@@ -2,6 +2,7 @@ const test=require("node:test");const assert=require("node:assert/strict");const
 const T=require("../src/core/terminal-graph.js");
 const source=fs.readFileSync("engine/voltpro-engine.js","utf8");
 function engine(){const ctx={window:{VoltProTerminalGraph:T},console,Date};vm.createContext(ctx);vm.runInContext(source,ctx);return ctx.window.VoltProEngine}
+function engineWithCanonicalNetResolver(){const window={VoltProTerminalGraph:T,defs:{battery:{pins:2},resistor:{pins:2},"breadboard-bb400":{pins:400}}};const ctx={window,console,Date,structuredClone,Map,Set,Array,String,Number,Boolean,Object,JSON,Math,Error};vm.createContext(ctx);vm.runInContext(fs.readFileSync("src/core/net-resolver.js","utf8"),ctx);vm.runInContext(fs.readFileSync("platform/v5-runtime.js","utf8"),ctx);vm.runInContext(source,ctx);return {engine:window.VoltProEngine,window}}
 function circuit(r=1000){return {components:[{id:"v1",type:"battery",props:{voltage:12},pins:["v1:0","v1:1"]},{id:"r1",type:"resistor",props:{resistance:r},pins:["r1:0","r1:1"]}],wires:[{a:"v1:0",b:"r1:0"},{a:"r1:1",b:"v1:1"}]}}
 test("MNA DC solves a 12V/1kΩ circuit",()=>{const a=engine().dc(circuit());assert.equal(a.ok,true);assert.ok(Math.abs(a.totalCurrent-0.012)<1e-9);assert.ok(Math.abs(a.totalPower-0.144)<1e-6)});
 test("MNA supports RLC analysis contracts",()=>{const e=engine(),p={components:[{id:"v",type:"battery",pins:["v:0","v:1"],props:{voltage:12}},{id:"r",type:"resistor",pins:["r:0","r:1"],props:{resistance:1000}},{id:"c",type:"capacitor",pins:["c:0","c:1"],props:{capacitance:1e-6}},{id:"l",type:"inductor",pins:["l:0","l:1"],props:{inductance:1e-3}}],wires:[{a:"v:0",b:"r:0"},{a:"r:1",b:"c:0"},{a:"c:1",b:"l:0"},{a:"l:1",b:"v:1"}]};assert.equal(e.transient(p,{duration:.01,steps:10}).ok,true);assert.equal(e.ac(p,{start:10,stop:1000,points:5}).ok,true)});
@@ -13,3 +14,29 @@ test("v4 contracts remain valid JSON",()=>{for(const f of ["data/component-model
 test("DC sweep varies a component parameter",()=>{const r=engine().dcSweep({components:[{id:"V1",type:"battery",props:{voltage:12},pins:["V1:0","V1:1"]},{id:"R1",type:"resistor",props:{resistance:1000},pins:["R1:0","R1:1"]}],wires:[{a:"V1:0",b:"R1:0"},{a:"R1:1",b:"V1:1"}]},{componentId:"R1",start:1000,stop:2000,points:3});assert.equal(r.ok,true);assert.equal(r.sweep.length,3);assert.ok(r.sweep[0].totalCurrent>r.sweep[2].totalCurrent)});
 
 test("contactor coil is modeled independently from the legacy closed property",()=>{const e=engine();function run(closed){const p={components:[{id:"V1",type:"battery",props:{voltage:12},pins:["V1:0","V1:1"]},{id:"K1",type:"contactor",props:{closed,coilVoltage:230,coilResistance:100},pins:["K1:0","K1:1"]}],wires:[{a:"V1:0",b:"K1:0"},{a:"K1:1",b:"V1:1"}]};return e.dc(p)}const open=run(0),closed=run(1);assert.equal(open.ok,true);assert.equal(closed.ok,true);assert.ok(Math.abs(open.totalCurrent-closed.totalCurrent)<1e-9);assert.ok(open.branches.some(b=>b.id==="K1"&&b.contactId==="coil"),"coil must be modeled as its own branch")});
+
+
+test("MNA delegates node connectivity to the canonical net resolver when available",()=>{
+ const loaded=engineWithCanonicalNetResolver();let calls=0;const original=loaded.window.VoltProNetResolver.resolve;
+ loaded.window.VoltProNetResolver.resolve=(...args)=>{calls++;return original(...args)};
+ const result=loaded.engine.dc(circuit());
+ assert.ok(calls>0,"MNA should use the shared canonical net resolver");
+ assert.equal(result.ok,true,result.error);
+ assert.ok(Math.abs(result.totalCurrent-0.012)<1e-9);
+ assert.ok(Math.abs(result.totalPower-0.144)<1e-6);
+});
+
+test("MNA sees BB400 passive strip continuity through canonical net IDs",()=>{
+ const loaded=engineWithCanonicalNetResolver();
+ const project={
+  components:[
+   {id:"v1",type:"battery",props:{voltage:12},pins:["v1:0","v1:1"]},
+   {id:"r1",type:"resistor",props:{resistance:1000},pins:["r1:0","r1:1"]},
+   {id:"BB1",type:"breadboard-bb400",props:{},pins:Array.from({length:400},(_,i)=>"BB1:"+i)}
+  ],
+  wires:[{a:"v1:0",b:"BB1:0"},{a:"r1:0",b:"BB1:30"},{a:"r1:1",b:"v1:1"}]
+ };
+ const result=loaded.engine.dc(project);
+ assert.equal(result.ok,true,result.error);
+ assert.ok(Math.abs(result.totalCurrent-0.012)<1e-9);
+});
