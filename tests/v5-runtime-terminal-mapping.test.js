@@ -13,6 +13,7 @@ function runtime(defs = {}) {
   return window.VoltProV5Runtime;
 }
 
+test("BB400 numeric pins map to unique breadboard holes",()=>{const result=runtime({"breadboard-bb400":{pins:400}}).adapt({components:[{id:"BB1",type:"breadboard-bb400",x:0,y:0}],wires:[{a:"BB1:0",b:"BB1:399"}]});assert.equal(result.devices[0].terminals.length,400);assert.equal(result.wires[0].from,"BB1:A1");assert.equal(result.wires[0].to,"BB1:NMINUS25");assert.equal(T.build(result).validateTopology().valid,true)});
 test("legacy numeric pins adapt to stable model terminal IDs", () => {
   const result = runtime({resistor:{pins:2}}).adapt({
     components:[{id:"R1",type:"resistor",x:0,y:0},{id:"R2",type:"resistor",x:100,y:0}],
