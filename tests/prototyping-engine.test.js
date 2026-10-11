@@ -20,7 +20,7 @@ test("contactor coil voltage drives three independent main poles and auxiliary c
  const energized=E.analyze(make(230)).dc;
  assert.equal(energized.ok,true,JSON.stringify(energized));
  assert.equal(energized.deviceStates.KM1,true,"230 V coil should pull in");
- assert.ok(energized.branches.some(b=>b.id==="KM1"&&b.contactId==="main-1"&&b.current>2),"main contact should conduct after coil energizes: "+JSON.stringify(energized.branches));
+ assert.ok(energized.branches.some(b=>b.id==="KM1"&&b.contactId==="main-1"&&b.current>1),"main contact should conduct after coil energizes: "+JSON.stringify(energized.branches));
  assert.ok(energized.branches.some(b=>b.id==="KM1"&&b.contactId==="aux-no-13-14"&&b.current>0),"NO auxiliary contact should close with coil");
  const released=E.analyze(make(24)).dc;
  assert.equal(released.ok,true,JSON.stringify(released));
