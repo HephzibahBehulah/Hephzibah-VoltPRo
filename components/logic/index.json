@@ -1123,12 +1123,28 @@
       "category": "logic",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "CLK",
+          "name": "Clock"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "EN",
+          "name": "Enable"
+        },
+        {
+          "id": "Q0",
+          "name": "Q0"
+        },
+        {
+          "id": "Q1",
+          "name": "Q1"
+        },
+        {
+          "id": "Q2",
+          "name": "Q2"
+        },
+        {
+          "id": "Q3",
+          "name": "Q3"
         }
       ],
       "parameters": {
@@ -1146,6 +1162,20 @@
         "value": {
           "type": "number",
           "default": 1
+        },
+        "inputThreshold": {
+          "type": "number",
+          "unit": "V",
+          "default": 2.5,
+          "min": 0,
+          "max": 5
+        },
+        "logicVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 5,
+          "min": 0,
+          "max": 24
         }
       },
       "ratings": {
@@ -1162,15 +1192,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "logic",
-        "engine": "VoltPro MNA educational",
+        "type": "logic-counter-up",
+        "engine": "VoltPro timed digital logic MNA",
         "editable": true
       },
       "behaviorModel": {
-        "type": "logic-node",
+        "type": "logic-counter-up",
         "states": [
-          "enabled",
-          "disabled"
+          "output-low",
+          "output-high"
         ]
       },
       "faultModes": [
@@ -1179,8 +1209,8 @@
         "parameter-out-of-range"
       ],
       "documentation": {
-        "summary": "Educational Logic model for Counter-Up.",
-        "usage": "Double-click to edit parameters, connect terminals and run simulation.",
+        "summary": "Timed logic component with persistent state and electrical output.",
+        "usage": "Configure timing, connect input/clock pins and connect output pins to a logic-level load.",
         "standards": [
           "IEC-oriented educational representation"
         ]
@@ -1192,12 +1222,28 @@
       "category": "logic",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "CLK",
+          "name": "Clock"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "EN",
+          "name": "Enable"
+        },
+        {
+          "id": "Q0",
+          "name": "Q0"
+        },
+        {
+          "id": "Q1",
+          "name": "Q1"
+        },
+        {
+          "id": "Q2",
+          "name": "Q2"
+        },
+        {
+          "id": "Q3",
+          "name": "Q3"
         }
       ],
       "parameters": {
@@ -1215,6 +1261,20 @@
         "value": {
           "type": "number",
           "default": 1
+        },
+        "inputThreshold": {
+          "type": "number",
+          "unit": "V",
+          "default": 2.5,
+          "min": 0,
+          "max": 5
+        },
+        "logicVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 5,
+          "min": 0,
+          "max": 24
         }
       },
       "ratings": {
@@ -1231,15 +1291,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "logic",
-        "engine": "VoltPro MNA educational",
+        "type": "logic-counter-down",
+        "engine": "VoltPro timed digital logic MNA",
         "editable": true
       },
       "behaviorModel": {
-        "type": "logic-node",
+        "type": "logic-counter-down",
         "states": [
-          "enabled",
-          "disabled"
+          "output-low",
+          "output-high"
         ]
       },
       "faultModes": [
@@ -1248,8 +1308,8 @@
         "parameter-out-of-range"
       ],
       "documentation": {
-        "summary": "Educational Logic model for Counter-Down.",
-        "usage": "Double-click to edit parameters, connect terminals and run simulation.",
+        "summary": "Timed logic component with persistent state and electrical output.",
+        "usage": "Configure timing, connect input/clock pins and connect output pins to a logic-level load.",
         "standards": [
           "IEC-oriented educational representation"
         ]
@@ -1261,12 +1321,12 @@
       "category": "logic",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "IN",
+          "name": "Input"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "OUT",
+          "name": "Output"
         }
       ],
       "parameters": {
@@ -1284,6 +1344,27 @@
         "value": {
           "type": "number",
           "default": 1
+        },
+        "delayMs": {
+          "type": "number",
+          "unit": "ms",
+          "default": 1000,
+          "min": 0,
+          "max": 600000
+        },
+        "inputThreshold": {
+          "type": "number",
+          "unit": "V",
+          "default": 2.5,
+          "min": 0,
+          "max": 5
+        },
+        "logicVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 5,
+          "min": 0,
+          "max": 24
         }
       },
       "ratings": {
@@ -1300,15 +1381,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "logic",
-        "engine": "VoltPro MNA educational",
+        "type": "logic-timer",
+        "engine": "VoltPro timed digital logic MNA",
         "editable": true
       },
       "behaviorModel": {
-        "type": "logic-node",
+        "type": "logic-timer",
         "states": [
-          "enabled",
-          "disabled"
+          "output-low",
+          "output-high"
         ]
       },
       "faultModes": [
@@ -1317,8 +1398,8 @@
         "parameter-out-of-range"
       ],
       "documentation": {
-        "summary": "Educational Logic model for Timer-Delay.",
-        "usage": "Double-click to edit parameters, connect terminals and run simulation.",
+        "summary": "Timed logic component with persistent state and electrical output.",
+        "usage": "Configure timing, connect input/clock pins and connect output pins to a logic-level load.",
         "standards": [
           "IEC-oriented educational representation"
         ]
@@ -1330,12 +1411,12 @@
       "category": "logic",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "IN",
+          "name": "Input"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "OUT",
+          "name": "Output"
         }
       ],
       "parameters": {
@@ -1353,6 +1434,27 @@
         "value": {
           "type": "number",
           "default": 1
+        },
+        "pulseDurationMs": {
+          "type": "number",
+          "unit": "ms",
+          "default": 100,
+          "min": 1,
+          "max": 600000
+        },
+        "inputThreshold": {
+          "type": "number",
+          "unit": "V",
+          "default": 2.5,
+          "min": 0,
+          "max": 5
+        },
+        "logicVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 5,
+          "min": 0,
+          "max": 24
         }
       },
       "ratings": {
@@ -1369,15 +1471,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "logic",
-        "engine": "VoltPro MNA educational",
+        "type": "logic-pulse",
+        "engine": "VoltPro timed digital logic MNA",
         "editable": true
       },
       "behaviorModel": {
-        "type": "logic-node",
+        "type": "logic-pulse",
         "states": [
-          "enabled",
-          "disabled"
+          "output-low",
+          "output-high"
         ]
       },
       "faultModes": [
@@ -1386,8 +1488,8 @@
         "parameter-out-of-range"
       ],
       "documentation": {
-        "summary": "Educational Logic model for Pulse.",
-        "usage": "Double-click to edit parameters, connect terminals and run simulation.",
+        "summary": "Timed logic component with persistent state and electrical output.",
+        "usage": "Configure timing, connect input/clock pins and connect output pins to a logic-level load.",
         "standards": [
           "IEC-oriented educational representation"
         ]
@@ -1399,12 +1501,12 @@
       "category": "logic",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "IN",
+          "name": "Input"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "OUT",
+          "name": "Output"
         }
       ],
       "parameters": {
@@ -1422,6 +1524,20 @@
         "value": {
           "type": "number",
           "default": 1
+        },
+        "inputThreshold": {
+          "type": "number",
+          "unit": "V",
+          "default": 2.5,
+          "min": 0,
+          "max": 5
+        },
+        "logicVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 5,
+          "min": 0,
+          "max": 24
         }
       },
       "ratings": {
@@ -1438,15 +1554,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "logic",
-        "engine": "VoltPro MNA educational",
+        "type": "logic-edge-rising",
+        "engine": "VoltPro timed digital logic MNA",
         "editable": true
       },
       "behaviorModel": {
-        "type": "logic-node",
+        "type": "logic-edge-rising",
         "states": [
-          "enabled",
-          "disabled"
+          "output-low",
+          "output-high"
         ]
       },
       "faultModes": [
@@ -1455,8 +1571,8 @@
         "parameter-out-of-range"
       ],
       "documentation": {
-        "summary": "Educational Logic model for Edge-Rising.",
-        "usage": "Double-click to edit parameters, connect terminals and run simulation.",
+        "summary": "Timed logic component with persistent state and electrical output.",
+        "usage": "Configure timing, connect input/clock pins and connect output pins to a logic-level load.",
         "standards": [
           "IEC-oriented educational representation"
         ]
@@ -1468,12 +1584,12 @@
       "category": "logic",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "IN",
+          "name": "Input"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "OUT",
+          "name": "Output"
         }
       ],
       "parameters": {
@@ -1491,6 +1607,20 @@
         "value": {
           "type": "number",
           "default": 1
+        },
+        "inputThreshold": {
+          "type": "number",
+          "unit": "V",
+          "default": 2.5,
+          "min": 0,
+          "max": 5
+        },
+        "logicVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 5,
+          "min": 0,
+          "max": 24
         }
       },
       "ratings": {
@@ -1507,15 +1637,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "logic",
-        "engine": "VoltPro MNA educational",
+        "type": "logic-edge-falling",
+        "engine": "VoltPro timed digital logic MNA",
         "editable": true
       },
       "behaviorModel": {
-        "type": "logic-node",
+        "type": "logic-edge-falling",
         "states": [
-          "enabled",
-          "disabled"
+          "output-low",
+          "output-high"
         ]
       },
       "faultModes": [
@@ -1524,8 +1654,8 @@
         "parameter-out-of-range"
       ],
       "documentation": {
-        "summary": "Educational Logic model for Edge-Falling.",
-        "usage": "Double-click to edit parameters, connect terminals and run simulation.",
+        "summary": "Timed logic component with persistent state and electrical output.",
+        "usage": "Configure timing, connect input/clock pins and connect output pins to a logic-level load.",
         "standards": [
           "IEC-oriented educational representation"
         ]
@@ -2360,12 +2490,12 @@
       "category": "logic",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "OUT",
+          "name": "Clock Out"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "GND",
+          "name": "Ground"
         }
       ],
       "parameters": {
@@ -2383,6 +2513,27 @@
         "value": {
           "type": "number",
           "default": 1
+        },
+        "frequencyHz": {
+          "type": "number",
+          "unit": "Hz",
+          "default": 1,
+          "min": 0.01,
+          "max": 10000
+        },
+        "scanTimeMs": {
+          "type": "number",
+          "unit": "ms",
+          "default": 10,
+          "min": 1,
+          "max": 1000
+        },
+        "logicVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 5,
+          "min": 0,
+          "max": 24
         }
       },
       "ratings": {
@@ -2399,15 +2550,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "logic",
-        "engine": "VoltPro MNA educational",
+        "type": "logic-clock",
+        "engine": "VoltPro timed digital logic MNA",
         "editable": true
       },
       "behaviorModel": {
-        "type": "logic-node",
+        "type": "logic-clock",
         "states": [
-          "enabled",
-          "disabled"
+          "output-low",
+          "output-high"
         ]
       },
       "faultModes": [
@@ -2416,8 +2567,8 @@
         "parameter-out-of-range"
       ],
       "documentation": {
-        "summary": "Educational Logic model for Clock.",
-        "usage": "Double-click to edit parameters, connect terminals and run simulation.",
+        "summary": "Timed logic component with persistent state and electrical output.",
+        "usage": "Configure timing, connect input/clock pins and connect output pins to a logic-level load.",
         "standards": [
           "IEC-oriented educational representation"
         ]
@@ -2429,12 +2580,12 @@
       "category": "logic",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "IN",
+          "name": "Trigger"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "OUT",
+          "name": "Output"
         }
       ],
       "parameters": {
@@ -2452,6 +2603,27 @@
         "value": {
           "type": "number",
           "default": 1
+        },
+        "pulseDurationMs": {
+          "type": "number",
+          "unit": "ms",
+          "default": 100,
+          "min": 1,
+          "max": 600000
+        },
+        "inputThreshold": {
+          "type": "number",
+          "unit": "V",
+          "default": 2.5,
+          "min": 0,
+          "max": 5
+        },
+        "logicVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 5,
+          "min": 0,
+          "max": 24
         }
       },
       "ratings": {
@@ -2468,15 +2640,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "logic",
-        "engine": "VoltPro MNA educational",
+        "type": "logic-pulse",
+        "engine": "VoltPro timed digital logic MNA",
         "editable": true
       },
       "behaviorModel": {
-        "type": "logic-node",
+        "type": "logic-pulse",
         "states": [
-          "enabled",
-          "disabled"
+          "output-low",
+          "output-high"
         ]
       },
       "faultModes": [
@@ -2485,8 +2657,8 @@
         "parameter-out-of-range"
       ],
       "documentation": {
-        "summary": "Educational Logic model for OneShot.",
-        "usage": "Double-click to edit parameters, connect terminals and run simulation.",
+        "summary": "Timed logic component with persistent state and electrical output.",
+        "usage": "Configure timing, connect input/clock pins and connect output pins to a logic-level load.",
         "standards": [
           "IEC-oriented educational representation"
         ]
