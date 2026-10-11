@@ -268,7 +268,37 @@ function solverProject(){return {components:S.components.map(c=>({...c,pins:Arra
 let simulationInterval=null;
 function solveSimulationTick(continuous=false){
  const visualSignature=()=>JSON.stringify(S.components.map(c=>({id:c.id,energized:c.state?.energized,tripped:c.state?.tripped,transferSource:c.state?.transferSource,Q0:c.state?.Q0,Q1:c.state?.Q1,Q2:c.state?.Q2,Q3:c.state?.Q3,pins:Object.fromEntries(Object.entries(c.state?.pins||{}).filter(([,p])=>p.mode==="OUTPUT").map(([k,p])=>[k,p.voltage]))}))),visualBefore=visualSignature();
- const project=solverProject();
+ const legacyProject=solverProject();
+ let project=legacyProject;
+ let topologyMode="legacy";
+ try {
+   const canonicalApi=window.VoltProCanonicalProject;
+   const adapter=window.VoltProCanonicalNetlistAdapter;
+   if(canonicalApi&&adapter){
+     const canonicalProject=canonicalApi.migrate(legacyProject);
+     const domains=new Set(canonicalProject.devices.flatMap(d=>d.terminals.map(t=>t.domain)));
+     const hasUnsupportedDomain=[...domains].some(domain=>domain!=="dc");
+     if(!hasUnsupportedDomain){
+       const adapted=adapter.toSolverProject(canonicalProject,canonicalApi);
+       project={...legacyProject,components:adapted.components,wires:adapted.wires,topology:adapted.topology};
+       topologyMode="canonical";
+     } else {
+       // Keep existing AC/three-phase model routing until its domain-specific
+       // adapter is implemented and validated; never silently reinterpret it as DC.
+       topologyMode="legacy-domain-specific";
+     }
+   }
+ } catch(error) {
+   S.running=false;
+   if(simulationInterval){clearInterval(simulationInterval);simulationInterval=null}
+   S.lastAnalysis=null;S.lastAnalysisSignature="";
+   $("#meterReadout").textContent="--";
+   const validation=error.validation;
+   const issues=(validation?.errors||[]).map(issue=>issue.code+" · "+issue.message).join("\\n");
+   $("#console").textContent="CANONICAL TOPOLOGY ERROR\\n"+(issues||error.message||"Unable to validate circuit topology.");
+   $("#calcPanel").textContent="Simulation stopped because canonical topology could not be validated. Correct the connection errors before running again.";
+   renderCanvas();syncRunControls("error");return;
+ }
  const preflight=window.VoltProSimulationPreflight?.validate?.(project);
  if(preflight?.valid===false){S.running=false;if(simulationInterval){clearInterval(simulationInterval);simulationInterval=null}S.lastAnalysis=null;S.lastAnalysisSignature="";$("#meterReadout").textContent="--";const details=(preflight.errors||[]).map(issue=>issue.code+(issue.wireId?" · "+issue.wireId:"")+(issue.terminalId?" · "+issue.terminalId:"")+(issue.message?" · "+issue.message:"")).join("\\n");$("#console").textContent="TOPOLOGY PREFLIGHT FAILED\\n"+details;$("#calcPanel").textContent="Simulation stopped because one or more wires reference missing or invalid terminals. Fix the highlighted connection data before running again.";renderCanvas();syncRunControls("error");log("Simulation blocked by topology preflight: "+details.replace(/\\n/g,"; "));return}
  let r;
@@ -281,7 +311,7 @@ function solveSimulationTick(continuous=false){
  const dc=phaseSource?(phasor?.branches?{...phasor,ok:true,analysis:"Three-phase AC operating point (MNA)",engine:"VoltPRo MNA",sourceVoltage:Number(phaseSource.props?.lineVoltage??phaseSource.props?.voltage)||400,totalCurrent:(phasor.sourceCurrents||[]).filter(x=>x.id===phaseSource.id).reduce((sum,x)=>sum+x.current,0)/3,totalPower:phasor.totalPower||0,nodes:phasor.nodeVoltages?.length||0,branches:phasor.branches,sourceCurrents:phasor.sourceCurrents,nodeVoltages:phasor.nodeVoltages,threePhase:true}:{ok:false,error:r.ac?.error||"Three-phase AC analysis failed."}):(r.dc||r);
  if(!dc.ok){S.running=false;if(simulationInterval){clearInterval(simulationInterval);simulationInterval=null}S.lastAnalysis=null;S.lastAnalysisSignature="";$("#meterReadout").textContent="--";$("#console").textContent="RUN ERROR\\n"+(dc.error||"Unable to solve circuit.");$("#calcPanel").textContent="Check source, connections and component values.";renderCanvas();syncRunControls("error");return}
  for(const [id,deviceState] of Object.entries(dc.deviceStates||{})){const component=S.components.find(c=>c.id===id);if(component){const patch=deviceState&&typeof deviceState==="object"?deviceState:{energized:Boolean(deviceState)};component.state={...(component.state||{}),...patch}}}
- S.lastAnalysis=dc;S.lastAnalysisSignature=JSON.stringify(solverProject());
+ S.lastAnalysis={...dc,topologyMode};S.lastAnalysisSignature=JSON.stringify({project:solverProject(),topologyMode});
  const amps=Number(dc.totalCurrent)||0;
  $("#meterReadout").textContent=amps.toFixed(4)+" A";
  $("#console").textContent="VOLTPro Engine v3\\nAnalysis: "+(dc.analysis||"DC operating point")+"\\nSource: "+(dc.sourceVoltage||0)+" V\\nTotal current: "+amps.toFixed(4)+" A\\nTotal power: "+(Number(dc.totalPower)||0).toFixed(4)+" W\\nNodes: "+(dc.nodes||0)+"\\n";
