@@ -175,3 +175,11 @@ test("wire inspector exposes cable type, colour, cross-section, width and line p
 });
 
 test("PLC workbench executes the ladder scan engine instead of hard-coded output equations",()=>{const source=fs.readFileSync(path.join(root,"platform/workbench.js"),"utf8");assert.ok(source.includes("window.VoltProLadder?.scan"));assert.ok(source.includes('{address:"Q0",type:"NO"}'));assert.ok(source.includes("Seal-in contact Q0"))});
+
+test("Run mode continuously re-solves and Stop clears the simulation timer",()=>{
+ const source=fs.readFileSync(path.join(root,"simulator.js"),"utf8");
+ assert.ok(source.includes("function solveSimulationTick(continuous=false)"));
+ assert.ok(source.includes("setInterval(()=>{if(S.running)solveSimulationTick(true)"));
+ assert.ok(source.includes("clearInterval(simulationInterval)"));
+ assert.ok(source.includes("scanTimeMs:250"));
+});

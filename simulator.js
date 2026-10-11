@@ -189,18 +189,19 @@ function solve(){const connectedWires=electricalWires();const src=S.components.f
  let series=0;for(const x of R)series+=x.r;const current=series>0?V/series:0;return {voltage:V,current,loads:R.map(x=>({id:x.c.id,name:compDef(x.c.type).name,current:current,resistance:x.r}))}
 }
 function solverProject(){return {components:S.components.map(c=>({...c,pins:Array.from({length:compDef(c.type).pins},(_,i)=>c.id+":"+i)})),wires:electricalWires()}}
-function run(){
- S.running=true;syncRunControls();
+let simulationInterval=null;
+function solveSimulationTick(continuous=false){
+ const visualSignature=()=>JSON.stringify(S.components.map(c=>({id:c.id,energized:c.state?.energized,tripped:c.state?.tripped,transferSource:c.state?.transferSource,Q0:c.state?.Q0,Q1:c.state?.Q1,Q2:c.state?.Q2,Q3:c.state?.Q3,pins:Object.fromEntries(Object.entries(c.state?.pins||{}).filter(([,p])=>p.mode==="OUTPUT").map(([k,p])=>[k,p.voltage]))}))),visualBefore=visualSignature();
  const project=solverProject();
  let r;
  if(window.VoltProEngine){
-   r=VoltProEngine.analyze(project,{transient:{duration:.1,steps:40},ac:{frequency:50,points:1}});
+   r=VoltProEngine.analyze(project,{dc:{scanTimeMs:250},transient:{duration:.1,steps:40},ac:{frequency:50,points:1,scanTimeMs:250}});
  } else {
    r={dc:solve()};
  }
  const phaseSource=project.components.find(c=>c.type==="threephase"),phasor=r.ac?.ok?r.ac.sweep?.[0]:null;
  const dc=phaseSource?(phasor?.branches?{...phasor,ok:true,analysis:"Three-phase AC operating point (MNA)",engine:"VoltPRo MNA",sourceVoltage:Number(phaseSource.props?.lineVoltage??phaseSource.props?.voltage)||400,totalCurrent:(phasor.sourceCurrents||[]).filter(x=>x.id===phaseSource.id).reduce((sum,x)=>sum+x.current,0)/3,totalPower:phasor.totalPower||0,nodes:phasor.nodeVoltages?.length||0,branches:phasor.branches,sourceCurrents:phasor.sourceCurrents,nodeVoltages:phasor.nodeVoltages,threePhase:true}:{ok:false,error:r.ac?.error||"Three-phase AC analysis failed."}):(r.dc||r);
- if(!dc.ok){S.running=false;S.lastAnalysis=null;S.lastAnalysisSignature="";$("#meterReadout").textContent="--";$("#console").textContent="RUN ERROR\\n"+(dc.error||"Unable to solve circuit.");$("#calcPanel").textContent="Check source, connections and component values.";renderCanvas();syncRunControls("error");return}
+ if(!dc.ok){S.running=false;if(simulationInterval){clearInterval(simulationInterval);simulationInterval=null}S.lastAnalysis=null;S.lastAnalysisSignature="";$("#meterReadout").textContent="--";$("#console").textContent="RUN ERROR\\n"+(dc.error||"Unable to solve circuit.");$("#calcPanel").textContent="Check source, connections and component values.";renderCanvas();syncRunControls("error");return}
  for(const [id,deviceState] of Object.entries(dc.deviceStates||{})){const component=S.components.find(c=>c.id===id);if(component){const patch=deviceState&&typeof deviceState==="object"?deviceState:{energized:Boolean(deviceState)};component.state={...(component.state||{}),...patch}}}
  S.lastAnalysis=dc;S.lastAnalysisSignature=JSON.stringify(solverProject());
  const amps=Number(dc.totalCurrent)||0;
@@ -208,8 +209,14 @@ function run(){
  $("#console").textContent="VOLTPro Engine v3\\nAnalysis: "+(dc.analysis||"DC operating point")+"\\nSource: "+(dc.sourceVoltage||0)+" V\\nTotal current: "+amps.toFixed(4)+" A\\nTotal power: "+(Number(dc.totalPower)||0).toFixed(4)+" W\\nNodes: "+(dc.nodes||0)+"\\n";
  (dc.branches||[]).forEach(x=>$("#console").textContent+=x.name+" · "+(Number(x.voltage)||0).toFixed(3)+" V · "+(Number(x.current)||0).toFixed(4)+" A · "+(Number(x.power)||0).toFixed(4)+" W\\n");
  $("#calcPanel").innerHTML="<b>DC operating point</b><br>Current: "+amps.toFixed(4)+" A<br>Power: "+(Number(dc.totalPower)||0).toFixed(4)+" W<br><small>Engine v3 · educational analysis</small>";
- renderCanvas();syncRunControls();log("Engine v3 analysis complete.");
-}function stop(){S.running=false;renderCanvas();syncRunControls()}
+ if(!continuous||visualBefore!==visualSignature())renderCanvas();syncRunControls();if(!continuous)log("Engine v3 analysis complete.");
+}
+function run(){
+ if(!S.running){S.running=true;syncRunControls()}
+ solveSimulationTick(false);
+ if(S.running&&!simulationInterval)simulationInterval=setInterval(()=>{if(S.running)solveSimulationTick(true);else{clearInterval(simulationInterval);simulationInterval=null}},250);
+}
+function stop(){S.running=false;if(simulationInterval){clearInterval(simulationInterval);simulationInterval=null}renderCanvas();syncRunControls()}
 const AWG_MM2={24:0.205,22:0.326,20:0.518,18:0.823,16:1.31,14:2.08,12:3.31,10:5.26,8:8.37,6:13.3,4:21.2,2:33.6};
 const METRIC_WIRE_SIZES=["0.5","0.75","1","1.5","2.5","4","6","10","16","25","35"];
 function nearestAwg(size){const target=Number(size)||1.5;return Object.keys(AWG_MM2).reduce((best,g)=>Math.abs(AWG_MM2[g]-target)<Math.abs(AWG_MM2[best]-target)?g:best,"16")}
