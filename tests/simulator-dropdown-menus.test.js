@@ -14,7 +14,7 @@ test("simulator defines one toolbar and unique local dropdown triggers",()=>{
  assert.equal(ids.length,new Set(ids).size,"all HTML IDs must be unique");
  for(const name of ["demos","motor","logic","projects","faults","challenges","tutorials","mcu","tools"])assert.ok(html.includes('data-vp-menu="'+name+'"'));
  assert.ok(!html.includes('href="academy-workbench.html'));
- assert.ok(html.includes('data-ui-build="2026.10.12-dropdown-menus"'));
+ assert.ok(html.includes('data-ui-build="2026.10.12-tool-action-repair"'));
 });
 
 test("platform UI no longer appends a duplicate toolbar and exposes tool actions",()=>{
@@ -22,6 +22,7 @@ test("platform UI no longer appends a duplicate toolbar and exposes tool actions
  assert.doesNotThrow(()=>new Function(ui));
  assert.ok(!ui.includes("bar.appendChild(b)"));
  assert.ok(ui.includes("window.VoltProPlatformActions=actions"));
+ assert.ok(ui.includes("const esc=value=>"),"platform action renderers must define their own HTML escaping helper");
  assert.ok(ui.includes("window.__voltproPlatformKeysBound"));
  for(const action of ["fault(initialType","challenge(id","tutorial(id","mcu(sample"])assert.ok(ui.includes(action));
 });
@@ -61,14 +62,21 @@ test("MCU Lab accepts named example sketches and retains explicit interpreter li
 
 test("cache and deployment version invalidates stale simulator shell and precaches menu runtime",()=>{
  const html=read("simulator.html"),worker=read("service-worker.js"),css=read("simulator-layout-restore.css");
- assert.ok(worker.includes('const CACHE="voltpro-v68"'));
+ assert.ok(worker.includes('const CACHE="voltpro-v69"'));
  assert.ok(worker.includes('"./platform/toolbar-menus.js"'));
  assert.ok(worker.includes('"./platform/ui.js"'));
  assert.ok(worker.includes('"./platform/workbench.js"'));
- assert.ok(html.includes('service-worker.js?v=20261012a'));
+ assert.ok(html.includes('service-worker.js?v=20261012b'));
  assert.ok(html.includes('updateViaCache:"none"'));
- assert.ok(html.includes('platform/toolbar-menus.js?v=20261012a'));
- assert.ok(html.includes('platform/ui.js?v=20261012a'));
- assert.ok(html.includes('simulator.js?v=20261012a'));
+ assert.ok(html.includes('platform/toolbar-menus.js?v=20261012b'));
+ assert.ok(html.includes('platform/ui.js?v=20261012b'));
+ assert.ok(html.includes('simulator.js?v=20261012b'));
  assert.ok(css.includes(".vp-toolbar-popover"));
+});
+
+test("MCU Lab mounts through the Workbench host without recursive legacy startup",()=>{
+ const ui=read("platform/mcu-lab-ui.js"),workbench=read("platform/workbench.js");
+ assert.ok(ui.includes('workbench.openWorkspace("MICROCONTROLLER LAB"'));
+ assert.ok(workbench.includes('openWorkspace:(title,body)=>open(title,body)'));
+ assert.ok(!ui.includes("legacyMicro()"));
 });

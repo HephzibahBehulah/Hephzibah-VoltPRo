@@ -16,6 +16,6 @@ test("MCU Lab supports editable input toggles and labels interpreter limitations
  assert.ok(ui.includes("not a native compiler"));assert.ok(ui.includes("does not upload firmware"));
 });
 test("simulator and breadboard load MCU Lab UI after Workbench and precache it",()=>{
- for(const page of ["simulator.html","breadboard.html"]){const html=read(page);assert.ok(html.indexOf("platform/mcu-lab-ui.js?v=20261012a")>html.indexOf("platform/workbench.js?v=20261012a"))}
+ for(const page of ["simulator.html","breadboard.html"]){const html=read(page);assert.ok(html.indexOf("platform/mcu-lab-ui.js?v=20261012b")>html.indexOf("platform/workbench.js?v=20261012b"))}
  assert.ok(read("service-worker.js").includes('"./platform/mcu-lab-ui.js"'));
 });

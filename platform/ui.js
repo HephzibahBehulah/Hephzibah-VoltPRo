@@ -1,5 +1,6 @@
 (()=>{"use strict";
 const $=s=>document.querySelector(s);
+const esc=value=>String(value??"").replace(/[&<>"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]));
 function panel(title,body){
   let x=document.getElementById("vpPlatformPanel");
   if(!x){x=document.createElement("section");x.id="vpPlatformPanel";x.style.cssText="position:fixed;right:18px;top:78px;width:min(420px,calc(100vw - 24px));max-width:calc(100vw - 24px);max-height:min(70vh,calc(100dvh - 96px));overflow:auto;background:#081522;color:#dcecff;border:1px solid #28506d;border-radius:12px;padding:16px;z-index:9999;box-shadow:0 20px 60px #0008;font:14px system-ui;overflow-wrap:anywhere;box-sizing:border-box";document.body.appendChild(x);const style=document.createElement("style");style.textContent="#vpPlatformPanel pre{white-space:pre-wrap;overflow-wrap:anywhere;max-width:100%;font-size:12px}#vpPlatformPanel input,#vpPlatformPanel select,#vpPlatformPanel textarea{max-width:100%;box-sizing:border-box}";document.head.appendChild(style)}

@@ -14,7 +14,7 @@ test("simulator learning tools are in-page dropdowns rather than outbound Workbe
   assert.ok(html.includes('>SVG</button>'));
   assert.ok(html.includes('id="paletteBtn"'));
   assert.ok(html.includes('id="inspectorBtn"'));
-  assert.ok(html.includes('data-ui-build="2026.10.12-dropdown-menus"'));
+  assert.ok(html.includes('data-ui-build="2026.10.12-tool-action-repair"'));
 });
 
 test("SVG export serializes the current schematic and reports success or failure", () => {
@@ -59,4 +59,12 @@ test("Workbench provides Logic Lab and motor deep links focus the intended tools
 test("changed JavaScript files parse without syntax errors", () => {
   assert.doesNotThrow(() => new Function(read("simulator.js")));
   assert.doesNotThrow(() => new Function(read("academy-workbench.js")));
+});
+
+test("component and inspector controls bind before initial rendering can fail",()=>{
+ const js=read("simulator.js");
+ assert.ok(js.indexOf("bindExtraControls();renderPalette();render();")>0);
+ assert.ok(js.indexOf("bindExtraControls();renderPalette();render();")<js.indexOf("log(\"Base simulation components"));
+ assert.match(js,/const pb=document\.querySelector\("#paletteBtn"\)/);
+ assert.match(js,/const ib=document\.querySelector\("#inspectorBtn"\)/);
 });
