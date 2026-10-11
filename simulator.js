@@ -405,6 +405,8 @@ if(startWireBtn)startWireBtn.addEventListener("click",toggleWireDrawing);$("#und
 $("[data-meter]").forEach(b=>b.onclick=()=>{
  S.meter=b.dataset.meter;
  const project=solverProject(),signature=JSON.stringify(project);
+ const preflight=window.VoltProSimulationPreflight?.validate?.(project);
+ if(preflight?.valid===false){S.lastAnalysis=null;S.lastAnalysisSignature="";$("#meterReadout").textContent="--";const details=(preflight.errors||[]).map(issue=>issue.code+(issue.wireId?" · "+issue.wireId:"")+(issue.terminalId?" · "+issue.terminalId:"")+(issue.message?" · "+issue.message:"")).join("\\n");$("#console").textContent="METER BLOCKED BY TOPOLOGY ERROR\\n"+details;return}
  let result=signature===S.lastAnalysisSignature?S.lastAnalysis:null;
  if(!result?.ok){result=window.VoltProEngine?.dc(project);if(result?.ok){S.lastAnalysis=result;S.lastAnalysisSignature=signature}}
  if(!result?.ok){$("#meterReadout").textContent="--";$("#console").textContent="METER ERROR\\n"+(result?.error||"Run the circuit and check its connections first.");return}
