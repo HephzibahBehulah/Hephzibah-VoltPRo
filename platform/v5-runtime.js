@@ -20,7 +20,7 @@ function adapt(legacy){
   const index=/^\d+$/.test(local)?Number(local):-1;
   return deviceId+':'+(index>=0&&index<ids.length?ids[index]:local);
  };
- const wires=(legacy.wires||[]).map((w,i)=>{const from=mapEndpoint(w.from||w.a),to=mapEndpoint(w.to||w.b),domain=w.domain||terminalDomains.get(String(from))||terminalDomains.get(String(to))||"dc";return {id:w.id||"W"+String(i+1).padStart(3,"0"),from,to,segments:w.segments||[],number:w.number||null,domain,phase:w.phase||null}});
+ const wires=(legacy.wires||[]).map((w,i)=>{const {a,b,...extra}=w,from=mapEndpoint(w.from||a),to=mapEndpoint(w.to||b),domain=w.domain||terminalDomains.get(String(from))||terminalDomains.get(String(to))||"dc";return {...extra,id:w.id||"W"+String(i+1).padStart(3,"0"),from,to,segments:w.segments||[],number:w.number||null,domain,phase:w.phase||null}});
  return {format:'voltpro',version:5,workspace:legacy.mode||'schematic',metadata:{name:'VoltPRo runtime project'},settings:{grid:legacy.grid||20,units:'SI',symbolStandard:'IEC'},devices,wires,nets:[],simulation:{mode:'dc',running:false,time:0},faults:[]};
 }
 function analyze(legacy){const project=adapt(legacy);const tg=window.VoltProTerminalGraph?.build(project);const nr=tg&&window.VoltProNetResolver?.resolve(project,tg);const behaviour=(project.devices||[]).map(d=>window.VoltProDeviceModels?.evaluate(d,{})||{ok:false,status:'unavailable',deviceId:d.id});return {project,topology:{valid:Boolean(tg?.valid),errors:tg?.errors||[],nets:nr?.nets||[],netErrors:nr?.errors||[]},behaviour}}
