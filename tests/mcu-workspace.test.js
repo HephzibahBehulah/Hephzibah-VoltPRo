@@ -5,7 +5,10 @@ const fs=require("node:fs");
 const ui=fs.readFileSync("platform/mcu-lab-ui.js","utf8");
 const simulator=fs.readFileSync("simulator.html","utf8");
 const breadboard=fs.readFileSync("breadboard.html","utf8");
-const worker=fs.readFileSync("service-worker.js","utf8");\nconst runtime=fs.readFileSync("simulator.js","utf8");\nconst css=fs.readFileSync("simulator.css","utf8");\nconst bridge=fs.readFileSync("platform/mcu-circuit-bridge.js","utf8");
+const worker=fs.readFileSync("service-worker.js","utf8");
+const runtime=fs.readFileSync("simulator.js","utf8");
+const css=fs.readFileSync("simulator.css","utf8");
+const bridge=fs.readFileSync("platform/mcu-circuit-bridge.js","utf8");
 
 test("Microcontroller Lab exposes a board pinout, sketch controls and modeled virtual I/O",()=>{
   for(const id of ["vpwBoard","vpwCode","vpwRunMcu","vpwStepMcu","vpwStopMcu","vpwResetMcu","vpwDigitalPins","vpwAnalogPins","vpwLedPin","vpwButtonPin","vpwMcuPins","vpwMcuOut","vpwMcuDetails"]){
