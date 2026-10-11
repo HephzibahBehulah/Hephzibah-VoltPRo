@@ -6,7 +6,7 @@ VoltPRo Simulator is the interactive simulation workspace for VoltPRo Academy.
 - Browser-only schematic canvas with drag/drop components.
 - Pin-to-pin wiring and editable component properties.
 - DC educational engine with live current/voltage/resistance/continuity readings.
-- Switch, source, resistor, lamp, LED, motor, heater, fuse, breaker and protection models.
+- Switch, source, resistor, lamp, LED, motor, heater, fuse and breaker models. Breakers and fuses use configurable simplified instantaneous overcurrent pickup and latch open after a trip; this is educational behavior, not an IEC time-current curve.
 - Balanced three-phase AC source with L1/L2/L3/N terminals, complex phasor MNA analysis, phase-neutral motor winding currents, and voltage-driven contactor poles.
 - Ideal single-phase transformer with galvanically isolated windings and configurable turns ratio / primary-secondary voltage ratings. Winding resistance, magnetizing current, losses, saturation and inrush are not modeled; a 1 GΩ solver reference stabilizes floating secondary common-mode voltage.
 - DC direct-on-line control circuits with normally-open/normally-closed pushbuttons, contactor auxiliary seal-in contacts, and stop-button drop-out.
