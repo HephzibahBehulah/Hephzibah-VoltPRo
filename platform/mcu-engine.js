@@ -18,12 +18,12 @@ function simulate(code,opts={}){
  if(loop===null){runWrites(source,pins);runConditionals(source,pins,inputs)}
  else if(!hasTimedLoop){runWrites(source,pins);runConditionals(source,pins,inputs)}
  else if(instructions.length){
-  let dtLeft=Math.max(0,Number(opts.dtMs)||0),steps=0;
-  while(steps++<500){
-   if(delayRemainingMs>0){if(dtLeft<=0)break;const used=Math.min(dtLeft,delayRemainingMs);delayRemainingMs-=used;dtLeft-=used;if(delayRemainingMs>0)break;continue}
+  let dtLeft=Math.max(0,Number(opts.dtMs)||0),steps=0,allowZeroTimeTail=false;
+  while((dtLeft>0||allowZeroTimeTail)&&steps++<500){
+   if(delayRemainingMs>0){if(dtLeft<=0)break;const used=Math.min(dtLeft,delayRemainingMs);delayRemainingMs-=used;dtLeft-=used;if(delayRemainingMs>0)break;allowZeroTimeTail=true;continue}
    if(pc>=instructions.length)pc=0;
    const instruction=instructions[pc++];
-   if(instruction.type==="delay"){delayRemainingMs=instruction.ms;if(delayRemainingMs>0&&dtLeft<=0)break}
+   if(instruction.type==="delay"){delayRemainingMs=instruction.ms;if(delayRemainingMs>0&&dtLeft<=0)break;if(delayRemainingMs===0)allowZeroTimeTail=true}
    else applyWrite(pins,instruction.method,instruction.pin,instruction.value);
   }
  }
