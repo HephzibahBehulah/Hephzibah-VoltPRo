@@ -32,7 +32,7 @@ test('component category tabs cannot shrink into unreadable fragments', () => {
 });
 
 test('service worker refreshes and caches the restored simulator layout', () => {
-  assert.match(worker, /const CACHE="voltpro-v56"/);
+  assert.match(worker, /const CACHE="voltpro-v60"/);
   assert.match(worker, /"\.\/simulator-layout-restore\.css"/);
   assert.match(worker, /"\.\/voltpro-hb-theme\.css"/);
 });
