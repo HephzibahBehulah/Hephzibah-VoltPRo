@@ -135,17 +135,36 @@ test("Arduino Uno R3 aliases shared power, ground, reset and I2C terminals in th
 
 test("ABB AUX-CB-11 NC path is closed when released and opens when actuated",()=>{const base={components:[comp("V1","battery",2,{voltage:12}),comp("AUX1","abb-aux-cb-11",8,{actuated:0}),comp("R1","resistor",2,{resistance:100})],wires:[wire("V1:0","AUX1:1"),wire("AUX1:5","R1:0"),wire("R1:1","V1:1")]};const released=E.analyze(base).dc;assert.equal(released.ok,true,JSON.stringify(released));assert.ok(released.totalCurrent>0.1);const actuated=E.analyze({...base,components:base.components.map(c=>c.id==="AUX1"?{...c,props:{...c.props,actuated:1}}:c)}).dc;assert.equal(actuated.ok,true,JSON.stringify(actuated));assert.ok(Math.abs(actuated.totalCurrent)<1e-9)});
 
+
+test("catalog contactor 24 VAC variant has a real coil and switched main pole",()=>{
+ const p={components:[
+  comp("V1","battery",2,{voltage:24}),
+  comp("KM1","contactors-contactor-24vac",12,{coilVoltage:24,coilResistance:82}),
+  comp("R1","resistor",2,{resistance:100})
+ ],wires:[
+  wire("V1:0","KM1:0"),wire("KM1:1","V1:1"),
+  wire("V1:0","KM1:2"),wire("KM1:3","R1:0"),wire("R1:1","V1:1")
+ ]};
+ const result=E.dc(p);
+ assert.equal(result.ok,true,JSON.stringify(result));
+ assert.equal(result.deviceStates.KM1,true,"24 V coil should energize from 24 V");
+ assert.ok(Math.abs(result.branches.find(b=>b.id==="R1").current-.24)<1e-5);
+ assert.ok(result.branches.some(b=>b.id==="KM1"&&b.contactId==="main-1"&&b.current>0.23));
+});
+
 test("contactor coil voltage drives three independent main poles and auxiliary contacts",()=>{
- const make=(voltage)=>({components:[comp("V1","battery",2,{voltage}),comp("KM1","contactor",12,{coilVoltage:230,coilResistance:82}),comp("R1","resistor",2,{resistance:100})],wires:[wire("V1:0","KM1:0"),wire("KM1:1","V1:1"),wire("V1:0","KM1:2"),wire("KM1:3","R1:0"),wire("R1:1","V1:1"),wire("V1:0","KM1:8"),wire("KM1:9","R1:0")]});
+ const make=(voltage)=>({components:[comp("V1","battery",2,{voltage}),comp("KM1","contactor",12,{coilVoltage:230,coilResistance:82}),comp("R1","resistor",2,{resistance:100}),comp("R2","resistor",2,{resistance:100})],wires:[wire("V1:0","KM1:0"),wire("KM1:1","V1:1"),wire("V1:0","KM1:2"),wire("KM1:3","R1:0"),wire("R1:1","V1:1"),wire("V1:0","KM1:8"),wire("KM1:9","R1:0"),wire("V1:0","KM1:10"),wire("KM1:11","R2:0"),wire("R2:1","V1:1")]});
  const energized=E.analyze(make(230)).dc;
  assert.equal(energized.ok,true,JSON.stringify(energized));
  assert.equal(energized.deviceStates.KM1,true,"230 V coil should pull in");
  assert.ok(energized.branches.some(b=>b.id==="KM1"&&b.contactId==="main-1"&&b.current>1),"main contact should conduct after coil energizes: "+JSON.stringify(energized.branches));
  assert.ok(energized.branches.some(b=>b.id==="KM1"&&b.contactId==="aux-no-13-14"&&b.current>0),"NO auxiliary contact should close with coil");
+ assert.ok(Math.abs(energized.branches.find(b=>b.id==="R2").current)<1e-8,"NC auxiliary contact should open when energized");
  const released=E.analyze(make(24)).dc;
  assert.equal(released.ok,true,JSON.stringify(released));
  assert.equal(released.deviceStates.KM1,false,"24 V should not pull in a 230 V coil");
  assert.ok(released.branches.some(b=>b.id==="KM1"&&b.contactId==="main-1"&&Math.abs(b.current)<1e-9),"main contact should remain open");
+ assert.ok(Math.abs(released.branches.find(b=>b.id==="R2").current-2.3)<1e-5,"NC auxiliary contact should remain closed when deenergized");
 });
 test("relay uses explicit eight-terminal coil and changeover contacts",()=>{
  const p={components:[comp("V1","battery",2,{voltage:24}),comp("K1","relay",8,{coilVoltage:24,coilResistance:240}),comp("R1","resistor",2,{resistance:100}),comp("R2","resistor",2,{resistance:100})],wires:[wire("V1:0","K1:0"),wire("K1:1","V1:1"),wire("V1:0","K1:2"),wire("K1:3","R1:0"),wire("R1:1","V1:1"),wire("K1:4","R2:0"),wire("R2:1","V1:1")]};
