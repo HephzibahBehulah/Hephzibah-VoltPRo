@@ -70,3 +70,10 @@ test("catalog sequential logic components expose real input, clock and Q/QB term
  assert.equal(T.definitionFor("logic-logic-t-flipflop").terminals.map(t=>t.id).join(","),"T,CLK,Q,QB");
  assert.equal(T.definitionFor("logic-logic-jk-flipflop").terminals.map(t=>t.id).join(","),"J,K,CLK,Q,QB");
 });
+
+test("catalog timed logic exposes clock, timer, edge and counter terminals",()=>{
+ const T=load();
+ assert.equal(T.definitionFor("logic-logic-clock").terminals.map(t=>t.id).join(","),"OUT,GND");
+ for(const id of ["logic-logic-timer-delay","logic-logic-pulse","logic-logic-oneshot","logic-logic-edge-rising","logic-logic-edge-falling"])assert.equal(T.definitionFor(id).terminals.map(t=>t.id).join(","),"IN,OUT",id);
+ for(const id of ["logic-logic-counter-up","logic-logic-counter-down"])assert.equal(T.definitionFor(id).terminals.map(t=>t.id).join(","),"CLK,EN,Q0,Q1,Q2,Q3",id);
+});
