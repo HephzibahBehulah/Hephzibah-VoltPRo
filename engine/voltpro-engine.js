@@ -132,7 +132,7 @@ function operatingPoint(project,options={}){
   for(let it=0;it<12;it++){const previous=xPrev.slice();result=linearSolve(b,{...options,xPrev});if(!result.ok)return {ok:false,analysis:"DC operating point",error:result.error};xPrev=result.x.slice(0,b.N);if(xPrev.every((v,i)=>mag(sub(v,previous[i]||C()))<1e-9))break}
   const nodeVoltage=n=>n===0?0:(result.x[n-1]?.re||0);
   let changed=false;
-  for(const q of b.branches){if(!q.coil)continue;const coilVoltage=Math.abs(nodeVoltage(q.a)-nodeVoltage(q.b));const rated=Math.max(EPS,value(q.comp,["coilVoltage","ratedCoilVoltage"],q.comp.type==="contactor"?230:24));const next=coilVoltage>=rated*0.8;const previous=Boolean(stateOverrides[q.comp.id]??q.comp.state?.energized??q.comp.props?.energized??false);if(next!==previous){stateOverrides[q.comp.id]=next;changed=true}}
+  for(const q of b.branches){if(!q.coil)continue;const coilVoltage=Math.abs(nodeVoltage(q.a)-nodeVoltage(q.b));const rated=Math.max(EPS,value(q.comp,["coilVoltage","ratedCoilVoltage"],q.comp.type==="contactor"?230:24));const next=coilVoltage>=rated*0.8;const previous=Boolean(stateOverrides[q.comp.id]??q.comp.state?.energized??q.comp.props?.energized??false);if(next!==previous){stateOverrides[q.comp.id]=next;changed=true}else if(stateOverrides[q.comp.id]===undefined){stateOverrides[q.comp.id]=next}}
   if(!changed)break;
  }
  const nodeVoltage=n=>n===0?0:(result.x[n-1]?.re||0);
