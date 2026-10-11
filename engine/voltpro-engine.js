@@ -178,7 +178,7 @@ function linearSolve(b,options,history={}){
  return {ok:true,x,nodeCount:n,sourceCount:vs};
 }
 function operatingPoint(project,options={}){
- let stateOverrides={},b,result,xPrev;
+ let stateOverrides={},b,result,xPrev;const ladderAdvanced=new Set();
  // Electromechanical coupling: solve coil voltage, update contact state, then solve
  // the changed network again until the relay/contactor state stabilizes.
  for(let stateIteration=0;stateIteration<8;stateIteration++){
@@ -190,6 +190,7 @@ function operatingPoint(project,options={}){
   for(const q of b.branches){if(!q.coil)continue;const coilVoltage=Math.abs(nodeVoltage(q.a)-nodeVoltage(q.b));const rated=Math.max(EPS,value(q.comp,["coilVoltage","ratedCoilVoltage"],q.comp.type==="contactor"?230:24));const next=coilVoltage>=rated*0.8;const previous=Boolean(stateOverrides[q.comp.id]??q.comp.state?.energized??q.comp.props?.energized??false);if(next!==previous){stateOverrides[q.comp.id]=next;changed=true}else if(stateOverrides[q.comp.id]===undefined){stateOverrides[q.comp.id]=next}}
   for(const device of b.comps){if(!["overload_relay","thermal_overload_relay","industrial_industrial_overload_relay"].includes(typeOf(device)))continue;const alreadyTripped=Boolean(stateOverrides[device.id]?.tripped??device.state?.tripped??device.props?.tripped??false);if(alreadyTripped){if(stateOverrides[device.id]===undefined)stateOverrides[device.id]={tripped:true};continue}const peak=(b.branches.filter(q=>q.comp.id===device.id&&q.thermal).reduce((max,q)=>Math.max(max,Math.abs(nodeVoltage(q.a)-nodeVoltage(q.b))/q.R),0)),rated=Math.max(EPS,value(device,["ratedCurrent","currentRating","setting"],10)),multiplier=Math.max(1,value(device,["tripMultiplier"],1.05));if(peak>rated*multiplier){stateOverrides[device.id]={tripped:true};changed=true}else if(stateOverrides[device.id]===undefined)stateOverrides[device.id]={tripped:false}}
   for(const device of b.comps){if(typeOf(device)!=="automatic_transfer_switch")continue;const def=window.VoltProTerminalGraph?.definitionFor?.(device.type),pins=pinsOf(device),map=new Map((def?.terminals||[]).map((t,i)=>[String(t.id),pins[i]])),nL1=map.get("N-L1"),nN=map.get("N-N"),eL1=map.get("E-L1"),eN=map.get("E-N"),normalVoltage=b.wired.has(nL1)&&b.wired.has(nN)?Math.abs(nodeVoltage(b.nodeFor(nL1))-nodeVoltage(b.nodeFor(nN))):0,emergencyVoltage=b.wired.has(eL1)&&b.wired.has(eN)?Math.abs(nodeVoltage(b.nodeFor(eL1))-nodeVoltage(b.nodeFor(eN))):0,minVoltage=Math.max(EPS,value(device,["minVoltage","pickupVoltage"],180)),next=normalVoltage>=minVoltage?"normal":emergencyVoltage>=minVoltage?"emergency":"off",previous=stateOverrides[device.id]?.transferSource??device.state?.transferSource??device.props?.transferSource??"normal";if(next!==previous){stateOverrides[device.id]={...(typeof stateOverrides[device.id]==="object"?stateOverrides[device.id]:{}),transferSource:next};changed=true}else if(stateOverrides[device.id]===undefined)stateOverrides[device.id]={transferSource:next}}
+  for(const device of b.comps){if(typeOf(device)!=="plc_controller")continue;if(plcScan(device,b,nodeVoltage,stateOverrides,ladderAdvanced))changed=true}
   if(!changed)break;
  }
  const nodeVoltage=n=>n===0?0:(result.x[n-1]?.re||0);
@@ -201,7 +202,7 @@ function operatingPoint(project,options={}){
 }
 function dc(project,options={}){return operatingPoint(project,options)}
 function ac(project,{start=1,stop=1e5,points=50,frequency=50,groundRef}={}){
- const freqs=points<=1?[frequency]:Array.from({length:points},(_,i)=>start*Math.pow(stop/start,i/(points-1))),rows=[];
+ const freqs=points<=1?[frequency]:Array.from({length:points},(_,i)=>start*Math.pow(stop/start,i/(points-1))),rows=[];const ladderAdvanced=new Set();
  for(const f of freqs){
   const scale=2*Math.PI*f;let stateOverrides={},b,result;
   // Resolve coil state from AC RMS phasor voltage, then solve the changed network.
@@ -213,6 +214,7 @@ function ac(project,{start=1,stop=1e5,points=50,frequency=50,groundRef}={}){
    for(const q of b.branches){if(!q.coil)continue;const coilVoltage=mag(sub(nodeV(q.a),nodeV(q.b))),rated=Math.max(EPS,value(q.comp,["coilVoltage","ratedCoilVoltage"],q.comp.type==="contactor"?230:24)),next=coilVoltage>=rated*.8,previous=Boolean(stateOverrides[q.comp.id]??q.comp.state?.energized??q.comp.props?.energized??false);if(next!==previous){stateOverrides[q.comp.id]=next;changed=true}else if(stateOverrides[q.comp.id]===undefined)stateOverrides[q.comp.id]=next}
    for(const device of b.comps){if(!["overload_relay","thermal_overload_relay","industrial_industrial_overload_relay"].includes(typeOf(device)))continue;const alreadyTripped=Boolean(stateOverrides[device.id]?.tripped??device.state?.tripped??device.props?.tripped??false);if(alreadyTripped){if(stateOverrides[device.id]===undefined)stateOverrides[device.id]={tripped:true};continue}const peak=b.branches.filter(q=>q.comp.id===device.id&&q.thermal).reduce((max,q)=>Math.max(max,mag(div(sub(nodeV(q.a),nodeV(q.b)),C(q.R)))),0),rated=Math.max(EPS,value(device,["ratedCurrent","currentRating","setting"],10)),multiplier=Math.max(1,value(device,["tripMultiplier"],1.05));if(peak>rated*multiplier){stateOverrides[device.id]={tripped:true};changed=true}else if(stateOverrides[device.id]===undefined)stateOverrides[device.id]={tripped:false}}
    for(const device of b.comps){if(typeOf(device)!=="automatic_transfer_switch")continue;const def=window.VoltProTerminalGraph?.definitionFor?.(device.type),pins=pinsOf(device),map=new Map((def?.terminals||[]).map((t,i)=>[String(t.id),pins[i]])),nL1=map.get("N-L1"),nN=map.get("N-N"),eL1=map.get("E-L1"),eN=map.get("E-N"),normalVoltage=b.wired.has(nL1)&&b.wired.has(nN)?mag(sub(nodeV(b.nodeFor(nL1)),nodeV(b.nodeFor(nN)))):0,emergencyVoltage=b.wired.has(eL1)&&b.wired.has(eN)?mag(sub(nodeV(b.nodeFor(eL1)),nodeV(b.nodeFor(eN)))):0,minVoltage=Math.max(EPS,value(device,["minVoltage","pickupVoltage"],180)),next=normalVoltage>=minVoltage?"normal":emergencyVoltage>=minVoltage?"emergency":"off",previous=stateOverrides[device.id]?.transferSource??device.state?.transferSource??device.props?.transferSource??"normal";if(next!==previous){stateOverrides[device.id]={...(typeof stateOverrides[device.id]==="object"?stateOverrides[device.id]:{}),transferSource:next};changed=true}else if(stateOverrides[device.id]===undefined)stateOverrides[device.id]={transferSource:next}}
+   for(const device of b.comps){if(typeOf(device)!=="plc_controller")continue;if(plcScan(device,b,nodeV,stateOverrides,ladderAdvanced))changed=true}
    if(!changed)break;
   }
   const x=result.x,nodeV=n=>n===0?C():x[n-1]||C(),vs=b.voltageSources[0],vout=vs?sub(nodeV(vs.a),nodeV(vs.b)):C(),z=vs&&x[b.N]&&mag(x[b.N])>EPS?div(vout,x[b.N]):C(Infinity,0);
