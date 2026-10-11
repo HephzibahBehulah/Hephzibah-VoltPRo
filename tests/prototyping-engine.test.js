@@ -786,3 +786,18 @@ test("catalog Schmitt trigger retains state inside the hysteresis window",()=>{
  const held=E.dc(make(2.1,high.deviceStates.G1));assert.equal(held.ok,true,JSON.stringify(held));assert.equal(held.deviceStates.G1.outputHigh,true);
  const low=E.dc(make(1.5,held.deviceStates.G1));assert.equal(low.ok,true,JSON.stringify(low));assert.equal(low.deviceStates.G1.outputHigh,false);
 });
+
+test("catalog D flip-flop samples D only on a rising clock edge and persists state",()=>{
+ const make=(d,clk,state)=>{const components=[comp("VD","battery",2,{voltage:d?5:0}),comp("VC","battery",2,{voltage:clk?5:0}),comp("G1","logic-logic-d-flipflop",4,{inputThreshold:2.5,logicVoltage:5}),comp("R1","resistor",2,{resistance:1000})];if(state)components.find(c=>c.id==="G1").state=state;return {components,wires:[wire("VD:1","VC:1"),wire("VD:1","R1:1"),wire("VD:0","G1:0"),wire("VC:0","G1:1"),wire("G1:2","R1:0")]};};
+ let r=E.dc(make(true,false,null));assert.equal(r.ok,true,JSON.stringify(r));assert.equal(r.deviceStates.G1.qHigh,false);
+ r=E.dc(make(true,true,r.deviceStates.G1));assert.equal(r.ok,true,JSON.stringify(r));assert.equal(r.deviceStates.G1.qHigh,true);
+ r=E.dc(make(false,true,r.deviceStates.G1));assert.equal(r.ok,true,JSON.stringify(r));assert.equal(r.deviceStates.G1.qHigh,true,"D changes while clock remains high must not change Q");
+ r=E.dc(make(false,false,r.deviceStates.G1));assert.equal(r.ok,true,JSON.stringify(r));
+ r=E.dc(make(false,true,r.deviceStates.G1));assert.equal(r.ok,true,JSON.stringify(r));assert.equal(r.deviceStates.G1.qHigh,false);
+});
+test("catalog RS latch sets, holds and resets its output",()=>{
+ const make=(set,reset,state)=>{const components=[comp("VS","battery",2,{voltage:set?5:0}),comp("VR","battery",2,{voltage:reset?5:0}),comp("G1","logic-logic-rs-latch",4,{inputThreshold:2.5,logicVoltage:5}),comp("R1","resistor",2,{resistance:1000})];if(state)components.find(c=>c.id==="G1").state=state;return {components,wires:[wire("VS:1","VR:1"),wire("VS:1","R1:1"),wire("VS:0","G1:0"),wire("VR:0","G1:1"),wire("G1:2","R1:0")]};};
+ let r=E.dc(make(true,false,null));assert.equal(r.ok,true,JSON.stringify(r));assert.equal(r.deviceStates.G1.qHigh,true);
+ r=E.dc(make(false,false,r.deviceStates.G1));assert.equal(r.ok,true,JSON.stringify(r));assert.equal(r.deviceStates.G1.qHigh,true,"both inputs low should hold state");
+ r=E.dc(make(false,true,r.deviceStates.G1));assert.equal(r.ok,true,JSON.stringify(r));assert.equal(r.deviceStates.G1.qHigh,false);
+});

@@ -61,3 +61,12 @@ test("catalog comparator and Schmitt trigger expose A/B/Y terminals",()=>{
  const T=load();
  for(const id of ["logic-logic-comparator","logic-logic-schmitt"])assert.equal(T.definitionFor(id).terminals.map(t=>t.id).join(","),"A,B,Y",id);
 });
+
+test("catalog sequential logic components expose real input, clock and Q/QB terminals",()=>{
+ const T=load();
+ assert.equal(T.definitionFor("logic-logic-rs-latch").terminals.map(t=>t.id).join(","),"S,R,Q,QB");
+ assert.equal(T.definitionFor("logic-logic-d-latch").terminals.map(t=>t.id).join(","),"D,EN,Q,QB");
+ assert.equal(T.definitionFor("logic-logic-d-flipflop").terminals.map(t=>t.id).join(","),"D,CLK,Q,QB");
+ assert.equal(T.definitionFor("logic-logic-t-flipflop").terminals.map(t=>t.id).join(","),"T,CLK,Q,QB");
+ assert.equal(T.definitionFor("logic-logic-jk-flipflop").terminals.map(t=>t.id).join(","),"J,K,CLK,Q,QB");
+});
