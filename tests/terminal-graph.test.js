@@ -25,3 +25,6 @@ test('catalog relay variants expose coil and two changeover contact sets',()=>{c
 
 
 test('catalog transformer variants expose isolated primary and secondary terminals',()=>{const T=load();const d=T.definitionFor('transformers-transformer-230-24v-25va');assert.equal(d.terminals.length,4);assert.equal(d.terminals.map(t=>t.id).join(','),'P1,P2,S1,S2');assert.equal(d.paths.length,2);assert.ok(d.paths.every(p=>p.kind==='transformer-winding'));});
+
+
+test('auxiliary contactor catalog variants expose matching terminal/path counts',()=>{const T=load();for(const [id,terminals,paths] of [['contactors-contactor-1no',4,2],['contactors-contactor-2no',6,3],['contactors-contactor-1nc',4,2],['contactors-contactor-2nc',6,3],['contactors-contactor-1no1nc',6,3],['contactors-contactor-2no2nc',10,5]]){const d=T.definitionFor(id);assert.equal(d.terminals.length,terminals,id);assert.equal(d.paths.length,paths,id)}});
