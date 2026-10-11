@@ -12,6 +12,7 @@ VoltPRo Simulator is the interactive simulation workspace for VoltPRo Academy.
 - Three-phase thermal overload relay with current-threshold trip, latched 95/96 NC and 97/98 NO auxiliary contacts, and contactor drop-out through the control circuit.
 - Four-pole automatic transfer switch with normal-source priority, voltage monitoring, emergency-source transfer, and break-before-make output paths.
 - Executable PLC ladder logic with NO/NC contacts, parallel branches, seal-in circuits, SET/RESET coils, on-delay/off-delay/pulse timers, and up/down counters.
+- A wired PLC controller with 24 V supply sensing, three electrically sensed digital inputs, four isolated relay outputs, and ladder scan co-simulation with the MNA engine.
 - Undo/redo, project persistence, `.voltpro` JSON export/import.
 - Component registry designed for progressive expansion.
 - Explicit 1P/2P/3P/4P breaker pole paths and an ABB AUX-CB-11 front auxiliary contact block (1NO + 3NC).

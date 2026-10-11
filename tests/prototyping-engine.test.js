@@ -3,7 +3,8 @@ const assert=require("node:assert/strict");
 const fs=require("node:fs");
 const vm=require("node:vm");
 const T=require("../src/core/terminal-graph.js");
-function loadEngine(){const window={VoltProTerminalGraph:T};vm.runInNewContext(fs.readFileSync("engine/voltpro-engine.js","utf8"),{window,Map,Set,Array,String,Number,Math,Boolean,Object,JSON,Error});return window.VoltProEngine}
+const Ladder=require("../platform/ladder-engine.js");
+function loadEngine(){const window={VoltProTerminalGraph:T,VoltProLadder:Ladder};vm.runInNewContext(fs.readFileSync("engine/voltpro-engine.js","utf8"),{window,Map,Set,Array,String,Number,Math,Boolean,Object,JSON,Error});return window.VoltProEngine}
 const E=loadEngine();
 function comp(id,type,pins,props={}){return {id,type,pins:Array.from({length:pins},(_,i)=>id+":"+i),props}}
 function wire(a,b){return {a,b}}
@@ -159,4 +160,44 @@ test("automatic transfer switch transfers to emergency source when normal voltag
  assert.equal(result.deviceStates.ATS1.transferSource,"emergency");
  assert.ok(result.branches.find(b=>b.id==="ATS1"&&b.contactId==="emergency-L1").current>2);
  assert.ok(Math.abs(result.branches.find(b=>b.id==="ATS1"&&b.contactId==="normal-L1").current)<1e-8,"normal pole must remain open after transfer");
+});
+
+test("PLC ladder outputs drive a wired contactor and respect stop interlocks",()=>{
+ const program={rungs:[
+  {id:"motor",branches:[
+   [{address:"I1",type:"NO"},{address:"I2",type:"NO"},{address:"I0",type:"NO"}],
+   [{address:"I1",type:"NO"},{address:"I2",type:"NO"},{address:"Q0",type:"NO"}]
+  ],coils:[{address:"Q0",type:"COIL"}]},
+  {id:"lamp",branches:[[{address:"Q0",type:"NO"}]],coils:[{address:"Q1",type:"COIL"}]}
+ ]};
+ const p={components:[
+  comp("CS1","controlsource",2,{voltage:24}),comp("V1","battery",2,{voltage:230}),
+  comp("PLC1","plc-controller",13,{minVoltage:18,inputThreshold:12,inputResistance:10000,supplyResistance:4800,scanTimeMs:10,program:JSON.stringify(program)}),
+  comp("S1","pushbutton-no",2,{pressed:true}),comp("S0","pushbutton-nc",2,{pressed:false}),comp("S2","pushbutton-nc",2,{pressed:false}),
+  comp("KM1","contactor",12,{coilVoltage:24,coilResistance:100}),comp("R1","resistor",2,{resistance:100})
+ ],wires:[
+  wire("CS1:0","PLC1:0"),wire("CS1:1","PLC1:1"),
+  wire("CS1:0","S1:0"),wire("S1:1","PLC1:2"),
+  wire("CS1:0","S0:0"),wire("S0:1","PLC1:3"),
+  wire("CS1:0","S2:0"),wire("S2:1","PLC1:4"),
+  wire("CS1:0","PLC1:5"),wire("PLC1:6","KM1:0"),wire("KM1:1","CS1:1"),
+  wire("CS1:1","V1:1"),wire("V1:0","KM1:2"),wire("KM1:3","R1:0"),wire("R1:1","V1:1")
+ ]};
+ const applyStates=result=>{for(const [id,state] of Object.entries(result.deviceStates||{})){const c=p.components.find(x=>x.id===id);if(c)c.state={...(c.state||{}),...(state&&typeof state==="object"?state:{energized:Boolean(state)})}}};
+ const started=E.analyze(p).dc;
+ assert.equal(started.ok,true,JSON.stringify(started));
+ assert.equal(started.deviceStates.PLC1.Q0,true,"ladder coil Q0 should energize from the Start input");
+ assert.equal(started.deviceStates.KM1,true,"PLC relay output should energize the contactor coil");
+ assert.ok(started.branches.find(b=>b.id==="R1").current>2);
+ applyStates(started);p.components.find(c=>c.id==="S1").props.pressed=false;
+ const held=E.analyze(p).dc;
+ assert.equal(held.ok,true,JSON.stringify(held));
+ assert.equal(held.deviceStates.PLC1.Q0,true,"ladder Q0 contact should seal in after Start is released");
+ assert.equal(held.deviceStates.KM1,true);
+ applyStates(held);p.components.find(c=>c.id==="S0").props.pressed=true;
+ const stopped=E.analyze(p).dc;
+ assert.equal(stopped.ok,true,JSON.stringify(stopped));
+ assert.equal(stopped.deviceStates.PLC1.Q0,false,"opening the physical Stop input should reset the ladder rung");
+ assert.equal(stopped.deviceStates.KM1,false);
+ assert.ok(Math.abs(stopped.branches.find(b=>b.id==="R1").current)<1e-6);
 });

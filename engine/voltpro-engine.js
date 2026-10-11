@@ -23,6 +23,18 @@ function solve(A,b){
 function pinsOf(x){return Array.isArray(x.pins)&&x.pins.length?x.pins:Array.from({length:2},(_,i)=>x.id+":"+i)}
 function value(x,names,fallback){const p=x.props||x.parameters||{};for(const n of names){if(p[n]!==undefined)return Number(p[n]);}return fallback}
 function typeOf(x){return String(x.type||x.model||"").toLowerCase().replace(/[-\s]/g,"_")}
+function plcProgram(device){const raw=device.props?.program??device.props?.ladderProgram;if(raw&&typeof raw==="object")return raw;if(typeof raw==="string"){try{return JSON.parse(raw)}catch{return null}}return null}
+function plcScan(device,b,voltageAt,stateOverrides,ladderAdvanced){
+ const definition=window.VoltProTerminalGraph?.definitionFor?.(device.type),pins=pinsOf(device),map=new Map((definition?.terminals||[]).map((t,i)=>[String(t.id),pins[i]])),pin=id=>map.get(id),read=id=>{const p=pin(id);return p&&b.wired.has(p)?voltageAt(b.nodeFor(p)):null},m=read("M"),lplus=read("L+"),powered=m!==null&&lplus!==null&&magnitudeDifference(lplus,m)>=Math.max(EPS,value(device,["minVoltage","supplyThreshold"],18)),threshold=Math.max(EPS,value(device,["inputThreshold"],12)),inputs={};
+ for(const id of ["I0","I1","I2"]) {const v=read(id);inputs[id]=powered&&v!==null&&magnitudeDifference(v,m)>=threshold}
+ const previous=stateOverrides[device.id]&&typeof stateOverrides[device.id]==="object"?stateOverrides[device.id]:(device.state||{}),program=plcProgram(device);let scan=null,error=null;
+ if(powered){if(!window.VoltProLadder?.scan)error="PLC ladder engine is not loaded.";else if(!program||!Array.isArray(program.rungs))error="PLC ladder program is invalid.";else{const dt=ladderAdvanced.has(device.id)?0:Math.max(0,value(device,["scanTimeMs"],10));ladderAdvanced.add(device.id);scan=window.VoltProLadder.scan(program,inputs,previous.ladderState??device.state?.ladderState??{},{dtMs:dt});if(!scan.ok)error=scan.error}}
+ else ladderAdvanced.add(device.id);
+ const outputs={Q0:Boolean(powered&&scan?.ok&&scan.outputs.Q0),Q1:Boolean(powered&&scan?.ok&&scan.outputs.Q1),Q2:Boolean(powered&&scan?.ok&&scan.outputs.Q2),Q3:Boolean(powered&&scan?.ok&&scan.outputs.Q3)},previousOutputs=previous.outputs||{},changed=Object.keys(outputs).some(k=>Boolean(previous[k]??previousOutputs[k]??false)!==outputs[k])||Boolean(previous.powered??device.state?.powered??false)!==powered;
+ stateOverrides[device.id]={...previous,...outputs,outputs,ladderState:scan?.state??previous.ladderState??device.state?.ladderState??{},powered,ladderError:error};
+ return changed;
+}
+function magnitudeDifference(a,b){if(a===null||b===null||a===undefined||b===undefined)return 0;if(typeof a==="number"&&typeof b==="number")return Math.abs(a-b);return mag(sub(a,b))}
 function topology(project){
  const parent=new Map(), find=x=>{if(!parent.has(x))parent.set(x,x);let r=x;while(parent.get(r)!==r)r=parent.get(r);while(parent.get(x)!==x){const q=parent.get(x);parent.set(x,r);x=q}return r};
  const union=(a,b)=>{const x=find(a),y=find(b);if(x!==y)parent.set(x,y)};
@@ -83,6 +95,15 @@ function build(project,options={}){
     if(contact.kind!=="switchable")continue;
     const closed=Boolean(tripped)===Boolean(contact.closedWhen??true);
     addBranch(x,a,b,"resistor",{R:closed?Math.max(EPS,value(x,["onResistance"],1e-6)):Math.max(EPS,value(x,["offResistance"],3e10)),contactId:contact.id});
+   }
+   continue;
+  }
+  if(ty==="plc_controller"){
+   const index=new Map((definition?.terminals||[]).map((t,i)=>[String(t.id),p[i]]));
+   for(const path of definition?.paths||[]){const a=index.get(String(path.from)),b=index.get(String(path.to));if(!a||!b||!wired.has(a)||!wired.has(b))continue;
+    if(path.kind==="supply-load"){addBranch(x,a,b,"resistor",{R:Math.max(EPS,value(x,["supplyResistance"],4800)),contactId:path.id});continue}
+    if(path.kind==="input-resistor"){addBranch(x,a,b,"resistor",{R:Math.max(EPS,value(x,["inputResistance"],10000)),contactId:path.id});continue}
+    if(path.kind==="switchable"){const stateValue=options.stateOverrides?.[x.id]?.[path.stateKey]??x.state?.[path.stateKey]??x.props?.[path.stateKey]??false,closed=Boolean(stateValue)===Boolean(path.closedWhen??true);addBranch(x,a,b,"resistor",{R:closed?Math.max(EPS,value(x,["onResistance"],1e-6)):Math.max(EPS,value(x,["offResistance"],3e10)),contactId:path.id})}
    }
    continue;
   }
@@ -157,7 +178,7 @@ function linearSolve(b,options,history={}){
  return {ok:true,x,nodeCount:n,sourceCount:vs};
 }
 function operatingPoint(project,options={}){
- let stateOverrides={},b,result,xPrev;
+ let stateOverrides={},b,result,xPrev;const ladderAdvanced=new Set();
  // Electromechanical coupling: solve coil voltage, update contact state, then solve
  // the changed network again until the relay/contactor state stabilizes.
  for(let stateIteration=0;stateIteration<8;stateIteration++){
@@ -169,6 +190,7 @@ function operatingPoint(project,options={}){
   for(const q of b.branches){if(!q.coil)continue;const coilVoltage=Math.abs(nodeVoltage(q.a)-nodeVoltage(q.b));const rated=Math.max(EPS,value(q.comp,["coilVoltage","ratedCoilVoltage"],q.comp.type==="contactor"?230:24));const next=coilVoltage>=rated*0.8;const previous=Boolean(stateOverrides[q.comp.id]??q.comp.state?.energized??q.comp.props?.energized??false);if(next!==previous){stateOverrides[q.comp.id]=next;changed=true}else if(stateOverrides[q.comp.id]===undefined){stateOverrides[q.comp.id]=next}}
   for(const device of b.comps){if(!["overload_relay","thermal_overload_relay","industrial_industrial_overload_relay"].includes(typeOf(device)))continue;const alreadyTripped=Boolean(stateOverrides[device.id]?.tripped??device.state?.tripped??device.props?.tripped??false);if(alreadyTripped){if(stateOverrides[device.id]===undefined)stateOverrides[device.id]={tripped:true};continue}const peak=(b.branches.filter(q=>q.comp.id===device.id&&q.thermal).reduce((max,q)=>Math.max(max,Math.abs(nodeVoltage(q.a)-nodeVoltage(q.b))/q.R),0)),rated=Math.max(EPS,value(device,["ratedCurrent","currentRating","setting"],10)),multiplier=Math.max(1,value(device,["tripMultiplier"],1.05));if(peak>rated*multiplier){stateOverrides[device.id]={tripped:true};changed=true}else if(stateOverrides[device.id]===undefined)stateOverrides[device.id]={tripped:false}}
   for(const device of b.comps){if(typeOf(device)!=="automatic_transfer_switch")continue;const def=window.VoltProTerminalGraph?.definitionFor?.(device.type),pins=pinsOf(device),map=new Map((def?.terminals||[]).map((t,i)=>[String(t.id),pins[i]])),nL1=map.get("N-L1"),nN=map.get("N-N"),eL1=map.get("E-L1"),eN=map.get("E-N"),normalVoltage=b.wired.has(nL1)&&b.wired.has(nN)?Math.abs(nodeVoltage(b.nodeFor(nL1))-nodeVoltage(b.nodeFor(nN))):0,emergencyVoltage=b.wired.has(eL1)&&b.wired.has(eN)?Math.abs(nodeVoltage(b.nodeFor(eL1))-nodeVoltage(b.nodeFor(eN))):0,minVoltage=Math.max(EPS,value(device,["minVoltage","pickupVoltage"],180)),next=normalVoltage>=minVoltage?"normal":emergencyVoltage>=minVoltage?"emergency":"off",previous=stateOverrides[device.id]?.transferSource??device.state?.transferSource??device.props?.transferSource??"normal";if(next!==previous){stateOverrides[device.id]={...(typeof stateOverrides[device.id]==="object"?stateOverrides[device.id]:{}),transferSource:next};changed=true}else if(stateOverrides[device.id]===undefined)stateOverrides[device.id]={transferSource:next}}
+  for(const device of b.comps){if(typeOf(device)!=="plc_controller")continue;if(plcScan(device,b,nodeVoltage,stateOverrides,ladderAdvanced))changed=true}
   if(!changed)break;
  }
  const nodeVoltage=n=>n===0?0:(result.x[n-1]?.re||0);
@@ -180,7 +202,7 @@ function operatingPoint(project,options={}){
 }
 function dc(project,options={}){return operatingPoint(project,options)}
 function ac(project,{start=1,stop=1e5,points=50,frequency=50,groundRef}={}){
- const freqs=points<=1?[frequency]:Array.from({length:points},(_,i)=>start*Math.pow(stop/start,i/(points-1))),rows=[];
+ const freqs=points<=1?[frequency]:Array.from({length:points},(_,i)=>start*Math.pow(stop/start,i/(points-1))),rows=[];const ladderAdvanced=new Set();
  for(const f of freqs){
   const scale=2*Math.PI*f;let stateOverrides={},b,result;
   // Resolve coil state from AC RMS phasor voltage, then solve the changed network.
@@ -192,6 +214,7 @@ function ac(project,{start=1,stop=1e5,points=50,frequency=50,groundRef}={}){
    for(const q of b.branches){if(!q.coil)continue;const coilVoltage=mag(sub(nodeV(q.a),nodeV(q.b))),rated=Math.max(EPS,value(q.comp,["coilVoltage","ratedCoilVoltage"],q.comp.type==="contactor"?230:24)),next=coilVoltage>=rated*.8,previous=Boolean(stateOverrides[q.comp.id]??q.comp.state?.energized??q.comp.props?.energized??false);if(next!==previous){stateOverrides[q.comp.id]=next;changed=true}else if(stateOverrides[q.comp.id]===undefined)stateOverrides[q.comp.id]=next}
    for(const device of b.comps){if(!["overload_relay","thermal_overload_relay","industrial_industrial_overload_relay"].includes(typeOf(device)))continue;const alreadyTripped=Boolean(stateOverrides[device.id]?.tripped??device.state?.tripped??device.props?.tripped??false);if(alreadyTripped){if(stateOverrides[device.id]===undefined)stateOverrides[device.id]={tripped:true};continue}const peak=b.branches.filter(q=>q.comp.id===device.id&&q.thermal).reduce((max,q)=>Math.max(max,mag(div(sub(nodeV(q.a),nodeV(q.b)),C(q.R)))),0),rated=Math.max(EPS,value(device,["ratedCurrent","currentRating","setting"],10)),multiplier=Math.max(1,value(device,["tripMultiplier"],1.05));if(peak>rated*multiplier){stateOverrides[device.id]={tripped:true};changed=true}else if(stateOverrides[device.id]===undefined)stateOverrides[device.id]={tripped:false}}
    for(const device of b.comps){if(typeOf(device)!=="automatic_transfer_switch")continue;const def=window.VoltProTerminalGraph?.definitionFor?.(device.type),pins=pinsOf(device),map=new Map((def?.terminals||[]).map((t,i)=>[String(t.id),pins[i]])),nL1=map.get("N-L1"),nN=map.get("N-N"),eL1=map.get("E-L1"),eN=map.get("E-N"),normalVoltage=b.wired.has(nL1)&&b.wired.has(nN)?mag(sub(nodeV(b.nodeFor(nL1)),nodeV(b.nodeFor(nN)))):0,emergencyVoltage=b.wired.has(eL1)&&b.wired.has(eN)?mag(sub(nodeV(b.nodeFor(eL1)),nodeV(b.nodeFor(eN)))):0,minVoltage=Math.max(EPS,value(device,["minVoltage","pickupVoltage"],180)),next=normalVoltage>=minVoltage?"normal":emergencyVoltage>=minVoltage?"emergency":"off",previous=stateOverrides[device.id]?.transferSource??device.state?.transferSource??device.props?.transferSource??"normal";if(next!==previous){stateOverrides[device.id]={...(typeof stateOverrides[device.id]==="object"?stateOverrides[device.id]:{}),transferSource:next};changed=true}else if(stateOverrides[device.id]===undefined)stateOverrides[device.id]={transferSource:next}}
+   for(const device of b.comps){if(typeOf(device)!=="plc_controller")continue;if(plcScan(device,b,nodeV,stateOverrides,ladderAdvanced))changed=true}
    if(!changed)break;
   }
   const x=result.x,nodeV=n=>n===0?C():x[n-1]||C(),vs=b.voltageSources[0],vout=vs?sub(nodeV(vs.a),nodeV(vs.b)):C(),z=vs&&x[b.N]&&mag(x[b.N])>EPS?div(vout,x[b.N]):C(Infinity,0);
