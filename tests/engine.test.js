@@ -1,6 +1,7 @@
 const test=require("node:test");const assert=require("node:assert/strict");const fs=require("node:fs");const vm=require("node:vm");
+const T=require("../src/core/terminal-graph.js");
 const source=fs.readFileSync("engine/voltpro-engine.js","utf8");
-function engine(){const ctx={window:{},console,Date};vm.createContext(ctx);vm.runInContext(source,ctx);return ctx.window.VoltProEngine}
+function engine(){const ctx={window:{VoltProTerminalGraph:T},console,Date};vm.createContext(ctx);vm.runInContext(source,ctx);return ctx.window.VoltProEngine}
 function circuit(r=1000){return {components:[{id:"v1",type:"battery",props:{voltage:12},pins:["v1:0","v1:1"]},{id:"r1",type:"resistor",props:{resistance:r},pins:["r1:0","r1:1"]}],wires:[{a:"v1:0",b:"r1:0"},{a:"r1:1",b:"v1:1"}]}}
 test("MNA DC solves a 12V/1kΩ circuit",()=>{const a=engine().dc(circuit());assert.equal(a.ok,true);assert.ok(Math.abs(a.totalCurrent-0.012)<1e-9);assert.ok(Math.abs(a.totalPower-0.144)<1e-6)});
 test("MNA supports RLC analysis contracts",()=>{const e=engine(),p={components:[{id:"v",type:"battery",pins:["v:0","v:1"],props:{voltage:12}},{id:"r",type:"resistor",pins:["r:0","r:1"],props:{resistance:1000}},{id:"c",type:"capacitor",pins:["c:0","c:1"],props:{capacitance:1e-6}},{id:"l",type:"inductor",pins:["l:0","l:1"],props:{inductance:1e-3}}],wires:[{a:"v:0",b:"r:0"},{a:"r:1",b:"c:0"},{a:"c:1",b:"l:0"},{a:"l:1",b:"v:1"}]};assert.equal(e.transient(p,{duration:.01,steps:10}).ok,true);assert.equal(e.ac(p,{start:10,stop:1000,points:5}).ok,true)});
