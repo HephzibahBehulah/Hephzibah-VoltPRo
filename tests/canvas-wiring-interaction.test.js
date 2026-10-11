@@ -73,7 +73,7 @@ test('wire inspector exposes AWG and metric cross-section with synchronized appr
   assert.ok(source.includes('data-wire-prop="size"'));
   assert.ok(source.includes('Drawing thickness only. It does not calculate current capacity or electrical safety.'));
   const html = fs.readFileSync(path.join(__dirname, '..', 'simulator.html'), 'utf8');
-  assert.ok(html.includes('simulator.js?v=20261011m'));
+  assert.ok(html.includes('simulator.js?v=20261011n'));
   assert.ok(html.includes('simulator.css?v=20261011b'));
 });
 
