@@ -9,12 +9,12 @@ const read = file => fs.readFileSync(path.join(root, file), "utf8");
 test("simulator toolbar destinations point to real Workbench or MCU destinations", () => {
   const html = read("simulator.html");
   for (const target of [
-    'section=demos#demos',
+    'href="academy-workbench.html#demos"',
     'href="academy-workbench.html?focus=motor#demos"',
-    'section=logic-lab#logic-lab',
-    'section=faults#faults',
-    'section=challenges#challenges',
-    'section=tutorials#tutorials',
+    'href="academy-workbench.html#logic-lab"',
+    'href="academy-workbench.html#faults"',
+    'href="academy-workbench.html#challenges"',
+    'href="academy-workbench.html#tutorials"',
     'href="breadboard.html"'
   ]) assert.ok(html.includes(target), "missing toolbar destination: " + target);
   assert.match(html, /id="pngBtn"[^>]*>SVG<\/button>/);
