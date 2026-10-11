@@ -178,6 +178,41 @@ test("catalog red LED uses the diode model and conducts through a series resisto
  assert.ok(led.current>0.015&&led.current<0.025,"LED should conduct around 20 mA with a 150 Ω series resistor: "+JSON.stringify(led));
 });
 
+
+test("PT100 and PT1000 catalog sensors use temperature-dependent IEC-style resistance",()=>{
+ const make=(type,temperatureC)=>({components:[comp("V1","battery",2,{voltage:1}),comp("S1",type,2,{temperatureC}),comp("R1","resistor",2,{resistance:1000})],wires:[wire("V1:0","S1:0"),wire("S1:1","R1:0"),wire("R1:1","V1:1")]});
+ for(const [type,temperatureC,expected] of [["sensors-sensor-pt100",100,138.5],["sensors-sensor-pt1000",100,1385]]){
+  const result=E.dc(make(type,temperatureC));
+  assert.equal(result.ok,true,JSON.stringify(result));
+  const sensor=result.branches.find(b=>b.id==="S1"&&b.contactId==="sensor-resistance");
+  assert.ok(sensor,"resistive sensor must expose a solved branch");
+  const expectedCurrent=1/(expected+1000);
+  assert.ok(Math.abs(sensor.current-expectedCurrent)<1e-7,type+" should be approximately "+expected+" ohms at 100C, got "+sensor.current);
+ }
+});
+test("NTC catalog sensors follow a beta equation when temperature is supplied",()=>{
+ const p={components:[comp("V1","battery",2,{voltage:1}),comp("S1","sensors-sensor-ntc-10k",2,{temperatureC:50,beta:3950}),comp("R1","resistor",2,{resistance:1000})],wires:[wire("V1:0","S1:0"),wire("S1:1","R1:0"),wire("R1:1","V1:1")]};
+ const result=E.dc(p);
+ assert.equal(result.ok,true,JSON.stringify(result));
+ const sensor=result.branches.find(b=>b.id==="S1"&&b.contactId==="sensor-resistance");
+ const expected=10000*Math.exp(3950*(1/(50+273.15)-1/298.15));
+ assert.ok(Math.abs(sensor.current-1/(expected+1000))<1e-7,"NTC resistance should fall as temperature rises");
+});
+test("LDR catalog sensor resistance falls as configured illuminance rises",()=>{
+ const make=lightLux=>({components:[comp("V1","battery",2,{voltage:1}),comp("S1","sensors-sensor-ldr",2,{lightLux}),comp("R1","resistor",2,{resistance:1000})],wires:[wire("V1:0","S1:0"),wire("S1:1","R1:0"),wire("R1:1","V1:1")]});
+ const dim=E.dc(make(10)),bright=E.dc(make(1000));
+ assert.equal(dim.ok,true,JSON.stringify(dim));assert.equal(bright.ok,true,JSON.stringify(bright));
+ const dimCurrent=dim.branches.find(b=>b.id==="S1"&&b.contactId==="sensor-resistance").current;
+ const brightCurrent=bright.branches.find(b=>b.id==="S1"&&b.contactId==="sensor-resistance").current;
+ assert.ok(brightCurrent>dimCurrent,"increased lux should reduce LDR resistance and increase series current");
+});
+test("sensor fixed resistance remains supported when no physical stimulus is configured",()=>{
+ const p={components:[comp("V1","battery",2,{voltage:10}),comp("S1","sensors-sensor-pt100",2,{resistance:200}),comp("R1","resistor",2,{resistance:300})],wires:[wire("V1:0","S1:0"),wire("S1:1","R1:0"),wire("R1:1","V1:1")]};
+ const result=E.dc(p);
+ assert.equal(result.ok,true,JSON.stringify(result));
+ assert.ok(Math.abs(result.branches.find(b=>b.id==="S1"&&b.contactId==="sensor-resistance").current-10/500)<1e-7);
+});
+
 test("BB400 joins each five-hole strip and power rail in the MNA topology",()=>{const p={components:[comp("V1","battery",2,{voltage:5}),comp("R1","resistor",2,{resistance:100}),comp("BB1","breadboard-bb400",400)],wires:[wire("V1:0","BB1:0"),wire("R1:0","BB1:30"),wire("R1:1","BB1:150"),wire("V1:1","BB1:150")]};const result=E.analyze(p).dc;assert.equal(result.ok,true,JSON.stringify(result));assert.ok(result.totalCurrent>0.04&&result.totalCurrent<0.06,"expected about 50 mA through 100 Ω at 5 V")});
 test("one-pole breaker opens and closes its actual line/load path",()=>{const base={components:[comp("V1","battery",2,{voltage:12}),comp("Q1","circuit-breaker-1p",2,{rating:16,closed:1}),comp("R1","resistor",2,{resistance:100})],wires:[wire("V1:0","Q1:0"),wire("Q1:1","R1:0"),wire("R1:1","V1:1")]};const closed=E.analyze(base).dc;assert.equal(closed.ok,true,JSON.stringify(closed));assert.ok(closed.totalCurrent>0.1);const opened=E.analyze({...base,components:base.components.map(c=>c.id==="Q1"?{...c,props:{...c.props,closed:0}}:c)}).dc;assert.equal(opened.ok,true,JSON.stringify(opened));assert.ok(Math.abs(opened.totalCurrent)<1e-9)});
 
