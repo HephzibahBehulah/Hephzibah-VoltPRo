@@ -5,7 +5,7 @@ const fs=require("node:fs");
 const ui=fs.readFileSync("platform/mcu-lab-ui.js","utf8");
 const simulator=fs.readFileSync("simulator.html","utf8");
 const breadboard=fs.readFileSync("breadboard.html","utf8");
-const worker=fs.readFileSync("service-worker.js","utf8");
+const worker=fs.readFileSync("service-worker.js","utf8");\nconst runtime=fs.readFileSync("simulator.js","utf8");\nconst css=fs.readFileSync("simulator.css","utf8");\nconst bridge=fs.readFileSync("platform/mcu-circuit-bridge.js","utf8");
 
 test("Microcontroller Lab exposes a board pinout, sketch controls and modeled virtual I/O",()=>{
   for(const id of ["vpwBoard","vpwCode","vpwRunMcu","vpwStepMcu","vpwStopMcu","vpwResetMcu","vpwDigitalPins","vpwAnalogPins","vpwLedPin","vpwButtonPin","vpwMcuPins","vpwMcuOut","vpwMcuDetails"]){
@@ -37,4 +37,12 @@ test("service worker cache version is advanced for the MCU workspace release",()
   assert.ok(worker.includes('"./platform/mcu-circuit-bridge.js"'));
   assert.ok(worker.includes('"./platform/mcu-lab-ui.js"'));
   assert.ok(worker.includes('"./platform/mcu-engine.js"'));
+});
+
+test("MCU outputs propagate into correctly wired schematic LED visuals",()=>{
+  assert.match(runtime,/syncMcuOutputs:outputs=>/);
+  assert.match(runtime,/mcu-led-lit/);
+  assert.match(css,/\.component\.mcu-led-lit/);
+  assert.match(bridge,/function evaluate\(components,wires,outputs=\{\}\)/);
+  assert.match(bridge,/No series current-limiting resistor found/);
 });
