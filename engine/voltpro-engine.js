@@ -33,16 +33,16 @@ function topology(project){
  return {find};
 }
 function build(project,options={}){
- const t=topology(project), comps=project.components||[], source=comps.find(x=>["battery","dcsource","voltage_source","ac_source","acsource"].includes(typeOf(x)));
+ const t=topology(project), comps=project.components||[], source=comps.find(x=>["battery","dcsource","voltage_source","ac_source","acsource","threephase"].includes(typeOf(x)));
  const explicit=options.groundRef||project.groundRef||"GND";
  let ground=explicit;
- if(!comps.some(x=>pinsOf(x).includes(explicit)) && source)ground=pinsOf(source)[1];
+ if(!comps.some(x=>pinsOf(x).includes(explicit)) && source)ground=typeOf(source)==="threephase"?(pinsOf(source)[3]||pinsOf(source)[1]):pinsOf(source)[1];
  const nodeKeys=[], nodeMap=new Map();
  const nodeFor=r=>{const q=t.find(r);if(t.find(ground)===q)return 0;if(!nodeMap.has(q)){nodeMap.set(q,nodeKeys.length+1);nodeKeys.push(q)}return nodeMap.get(q)};
  const refs=(project.wires||[]).flatMap(w=>[w.a,w.b]).filter(Boolean);
  refs.forEach(nodeFor);
  const wired=new Set(refs);
- const branches=[], voltageSources=[];
+ const branches=[], voltageSources=[], currentSources=[];
  const addBranch=(comp,a,b,kind,extra={})=>branches.push({comp,a:nodeFor(a),b:nodeFor(b),kind,...extra});
  for(const x of comps){
   const p=pinsOf(x),ty=typeOf(x),definition=window.VoltProTerminalGraph?.definitionFor?.(x.type);
@@ -61,6 +61,18 @@ function build(project,options={}){
     const closed=stateValue===undefined?contact.closedWhen!==false:Boolean(stateValue)===Boolean(contact.closedWhen??true);
     addBranch(x,a,b,closed?"resistor":"open",{R:Math.max(EPS,value(x,["onResistance"],1e-6)),contactId:contact.id});
    }
+   continue;
+  }
+  if(ty==="threephase"){
+   const neutral=p[3]||ground,lineVoltage=Math.max(EPS,value(x,["lineVoltage","voltage","amplitude"],400)),phaseVoltage=lineVoltage/Math.sqrt(3);
+   const reverse=String(x.props?.sequence??x.state?.sequence??"ABC").toUpperCase()==="ACB";
+   const angles=reverse?[0,120,-120]:[0,-120,120];
+   for(let i=0;i<3;i++)if(p[i])voltageSources.push({comp:x,a:nodeFor(p[i]),b:nodeFor(neutral),kind:"voltage",value:phaseVoltage,phase:angles[i],phasor:true,phaseName:["L1","L2","L3"][i]});
+   continue;
+  }
+  if(ty==="motor"){
+   const index=new Map((definition?.terminals||[]).map((t,i)=>[String(t.id),p[i]]));
+   for(const winding of definition?.paths||[]){if(winding.kind!=="motor-winding")continue;const a=index.get(String(winding.from)),b=index.get(String(winding.to));if(!a||!b||!wired.has(a)||!wired.has(b))continue;addBranch(x,a,b,"resistor",{R:Math.max(EPS,value(x,["windingResistance","resistance"],24)),contactId:winding.id,phase:winding.phase||null})}
    continue;
   }
   if(/^circuit-breaker-[1234]p$/.test(String(x.type))||x.type==="auxiliary-contact-block"||x.type==="abb-aux-cb-11"){
@@ -85,12 +97,12 @@ function build(project,options={}){
   else if(["diode","zener","led"].includes(ty))addBranch(x,a,b,"diode",{vf:Math.max(0,value(x,["forward","forwardVoltage","vf"],ty==="led"?2:0.7)),rd:Math.max(1e-6,value(x,["resistance","dynamicResistance"],10)),reverse:Math.max(1e-9,value(x,["reverseLeakage"],1e-9))});
   else if(["bjt","transistor","npn","pnp"].includes(ty))addBranch(x,a,b,"bjt",{beta:Math.max(1,value(x,["beta","gain"],100)),vt:0.7});
   else if(["mosfet","nmos","pmos","igbt"].includes(ty))addBranch(x,a,b,"mosfet",{threshold:value(x,["threshold","vth"],3),onResistance:Math.max(1e-6,value(x,["onResistance","rdsOn"],1))});
-  else if(["current_source","isource"].includes(ty))voltageSources.push({comp:x,a:nodeFor(a),b:nodeFor(b),kind:"current",value:value(x,["current","amplitude"],1)});
+  else if(["current_source","isource"].includes(ty))currentSources.push({comp:x,a:nodeFor(a),b:nodeFor(b),kind:"current",value:value(x,["current","amplitude"],1)});
   else if(["battery","dcsource","voltage_source","ac_source","acsource"].includes(ty))voltageSources.push({comp:x,a:nodeFor(a),b:nodeFor(b),kind:"voltage",value:value(x,["voltage","amplitude"],12),phase:value(x,["phase","phaseDeg"],0)});
   else if(["vcvs","dependent_voltage_source"].includes(ty))voltageSources.push({comp:x,a:nodeFor(a),b:nodeFor(b),kind:"vcvs",gain:value(x,["gain"],1),cp:nodeFor(p[2]||a),cm:nodeFor(p[3]||b)});
   else if(["vccs","dependent_current_source"].includes(ty))addBranch(x,a,b,"vccs",{gm:value(x,["transconductance","gm"],1e-3),cp:nodeFor(p[2]||a),cm:nodeFor(p[3]||b)});
  }
- return {t,comps,nodeFor,nodeKeys,ground,branches,voltageSources,N:nodeKeys.length};
+ return {t,comps,nodeFor,nodeKeys,ground,branches,voltageSources,currentSources,N:nodeKeys.length};
 }
 function stampG(A,a,b,g){
  if(a>0)A[a-1][a-1]=add(A[a-1][a-1],g);
@@ -113,11 +125,12 @@ function linearSolve(b,options,history={}){
   else if(q.kind==="mosfet"){const vd=v(q.a).re-v(q.b).re;stampG(A,q.a,q.b,C(vd>q.threshold?1/q.onResistance:1e-9))}
   else if(q.kind==="vccs"){const j1=q.cp,j2=q.cm;if(q.a>0&&j1>0)A[q.a-1][j1-1]=add(A[q.a-1][j1-1],C(q.gm));if(q.a>0&&j2>0)A[q.a-1][j2-1]=sub(A[q.a-1][j2-1],C(q.gm));if(q.b>0&&j1>0)A[q.b-1][j1-1]=sub(A[q.b-1][j1-1],C(q.gm));if(q.b>0&&j2>0)A[q.b-1][j2-1]=add(A[q.b-1][j2-1],C(q.gm))}
  }
+ for(const q of b.currentSources||[])stampI(z,q.a,q.b,C(q.value));
  b.voltageSources.forEach((q,k)=>{
   let vv=C(q.value);
-  if(q.kind==="voltage"&&typeOf(q.comp)==="ac_source"){const ph=q.phase*Math.PI/180;vv=C(q.value*Math.cos(ph),q.value*Math.sin(ph))}
+  if(q.kind==="voltage"&&options.ac&&(q.phasor||["ac_source","acsource"].includes(typeOf(q.comp)))){const ph=(q.phase||0)*Math.PI/180;vv=C(q.value*Math.cos(ph),q.value*Math.sin(ph))}
   if(q.kind==="vcvs")vv=mul(C(q.gain),sub(v(q.cp),v(q.cm)));
-  if(q.kind==="current")stampI(z,q.a,q.b,C(q.value));else stampV(A,z,q.a,q.b,k,vv);
+  stampV(A,z,q.a,q.b,vs-1-k,vv);
  });
  let x;try{x=solve(A,z)}catch(e){return {ok:false,error:e.message}};
  return {ok:true,x,nodeCount:n,sourceCount:vs};
@@ -144,8 +157,32 @@ function operatingPoint(project,options={}){
 }
 function dc(project,options={}){return operatingPoint(project,options)}
 function ac(project,{start=1,stop=1e5,points=50,frequency=50,groundRef}={}){
- const b=build(project,{groundRef}), freqs=points<=1?[frequency]:Array.from({length:points},(_,i)=>start*Math.pow(stop/start,i/(points-1))),rows=[];
- for(const f of freqs){const scale=2*Math.PI*f;const result=linearSolve(b,{frequency:f,omega:scale,ac:true,xPrev:Array.from({length:b.N},()=>C())},{}) ;if(!result.ok)return {ok:false,analysis:"AC sweep",error:result.error};const x=result.x;const vs=b.voltageSources[0];const vout=vs?sub(x[(vs.a||1)-1]||C(),x[(vs.b||1)-1]||C()):C();const z=vs&&x[b.N]?div(vout,x[b.N]):C(Infinity,0);rows.push({frequency:f,magnitude:mag(vout),phaseDeg:deg(vout),impedanceMagnitude:mag(z),impedancePhaseDeg:deg(z)})}
+ const freqs=points<=1?[frequency]:Array.from({length:points},(_,i)=>start*Math.pow(stop/start,i/(points-1))),rows=[];
+ for(const f of freqs){
+  const scale=2*Math.PI*f;let stateOverrides={},b,result;
+  // Resolve coil state from AC RMS phasor voltage, then solve the changed network.
+  for(let stateIteration=0;stateIteration<8;stateIteration++){
+   b=build(project,{groundRef,stateOverrides});
+   result=linearSolve(b,{frequency:f,omega:scale,ac:true,xPrev:Array.from({length:b.N},()=>C())},{});
+   if(!result.ok)return {ok:false,analysis:"AC sweep",error:result.error};
+   const nodeV=n=>n===0?C():result.x[n-1]||C();let changed=false;
+   for(const q of b.branches){if(!q.coil)continue;const coilVoltage=mag(sub(nodeV(q.a),nodeV(q.b))),rated=Math.max(EPS,value(q.comp,["coilVoltage","ratedCoilVoltage"],q.comp.type==="contactor"?230:24)),next=coilVoltage>=rated*.8,previous=Boolean(stateOverrides[q.comp.id]??q.comp.state?.energized??q.comp.props?.energized??false);if(next!==previous){stateOverrides[q.comp.id]=next;changed=true}else if(stateOverrides[q.comp.id]===undefined)stateOverrides[q.comp.id]=next}
+   if(!changed)break;
+  }
+  const x=result.x,nodeV=n=>n===0?C():x[n-1]||C(),vs=b.voltageSources[0],vout=vs?sub(nodeV(vs.a),nodeV(vs.b)):C(),z=vs&&x[b.N]?div(vout,x[b.N]):C(Infinity,0);
+  const branches=b.branches.map(q=>{
+   const v=sub(nodeV(q.a),nodeV(q.b));let i=C();
+   if(q.kind==="resistor")i=div(v,C(q.R));
+   else if(q.kind==="capacitor")i=mul(v,C(0,scale*q.C));
+   else if(q.kind==="inductor")i=div(v,C(0,scale*q.L));
+   else if(q.kind==="open")i=C();
+   const power=v.re*i.re+v.im*i.im;
+   return {id:q.comp.id,type:q.comp.type,contactId:q.contactId||null,phase:q.phase||null,voltage:mag(v),voltagePhaseDeg:deg(v),current:mag(i),currentPhaseDeg:deg(i),power};
+  });
+  const sourceCurrents=b.voltageSources.map((q,k)=>{const i=x[b.N+k]||C();return {id:q.comp.id,type:q.comp.type,phaseName:q.phaseName||null,current:mag(i),phaseDeg:deg(i),real:i.re,imag:i.im}});
+  const nodeVoltages=Array.from({length:b.N},(_,i)=>({node:i+1,voltage:mag(x[i]||C()),phaseDeg:deg(x[i]||C()),real:(x[i]||C()).re,imag:(x[i]||C()).im}));
+  rows.push({frequency:f,magnitude:mag(vout),phaseDeg:deg(vout),impedanceMagnitude:mag(z),impedancePhaseDeg:deg(z),branches,nodeVoltages,sourceCurrents,deviceStates:{...stateOverrides},totalCurrent:sourceCurrents.length?sourceCurrents.reduce((sum,q)=>sum+q.current,0)/sourceCurrents.length:0,totalPower:branches.reduce((sum,q)=>sum+q.power,0)});
+ }
  return {ok:true,analysis:"AC sweep (MNA)",frequency,points:freqs.length,start,stop,sweep:rows};
 }
 function transient(project,{duration=.1,steps=100,groundRef}={}){

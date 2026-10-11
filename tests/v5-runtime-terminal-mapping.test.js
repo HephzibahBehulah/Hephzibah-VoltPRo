@@ -32,14 +32,14 @@ test("four-pole breaker maps all eight legacy pins to stable phase and neutral t
 test("auxiliary contact block exposes four separately addressable contact pairs",()=>{const result=runtime({"auxiliary-contact-block":{pins:8}}).adapt({components:[{id:"AUX1",type:"auxiliary-contact-block",x:0,y:0}],wires:[{a:"AUX1:0",b:"AUX1:4"},{a:"AUX1:1",b:"AUX1:5"}]});assert.deepEqual(Array.from(result.devices[0].terminals,t=>t.id),["13","21","31","41","14","22","32","42"]);assert.equal(result.wires[0].from,"AUX1:13");assert.equal(result.wires[0].to,"AUX1:14");assert.equal(T.build(result).validateTopology().valid,true)});
 
 test("three-phase source and three-pole breaker adapt to phase-labelled terminals", () => {
-  const result = runtime({ "circuit-breaker-3p":{pins:6}, threephase:{pins:3} }).adapt({
+  const result = runtime({ "circuit-breaker-3p":{pins:6}, threephase:{pins:4} }).adapt({
     components:[
       {id:"PS1",type:"threephase",x:0,y:0},
       {id:"QF1",type:"circuit-breaker-3p",x:100,y:0}
     ],
     wires:[{a:"PS1:0",b:"QF1:0"},{a:"PS1:1",b:"QF1:1"},{a:"PS1:2",b:"QF1:2"}]
   });
-  assert.equal(JSON.stringify(result.devices[0].terminals.map(t=>t.id)),JSON.stringify(["L1","L2","L3"]));
+  assert.equal(JSON.stringify(result.devices[0].terminals.map(t=>t.id)),JSON.stringify(["L1","L2","L3","N"]));
   assert.equal(JSON.stringify(result.devices[1].terminals.map(t=>t.id)),JSON.stringify(["L1","L2","L3","T1","T2","T3"]));
   assert.equal(JSON.stringify(result.wires.map(w=>[w.from,w.to,w.domain])),JSON.stringify([
     ["PS1:L1","QF1:L1","ac3"],
