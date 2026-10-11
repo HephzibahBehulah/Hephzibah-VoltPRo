@@ -73,6 +73,24 @@ test("three-phase contactor coil energizes from phase-neutral AC voltage and clo
  assert.ok(row.branches.some(b=>b.id==="KM1"&&b.contactId==="main-1"&&b.current>9),"contactor main pole should carry motor phase current");
  assert.equal(row.branches.filter(b=>b.id==="M1").length,3);
 });
+
+test("ideal transformer enforces turns ratio and galvanic isolation in AC MNA",()=>{
+ const p={components:[
+  comp("V1","ac_source",2,{voltage:230,frequency:50}),
+  comp("T1","transformer",4,{primaryVoltage:230,secondaryVoltage:24}),
+  comp("R1","resistor",2,{resistance:100})
+ ],wires:[
+  wire("V1:0","T1:0"),wire("V1:1","T1:1"),
+  wire("T1:2","R1:0"),wire("R1:1","T1:3")
+ ]};
+ const result=E.ac(p,{frequency:50,points:1});
+ assert.equal(result.ok,true,JSON.stringify(result));
+ const row=result.sweep[0],load=row.branches.find(b=>b.id==="R1");
+ assert.ok(Math.abs(load.voltage-24)<1e-6,"secondary voltage should follow 230:24 turns ratio: "+JSON.stringify(load));
+ assert.ok(Math.abs(load.current-.24)<1e-6,"100 ohm secondary load should draw 240 mA: "+JSON.stringify(load));
+ assert.ok(Math.abs(load.power-5.76)<1e-5,"secondary load power should be 5.76 W: "+JSON.stringify(load));
+});
+
 test("independent current sources stamp without creating floating voltage-source unknowns",()=>{
  const p={components:[comp("V1","battery",2,{voltage:12}),comp("I1","current_source",2,{current:.01}),comp("R1","resistor",2,{resistance:1000})],wires:[
  wire("V1:0","I1:0"),wire("I1:1","V1:1"),wire("V1:0","R1:0"),wire("R1:1","V1:1")
