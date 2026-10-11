@@ -1869,12 +1869,20 @@
       "category": "logic",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "A",
+          "name": "Input A"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "B",
+          "name": "Input B"
+        },
+        {
+          "id": "S",
+          "name": "Select"
+        },
+        {
+          "id": "Y",
+          "name": "Output"
         }
       ],
       "parameters": {
@@ -1892,6 +1900,27 @@
         "value": {
           "type": "number",
           "default": 1
+        },
+        "inputThreshold": {
+          "type": "number",
+          "unit": "V",
+          "default": 2.5,
+          "min": 0,
+          "max": 5
+        },
+        "logicVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 5,
+          "min": 0,
+          "max": 24
+        },
+        "outputLowVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 0,
+          "min": 0,
+          "max": 24
         }
       },
       "ratings": {
@@ -1908,15 +1937,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "logic",
-        "engine": "VoltPro MNA educational",
+        "type": "logic-multiplexer",
+        "engine": "VoltPro combinational logic MNA",
         "editable": true
       },
       "behaviorModel": {
-        "type": "logic-node",
+        "type": "logic-multiplexer",
         "states": [
-          "enabled",
-          "disabled"
+          "output-low",
+          "output-high"
         ]
       },
       "faultModes": [
@@ -1925,8 +1954,8 @@
         "parameter-out-of-range"
       ],
       "documentation": {
-        "summary": "Educational Logic model for Multiplexer.",
-        "usage": "Double-click to edit parameters, connect terminals and run simulation.",
+        "summary": "Combinational digital block with explicit signal inputs and driven output terminals.",
+        "usage": "Connect signal inputs to logic-level sources and outputs to compatible logic or load components.",
         "standards": [
           "IEC-oriented educational representation"
         ]
@@ -1938,12 +1967,20 @@
       "category": "logic",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "D",
+          "name": "Data"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "S",
+          "name": "Select"
+        },
+        {
+          "id": "Y0",
+          "name": "Output 0"
+        },
+        {
+          "id": "Y1",
+          "name": "Output 1"
         }
       ],
       "parameters": {
@@ -1961,6 +1998,27 @@
         "value": {
           "type": "number",
           "default": 1
+        },
+        "inputThreshold": {
+          "type": "number",
+          "unit": "V",
+          "default": 2.5,
+          "min": 0,
+          "max": 5
+        },
+        "logicVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 5,
+          "min": 0,
+          "max": 24
+        },
+        "outputLowVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 0,
+          "min": 0,
+          "max": 24
         }
       },
       "ratings": {
@@ -1977,15 +2035,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "logic",
-        "engine": "VoltPro MNA educational",
+        "type": "logic-demultiplexer",
+        "engine": "VoltPro combinational logic MNA",
         "editable": true
       },
       "behaviorModel": {
-        "type": "logic-node",
+        "type": "logic-demultiplexer",
         "states": [
-          "enabled",
-          "disabled"
+          "output-low",
+          "output-high"
         ]
       },
       "faultModes": [
@@ -1994,8 +2052,8 @@
         "parameter-out-of-range"
       ],
       "documentation": {
-        "summary": "Educational Logic model for Demultiplexer.",
-        "usage": "Double-click to edit parameters, connect terminals and run simulation.",
+        "summary": "Combinational digital block with explicit signal inputs and driven output terminals.",
+        "usage": "Connect signal inputs to logic-level sources and outputs to compatible logic or load components.",
         "standards": [
           "IEC-oriented educational representation"
         ]
@@ -2007,12 +2065,28 @@
       "category": "logic",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "I0",
+          "name": "Input 0"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "I1",
+          "name": "Input 1"
+        },
+        {
+          "id": "I2",
+          "name": "Input 2"
+        },
+        {
+          "id": "I3",
+          "name": "Input 3"
+        },
+        {
+          "id": "Y0",
+          "name": "Bit 0"
+        },
+        {
+          "id": "Y1",
+          "name": "Bit 1"
         }
       ],
       "parameters": {
@@ -2030,6 +2104,27 @@
         "value": {
           "type": "number",
           "default": 1
+        },
+        "inputThreshold": {
+          "type": "number",
+          "unit": "V",
+          "default": 2.5,
+          "min": 0,
+          "max": 5
+        },
+        "logicVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 5,
+          "min": 0,
+          "max": 24
+        },
+        "outputLowVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 0,
+          "min": 0,
+          "max": 24
         }
       },
       "ratings": {
@@ -2046,15 +2141,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "logic",
-        "engine": "VoltPro MNA educational",
+        "type": "logic-encoder-4to2",
+        "engine": "VoltPro combinational logic MNA",
         "editable": true
       },
       "behaviorModel": {
-        "type": "logic-node",
+        "type": "logic-encoder-4to2",
         "states": [
-          "enabled",
-          "disabled"
+          "output-low",
+          "output-high"
         ]
       },
       "faultModes": [
@@ -2063,8 +2158,8 @@
         "parameter-out-of-range"
       ],
       "documentation": {
-        "summary": "Educational Logic model for Encoder.",
-        "usage": "Double-click to edit parameters, connect terminals and run simulation.",
+        "summary": "Combinational digital block with explicit signal inputs and driven output terminals.",
+        "usage": "Connect signal inputs to logic-level sources and outputs to compatible logic or load components.",
         "standards": [
           "IEC-oriented educational representation"
         ]
@@ -2076,12 +2171,28 @@
       "category": "logic",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "A0",
+          "name": "Address 0"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "A1",
+          "name": "Address 1"
+        },
+        {
+          "id": "Y0",
+          "name": "Output 0"
+        },
+        {
+          "id": "Y1",
+          "name": "Output 1"
+        },
+        {
+          "id": "Y2",
+          "name": "Output 2"
+        },
+        {
+          "id": "Y3",
+          "name": "Output 3"
         }
       ],
       "parameters": {
@@ -2099,6 +2210,27 @@
         "value": {
           "type": "number",
           "default": 1
+        },
+        "inputThreshold": {
+          "type": "number",
+          "unit": "V",
+          "default": 2.5,
+          "min": 0,
+          "max": 5
+        },
+        "logicVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 5,
+          "min": 0,
+          "max": 24
+        },
+        "outputLowVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 0,
+          "min": 0,
+          "max": 24
         }
       },
       "ratings": {
@@ -2115,15 +2247,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "logic",
-        "engine": "VoltPro MNA educational",
+        "type": "logic-decoder-2to4",
+        "engine": "VoltPro combinational logic MNA",
         "editable": true
       },
       "behaviorModel": {
-        "type": "logic-node",
+        "type": "logic-decoder-2to4",
         "states": [
-          "enabled",
-          "disabled"
+          "output-low",
+          "output-high"
         ]
       },
       "faultModes": [
@@ -2132,8 +2264,8 @@
         "parameter-out-of-range"
       ],
       "documentation": {
-        "summary": "Educational Logic model for Decoder.",
-        "usage": "Double-click to edit parameters, connect terminals and run simulation.",
+        "summary": "Combinational digital block with explicit signal inputs and driven output terminals.",
+        "usage": "Connect signal inputs to logic-level sources and outputs to compatible logic or load components.",
         "standards": [
           "IEC-oriented educational representation"
         ]
@@ -2214,12 +2346,24 @@
       "category": "logic",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "A",
+          "name": "Input A"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "B",
+          "name": "Input B"
+        },
+        {
+          "id": "Cin",
+          "name": "Carry In"
+        },
+        {
+          "id": "Sum",
+          "name": "Sum"
+        },
+        {
+          "id": "Cout",
+          "name": "Carry Out"
         }
       ],
       "parameters": {
@@ -2237,6 +2381,27 @@
         "value": {
           "type": "number",
           "default": 1
+        },
+        "inputThreshold": {
+          "type": "number",
+          "unit": "V",
+          "default": 2.5,
+          "min": 0,
+          "max": 5
+        },
+        "logicVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 5,
+          "min": 0,
+          "max": 24
+        },
+        "outputLowVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 0,
+          "min": 0,
+          "max": 24
         }
       },
       "ratings": {
@@ -2253,15 +2418,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "logic",
-        "engine": "VoltPro MNA educational",
+        "type": "logic-full-adder",
+        "engine": "VoltPro combinational logic MNA",
         "editable": true
       },
       "behaviorModel": {
-        "type": "logic-node",
+        "type": "logic-full-adder",
         "states": [
-          "enabled",
-          "disabled"
+          "output-low",
+          "output-high"
         ]
       },
       "faultModes": [
@@ -2270,8 +2435,8 @@
         "parameter-out-of-range"
       ],
       "documentation": {
-        "summary": "Educational Logic model for Adder.",
-        "usage": "Double-click to edit parameters, connect terminals and run simulation.",
+        "summary": "Combinational digital block with explicit signal inputs and driven output terminals.",
+        "usage": "Connect signal inputs to logic-level sources and outputs to compatible logic or load components.",
         "standards": [
           "IEC-oriented educational representation"
         ]
@@ -2283,12 +2448,24 @@
       "category": "logic",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "A",
+          "name": "Input A"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "B",
+          "name": "Input B"
+        },
+        {
+          "id": "Bin",
+          "name": "Borrow In"
+        },
+        {
+          "id": "Diff",
+          "name": "Difference"
+        },
+        {
+          "id": "Borrow",
+          "name": "Borrow Out"
         }
       ],
       "parameters": {
@@ -2306,6 +2483,27 @@
         "value": {
           "type": "number",
           "default": 1
+        },
+        "inputThreshold": {
+          "type": "number",
+          "unit": "V",
+          "default": 2.5,
+          "min": 0,
+          "max": 5
+        },
+        "logicVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 5,
+          "min": 0,
+          "max": 24
+        },
+        "outputLowVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 0,
+          "min": 0,
+          "max": 24
         }
       },
       "ratings": {
@@ -2322,15 +2520,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "logic",
-        "engine": "VoltPro MNA educational",
+        "type": "logic-full-subtractor",
+        "engine": "VoltPro combinational logic MNA",
         "editable": true
       },
       "behaviorModel": {
-        "type": "logic-node",
+        "type": "logic-full-subtractor",
         "states": [
-          "enabled",
-          "disabled"
+          "output-low",
+          "output-high"
         ]
       },
       "faultModes": [
@@ -2339,8 +2537,8 @@
         "parameter-out-of-range"
       ],
       "documentation": {
-        "summary": "Educational Logic model for Subtractor.",
-        "usage": "Double-click to edit parameters, connect terminals and run simulation.",
+        "summary": "Combinational digital block with explicit signal inputs and driven output terminals.",
+        "usage": "Connect signal inputs to logic-level sources and outputs to compatible logic or load components.",
         "standards": [
           "IEC-oriented educational representation"
         ]
