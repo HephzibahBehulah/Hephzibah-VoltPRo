@@ -10,12 +10,20 @@
       "category": "transformers",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "P1",
+          "name": "Primary 1"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "P2",
+          "name": "Primary 2"
+        },
+        {
+          "id": "S1",
+          "name": "Secondary 1"
+        },
+        {
+          "id": "S2",
+          "name": "Secondary 2"
         }
       ],
       "parameters": {
@@ -36,6 +44,33 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "primaryVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 230,
+          "min": 1,
+          "max": 1000
+        },
+        "secondaryVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 24,
+          "min": 1,
+          "max": 1000
+        },
+        "turnsRatio": {
+          "type": "number",
+          "default": 9.583333333333334,
+          "min": 0.001,
+          "max": 1000
+        },
+        "ratedVA": {
+          "type": "number",
+          "unit": "VA",
+          "default": 25,
+          "min": 1,
+          "max": 1000000
         }
       },
       "ratings": {
@@ -52,12 +87,12 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "transformer",
+        "engine": "VoltPRo MNA ideal transformer",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "ideal-transformer",
         "states": [
           "enabled",
           "disabled"
@@ -82,12 +117,20 @@
       "category": "transformers",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "P1",
+          "name": "Primary 1"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "P2",
+          "name": "Primary 2"
+        },
+        {
+          "id": "S1",
+          "name": "Secondary 1"
+        },
+        {
+          "id": "S2",
+          "name": "Secondary 2"
         }
       ],
       "parameters": {
@@ -108,6 +151,33 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "primaryVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 230,
+          "min": 1,
+          "max": 1000
+        },
+        "secondaryVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 24,
+          "min": 1,
+          "max": 1000
+        },
+        "turnsRatio": {
+          "type": "number",
+          "default": 9.583333333333334,
+          "min": 0.001,
+          "max": 1000
+        },
+        "ratedVA": {
+          "type": "number",
+          "unit": "VA",
+          "default": 50,
+          "min": 1,
+          "max": 1000000
         }
       },
       "ratings": {
@@ -124,12 +194,12 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "transformer",
+        "engine": "VoltPRo MNA ideal transformer",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "ideal-transformer",
         "states": [
           "enabled",
           "disabled"
@@ -154,12 +224,20 @@
       "category": "transformers",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "P1",
+          "name": "Primary 1"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "P2",
+          "name": "Primary 2"
+        },
+        {
+          "id": "S1",
+          "name": "Secondary 1"
+        },
+        {
+          "id": "S2",
+          "name": "Secondary 2"
         }
       ],
       "parameters": {
@@ -180,6 +258,33 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "primaryVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 230,
+          "min": 1,
+          "max": 1000
+        },
+        "secondaryVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 24,
+          "min": 1,
+          "max": 1000
+        },
+        "turnsRatio": {
+          "type": "number",
+          "default": 9.583333333333334,
+          "min": 0.001,
+          "max": 1000
+        },
+        "ratedVA": {
+          "type": "number",
+          "unit": "VA",
+          "default": 100,
+          "min": 1,
+          "max": 1000000
         }
       },
       "ratings": {
@@ -196,12 +301,12 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "transformer",
+        "engine": "VoltPRo MNA ideal transformer",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "ideal-transformer",
         "states": [
           "enabled",
           "disabled"
@@ -226,12 +331,20 @@
       "category": "transformers",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "P1",
+          "name": "Primary 1"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "P2",
+          "name": "Primary 2"
+        },
+        {
+          "id": "S1",
+          "name": "Secondary 1"
+        },
+        {
+          "id": "S2",
+          "name": "Secondary 2"
         }
       ],
       "parameters": {
@@ -252,6 +365,33 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "primaryVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 230,
+          "min": 1,
+          "max": 1000
+        },
+        "secondaryVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 24,
+          "min": 1,
+          "max": 1000
+        },
+        "turnsRatio": {
+          "type": "number",
+          "default": 9.583333333333334,
+          "min": 0.001,
+          "max": 1000
+        },
+        "ratedVA": {
+          "type": "number",
+          "unit": "VA",
+          "default": 160,
+          "min": 1,
+          "max": 1000000
         }
       },
       "ratings": {
@@ -268,12 +408,12 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "transformer",
+        "engine": "VoltPRo MNA ideal transformer",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "ideal-transformer",
         "states": [
           "enabled",
           "disabled"
@@ -298,12 +438,20 @@
       "category": "transformers",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "P1",
+          "name": "Primary 1"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "P2",
+          "name": "Primary 2"
+        },
+        {
+          "id": "S1",
+          "name": "Secondary 1"
+        },
+        {
+          "id": "S2",
+          "name": "Secondary 2"
         }
       ],
       "parameters": {
@@ -324,6 +472,33 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "primaryVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 230,
+          "min": 1,
+          "max": 1000
+        },
+        "secondaryVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 24,
+          "min": 1,
+          "max": 1000
+        },
+        "turnsRatio": {
+          "type": "number",
+          "default": 9.583333333333334,
+          "min": 0.001,
+          "max": 1000
+        },
+        "ratedVA": {
+          "type": "number",
+          "unit": "VA",
+          "default": 250,
+          "min": 1,
+          "max": 1000000
         }
       },
       "ratings": {
@@ -340,12 +515,12 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "transformer",
+        "engine": "VoltPRo MNA ideal transformer",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "ideal-transformer",
         "states": [
           "enabled",
           "disabled"
@@ -370,12 +545,20 @@
       "category": "transformers",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "P1",
+          "name": "Primary 1"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "P2",
+          "name": "Primary 2"
+        },
+        {
+          "id": "S1",
+          "name": "Secondary 1"
+        },
+        {
+          "id": "S2",
+          "name": "Secondary 2"
         }
       ],
       "parameters": {
@@ -396,6 +579,33 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "primaryVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 230,
+          "min": 1,
+          "max": 1000
+        },
+        "secondaryVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 12,
+          "min": 1,
+          "max": 1000
+        },
+        "turnsRatio": {
+          "type": "number",
+          "default": 19.166666666666668,
+          "min": 0.001,
+          "max": 1000
+        },
+        "ratedVA": {
+          "type": "number",
+          "unit": "VA",
+          "default": 25,
+          "min": 1,
+          "max": 1000000
         }
       },
       "ratings": {
@@ -412,12 +622,12 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "transformer",
+        "engine": "VoltPRo MNA ideal transformer",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "ideal-transformer",
         "states": [
           "enabled",
           "disabled"
@@ -442,12 +652,20 @@
       "category": "transformers",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "P1",
+          "name": "Primary 1"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "P2",
+          "name": "Primary 2"
+        },
+        {
+          "id": "S1",
+          "name": "Secondary 1"
+        },
+        {
+          "id": "S2",
+          "name": "Secondary 2"
         }
       ],
       "parameters": {
@@ -468,6 +686,33 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "primaryVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 230,
+          "min": 1,
+          "max": 1000
+        },
+        "secondaryVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 12,
+          "min": 1,
+          "max": 1000
+        },
+        "turnsRatio": {
+          "type": "number",
+          "default": 19.166666666666668,
+          "min": 0.001,
+          "max": 1000
+        },
+        "ratedVA": {
+          "type": "number",
+          "unit": "VA",
+          "default": 50,
+          "min": 1,
+          "max": 1000000
         }
       },
       "ratings": {
@@ -484,12 +729,12 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "transformer",
+        "engine": "VoltPRo MNA ideal transformer",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "ideal-transformer",
         "states": [
           "enabled",
           "disabled"
@@ -514,12 +759,20 @@
       "category": "transformers",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "P1",
+          "name": "Primary 1"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "P2",
+          "name": "Primary 2"
+        },
+        {
+          "id": "S1",
+          "name": "Secondary 1"
+        },
+        {
+          "id": "S2",
+          "name": "Secondary 2"
         }
       ],
       "parameters": {
@@ -540,6 +793,33 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "primaryVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 230,
+          "min": 1,
+          "max": 1000
+        },
+        "secondaryVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 12,
+          "min": 1,
+          "max": 1000
+        },
+        "turnsRatio": {
+          "type": "number",
+          "default": 19.166666666666668,
+          "min": 0.001,
+          "max": 1000
+        },
+        "ratedVA": {
+          "type": "number",
+          "unit": "VA",
+          "default": 100,
+          "min": 1,
+          "max": 1000000
         }
       },
       "ratings": {
@@ -556,12 +836,12 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "transformer",
+        "engine": "VoltPRo MNA ideal transformer",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "ideal-transformer",
         "states": [
           "enabled",
           "disabled"
@@ -586,12 +866,20 @@
       "category": "transformers",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "P1",
+          "name": "Primary 1"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "P2",
+          "name": "Primary 2"
+        },
+        {
+          "id": "S1",
+          "name": "Secondary 1"
+        },
+        {
+          "id": "S2",
+          "name": "Secondary 2"
         }
       ],
       "parameters": {
@@ -612,6 +900,33 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "primaryVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 400,
+          "min": 1,
+          "max": 1000
+        },
+        "secondaryVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 230,
+          "min": 1,
+          "max": 1000
+        },
+        "turnsRatio": {
+          "type": "number",
+          "default": 1.7391304347826086,
+          "min": 0.001,
+          "max": 1000
+        },
+        "ratedVA": {
+          "type": "number",
+          "unit": "VA",
+          "default": 100,
+          "min": 1,
+          "max": 1000000
         }
       },
       "ratings": {
@@ -628,12 +943,12 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "transformer",
+        "engine": "VoltPRo MNA ideal transformer",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "ideal-transformer",
         "states": [
           "enabled",
           "disabled"
@@ -658,12 +973,20 @@
       "category": "transformers",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "P1",
+          "name": "Primary 1"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "P2",
+          "name": "Primary 2"
+        },
+        {
+          "id": "S1",
+          "name": "Secondary 1"
+        },
+        {
+          "id": "S2",
+          "name": "Secondary 2"
         }
       ],
       "parameters": {
@@ -684,6 +1007,33 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "primaryVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 400,
+          "min": 1,
+          "max": 1000
+        },
+        "secondaryVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 230,
+          "min": 1,
+          "max": 1000
+        },
+        "turnsRatio": {
+          "type": "number",
+          "default": 1.7391304347826086,
+          "min": 0.001,
+          "max": 1000
+        },
+        "ratedVA": {
+          "type": "number",
+          "unit": "VA",
+          "default": 250,
+          "min": 1,
+          "max": 1000000
         }
       },
       "ratings": {
@@ -700,12 +1050,12 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "transformer",
+        "engine": "VoltPRo MNA ideal transformer",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "ideal-transformer",
         "states": [
           "enabled",
           "disabled"
@@ -730,12 +1080,20 @@
       "category": "transformers",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "P1",
+          "name": "Primary 1"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "P2",
+          "name": "Primary 2"
+        },
+        {
+          "id": "S1",
+          "name": "Secondary 1"
+        },
+        {
+          "id": "S2",
+          "name": "Secondary 2"
         }
       ],
       "parameters": {
@@ -756,6 +1114,33 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "primaryVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 400,
+          "min": 1,
+          "max": 1000
+        },
+        "secondaryVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 24,
+          "min": 1,
+          "max": 1000
+        },
+        "turnsRatio": {
+          "type": "number",
+          "default": 16.666666666666668,
+          "min": 0.001,
+          "max": 1000
+        },
+        "ratedVA": {
+          "type": "number",
+          "unit": "VA",
+          "default": 100,
+          "min": 1,
+          "max": 1000000
         }
       },
       "ratings": {
@@ -772,12 +1157,12 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "transformer",
+        "engine": "VoltPRo MNA ideal transformer",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "ideal-transformer",
         "states": [
           "enabled",
           "disabled"
@@ -802,12 +1187,20 @@
       "category": "transformers",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "P1",
+          "name": "Primary 1"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "P2",
+          "name": "Primary 2"
+        },
+        {
+          "id": "S1",
+          "name": "Secondary 1"
+        },
+        {
+          "id": "S2",
+          "name": "Secondary 2"
         }
       ],
       "parameters": {
@@ -828,6 +1221,33 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "primaryVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 400,
+          "min": 1,
+          "max": 1000
+        },
+        "secondaryVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 24,
+          "min": 1,
+          "max": 1000
+        },
+        "turnsRatio": {
+          "type": "number",
+          "default": 16.666666666666668,
+          "min": 0.001,
+          "max": 1000
+        },
+        "ratedVA": {
+          "type": "number",
+          "unit": "VA",
+          "default": 250,
+          "min": 1,
+          "max": 1000000
         }
       },
       "ratings": {
@@ -844,12 +1264,12 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "transformer",
+        "engine": "VoltPRo MNA ideal transformer",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "ideal-transformer",
         "states": [
           "enabled",
           "disabled"
@@ -1450,12 +1870,20 @@
       "category": "transformers",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "P1",
+          "name": "Primary 1"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "P2",
+          "name": "Primary 2"
+        },
+        {
+          "id": "S1",
+          "name": "Secondary 1"
+        },
+        {
+          "id": "S2",
+          "name": "Secondary 2"
         }
       ],
       "parameters": {
@@ -1476,6 +1904,26 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "primaryVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 24,
+          "min": 1,
+          "max": 1000
+        },
+        "secondaryVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 12,
+          "min": 1,
+          "max": 1000
+        },
+        "turnsRatio": {
+          "type": "number",
+          "default": 2,
+          "min": 0.001,
+          "max": 1000
         }
       },
       "ratings": {
@@ -1492,12 +1940,12 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "transformer",
+        "engine": "VoltPRo MNA ideal transformer",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "ideal-transformer",
         "states": [
           "enabled",
           "disabled"
@@ -1522,12 +1970,20 @@
       "category": "transformers",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "P1",
+          "name": "Primary 1"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "P2",
+          "name": "Primary 2"
+        },
+        {
+          "id": "S1",
+          "name": "Secondary 1"
+        },
+        {
+          "id": "S2",
+          "name": "Secondary 2"
         }
       ],
       "parameters": {
@@ -1548,6 +2004,26 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "primaryVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 48,
+          "min": 1,
+          "max": 1000
+        },
+        "secondaryVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 24,
+          "min": 1,
+          "max": 1000
+        },
+        "turnsRatio": {
+          "type": "number",
+          "default": 2,
+          "min": 0.001,
+          "max": 1000
         }
       },
       "ratings": {
@@ -1564,12 +2040,12 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "transformer",
+        "engine": "VoltPRo MNA ideal transformer",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "ideal-transformer",
         "states": [
           "enabled",
           "disabled"
@@ -1594,12 +2070,20 @@
       "category": "transformers",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "P1",
+          "name": "Primary 1"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "P2",
+          "name": "Primary 2"
+        },
+        {
+          "id": "S1",
+          "name": "Secondary 1"
+        },
+        {
+          "id": "S2",
+          "name": "Secondary 2"
         }
       ],
       "parameters": {
@@ -1620,6 +2104,26 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "primaryVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 110,
+          "min": 1,
+          "max": 1000
+        },
+        "secondaryVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 24,
+          "min": 1,
+          "max": 1000
+        },
+        "turnsRatio": {
+          "type": "number",
+          "default": 4.583333333333333,
+          "min": 0.001,
+          "max": 1000
         }
       },
       "ratings": {
@@ -1636,12 +2140,12 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "transformer",
+        "engine": "VoltPRo MNA ideal transformer",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "ideal-transformer",
         "states": [
           "enabled",
           "disabled"
@@ -1666,12 +2170,20 @@
       "category": "transformers",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "P1",
+          "name": "Primary 1"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "P2",
+          "name": "Primary 2"
+        },
+        {
+          "id": "S1",
+          "name": "Secondary 1"
+        },
+        {
+          "id": "S2",
+          "name": "Secondary 2"
         }
       ],
       "parameters": {
@@ -1692,6 +2204,26 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "primaryVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 230,
+          "min": 1,
+          "max": 1000
+        },
+        "secondaryVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 110,
+          "min": 1,
+          "max": 1000
+        },
+        "turnsRatio": {
+          "type": "number",
+          "default": 2.090909090909091,
+          "min": 0.001,
+          "max": 1000
         }
       },
       "ratings": {
@@ -1708,12 +2240,12 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "transformer",
+        "engine": "VoltPRo MNA ideal transformer",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "ideal-transformer",
         "states": [
           "enabled",
           "disabled"
@@ -1738,12 +2270,20 @@
       "category": "transformers",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "P1",
+          "name": "Primary 1"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "P2",
+          "name": "Primary 2"
+        },
+        {
+          "id": "S1",
+          "name": "Secondary 1"
+        },
+        {
+          "id": "S2",
+          "name": "Secondary 2"
         }
       ],
       "parameters": {
@@ -1764,6 +2304,26 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "primaryVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 400,
+          "min": 1,
+          "max": 1000
+        },
+        "secondaryVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 110,
+          "min": 1,
+          "max": 1000
+        },
+        "turnsRatio": {
+          "type": "number",
+          "default": 3.6363636363636362,
+          "min": 0.001,
+          "max": 1000
         }
       },
       "ratings": {
@@ -1780,12 +2340,12 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "transformer",
+        "engine": "VoltPRo MNA ideal transformer",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "ideal-transformer",
         "states": [
           "enabled",
           "disabled"
