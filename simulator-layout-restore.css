@@ -197,3 +197,47 @@
   .simulator-page .workspace.palette-hidden #palette,
   .simulator-page .workspace.inspector-hidden #inspectorPanel { display: block !important; }
 }
+
+
+/* Single-source toolbar dropdowns. Popovers are fixed-positioned by toolbar-menus.js
+   so they remain visible above the horizontally scrolling toolbar. */
+.simulator-page .toolbar-menus { gap: 5px; }
+.simulator-page .toolbar .vp-menu-trigger {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 30px; padding: 7px 9px; white-space: nowrap;
+  color: var(--text); border: 1px solid #31516d; background: #0d1b2b;
+  border-radius: 8px; font-size: 10px; cursor: pointer;
+}
+.simulator-page .toolbar .vp-menu-trigger:hover,
+.simulator-page .toolbar .vp-menu-trigger:focus-visible,
+.simulator-page .toolbar .vp-menu-trigger[aria-expanded="true"] {
+  color: var(--text); border-color: var(--cyan); background: #123047;
+  outline-offset: 2px;
+}
+.vp-toolbar-popover {
+  position: fixed; z-index: 15000; width: min(290px, calc(100vw - 16px));
+  max-height: min(72vh, calc(100dvh - 16px)); overflow: auto;
+  padding: 7px; border: 1px solid #31516d; border-radius: 11px;
+  background: #081522; color: #eaf5ff; box-shadow: 0 18px 55px #000b;
+  overscroll-behavior: contain;
+}
+.vp-toolbar-popover-title {
+  padding: 8px 10px 9px; margin-bottom: 4px;
+  color: #35d5ff; border-bottom: 1px solid #203b53;
+  font: 800 10px/1.4 ui-monospace,monospace; letter-spacing: .09em;
+  text-transform: uppercase;
+}
+.vp-toolbar-popover button[role="menuitem"] {
+  display: block; width: 100%; min-height: 36px; padding: 9px 10px;
+  text-align: left; white-space: normal; overflow-wrap: anywhere;
+  color: #dcecff; background: transparent; border: 1px solid transparent;
+  border-radius: 7px; font: 500 12px/1.35 system-ui,sans-serif; cursor: pointer;
+}
+.vp-toolbar-popover button[role="menuitem"]:hover,
+.vp-toolbar-popover button[role="menuitem"]:focus-visible {
+  color: #fff; background: #102b3d; border-color: #35d5ff; outline: none;
+}
+@media(max-width:520px) {
+  .simulator-page .toolbar .vp-menu-trigger { padding: 7px 8px; font-size: 10px; }
+  .vp-toolbar-popover { width: min(270px, calc(100vw - 16px)); }
+}
