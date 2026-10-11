@@ -37,11 +37,11 @@
 
   // Device terminals and internal paths are model data, never inferred from SVG pin counts.
   function breakerDefinition(poles) {
-    const phases = poles === 4 ? ["L1","L2","L3","N"] : Array.from({length:poles},(_,i)=>"L"+(i+1));
+    const phases = poles === 4 ? ["L1","L2","L3","N"] : poles === 2 ? ["L1","N"] : Array.from({length:poles},(_,i)=>"L"+(i+1));
     const outputs = phases.map((p,i)=>p==="N"?"TN":"T"+(i+1));
     const spacing = poles===3?12:poles===4?12:poles===2?10:0;
-    const terminals = phases.map((label,i)=>terminal(label,label,-24,(i-(poles-1)/2)*spacing,{number:String(i*2+1),domain:poles>1?"ac3":"ac",phase:label==="N"?"N":label}));
-    outputs.forEach((label,i)=>terminals.push(terminal(label,label,24,(i-(poles-1)/2)*spacing,{number:String(i*2+2),domain:poles>1?"ac3":"ac",phase:phases[i]})));
+    const terminals = phases.map((label,i)=>terminal(label,label,-24,(i-(poles-1)/2)*spacing,{number:String(i*2+1),domain:poles>=3?"ac3":"ac",phase:label==="N"?"N":label}));
+    outputs.forEach((label,i)=>terminals.push(terminal(label,label,24,(i-(poles-1)/2)*spacing,{number:String(i*2+2),domain:poles>=3?"ac3":"ac",phase:phases[i]})));
     return {terminals,paths:phases.map((phase,i)=>path("breaker-pole-"+(i+1),phase,outputs[i],"switchable",{stateKey:"closed",phase}))};
   }
   const DEFINITIONS = {
