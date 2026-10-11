@@ -103,5 +103,5 @@ function micro(){if(window.VoltProMCULab?.open&&!window.VoltProMCULabOpeningLega
 }
 function bind(){document.querySelectorAll(".mode").forEach(b=>b.addEventListener("click",()=>{if(b.dataset.mode==="reference")reference();else if(b.dataset.mode==="panel")panel();else if(b.dataset.mode==="plc")plc();else if(b.dataset.mode==="micro"){if(window.VoltProMCULab?.open)window.VoltProMCULab.open();else micro()}else if(b.dataset.mode==="schematic")document.querySelector("#vpWorkbench")?.classList.remove("open")}))}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();
-window.VoltProWorkbench={reference,panel,plc,micro};
+window.VoltProWorkbench={reference,panel,plc,micro,openWorkspace:(title,body)=>open(title,body)};
 })();
