@@ -734,3 +734,24 @@ test("catalog passive PTC resistance rises sharply at its configured trip temper
  const iCold=cold.branches.find(b=>b.id==="S1").current,iHot=hot.branches.find(b=>b.id==="S1").current;
  assert.ok(iCold>iHot*50,"PTC current should drop after the thermal resistance transition");
 });
+
+test("catalog NPN BJT switches collector current from base-emitter drive",()=>{
+ const make=baseHigh=>{const components=[comp("V1","battery",2,{voltage:5}),comp("R1","resistor",2,{resistance:100}),comp("Q1","semiconductor-device-bjt-npn",3,{baseThreshold:.7,baseResistance:10,onResistance:.1})];const wires=[wire("V1:0","R1:0"),wire("R1:1","Q1:1"),wire("Q1:2","V1:1")];if(baseHigh){components.push(comp("RB","resistor",2,{resistance:1000}));wires.push(wire("V1:0","RB:0"),wire("RB:1","Q1:0"))}else wires.push(wire("Q1:0","V1:1"));return {components,wires}};
+ const on=E.dc(make(true)),off=E.dc(make(false));
+ assert.equal(on.ok,true,JSON.stringify(on));assert.equal(off.ok,true,JSON.stringify(off));
+ assert.ok(on.branches.find(b=>b.id==="R1").current>.045,"forward base drive should turn the NPN collector path on");
+ assert.ok(Math.abs(off.branches.find(b=>b.id==="R1").current)<1e-8,"base tied to emitter should turn the NPN off");
+});
+test("catalog N-channel MOSFET switches drain current from gate-source voltage",()=>{
+ const make=gateHigh=>({components:[comp("V1","battery",2,{voltage:5}),comp("R1","resistor",2,{resistance:100}),comp("Q1","semiconductor-device-mosfet-n",3,{gateThreshold:2,onResistance:.05})],wires:[wire("V1:0","R1:0"),wire("R1:1","Q1:1"),wire("Q1:2","V1:1"),wire("Q1:0",gateHigh?"V1:0":"V1:1")]});
+ const on=E.dc(make(true)),off=E.dc(make(false));
+ assert.equal(on.ok,true,JSON.stringify(on));assert.equal(off.ok,true,JSON.stringify(off));
+ assert.ok(on.branches.find(b=>b.id==="R1").current>.045,"gate voltage above threshold should turn the N-MOSFET on");
+ assert.ok(Math.abs(off.branches.find(b=>b.id==="R1").current)<1e-8,"gate tied to source should turn the N-MOSFET off");
+});
+test("catalog P-channel MOSFET uses source-to-gate polarity",()=>{
+ const p={components:[comp("V1","battery",2,{voltage:5}),comp("R1","resistor",2,{resistance:100}),comp("Q1","semiconductor-device-mosfet-p",3,{gateThreshold:2,onResistance:.05})],wires:[wire("V1:0","Q1:2"),wire("Q1:1","R1:0"),wire("R1:1","V1:1"),wire("Q1:0","V1:1")]};
+ const result=E.dc(p);
+ assert.equal(result.ok,true,JSON.stringify(result));
+ assert.ok(result.branches.find(b=>b.id==="R1").current>.045,"P-channel source above gate should turn the device on");
+});
