@@ -39,6 +39,7 @@ function toLegacy(input){
  const p=migrate(raw),devices=p.devices||[],byId=new Map(devices.map(d=>[String(d.id),d]));
  const components=devices.map(d=>({id:d.id,type:d.type||d.model||"unknown",registryId:d.registryId||null,x:Number(d.position?.x??0),y:Number(d.position?.y??0),rotation:Number(d.rotation||0),props:structuredClone(d.parameters||{}),pins:(d.terminals||[]).map((_,i)=>d.id+":"+i)}));
  function endpoint(value){
+  if(value&&typeof value==="object"&&value.deviceId!=null&&value.terminalId!=null)value=String(value.deviceId)+":"+String(value.terminalId);
   if(typeof value!=="string"||!value.includes(":"))throw Error("Invalid wire endpoint: "+String(value));
   const cut=value.lastIndexOf(":"),id=value.slice(0,cut),terminal=value.slice(cut+1),d=byId.get(id);
   if(!d)throw Error("Wire references missing device: "+id);
