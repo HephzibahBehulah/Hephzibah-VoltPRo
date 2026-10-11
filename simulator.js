@@ -1,6 +1,6 @@
 (()=>{"use strict";
 const C={voltage:12,current:0,resistance:1000};
-const S={version:1,mode:"schematic",components:[],wires:[],selected:null,selectedWireId:null,wireStart:null,wirePointer:null,wiringMode:false,running:false,zoom:1,pan:{x:0,y:0},grid:20,history:[],future:[],meter:"voltage",theme:"dark",symbolStyle:localStorage.getItem("voltpro-symbol-style")||"iec",wireStyle:{color:"#65d8ff",cableType:"standard",size:"1.5",gauge:"16",width:2.5}};
+const S={version:1,mode:"schematic",components:[],wires:[],selected:null,selectedWireId:null,wireStart:null,wirePointer:null,wiringMode:false,running:false,zoom:1,pan:{x:0,y:0},grid:20,history:[],future:[],meter:"voltage",lastAnalysis:null,lastAnalysisSignature:"",theme:"dark",symbolStyle:localStorage.getItem("voltpro-symbol-style")||"iec",wireStyle:{color:"#65d8ff",cableType:"standard",size:"1.5",gauge:"16",width:2.5}};
 window.S=S;
 window.VoltProSimulator={state:S,addComponent:(type,x,y)=>addComponent(type,x,y),render:()=>render()};
 const defs={
@@ -182,9 +182,10 @@ function solve(){const connectedWires=electricalWires();const src=S.components.f
  const V=+src.props.voltage||12;const R=[];for(const c of active){const ps=connectedWires.filter(w=>w.a.startsWith(c.id+":")||w.b.startsWith(c.id+":"));if(ps.length<2)continue;const na=ps[0].a.startsWith(c.id)?nodeOf(ps[0].b):nodeOf(ps[0].a);const nb=ps[1].a.startsWith(c.id)?nodeOf(ps[1].b):nodeOf(ps[1].a);R.push({c,na,nb,r:resistance(c)})}
  let series=0;for(const x of R)series+=x.r;const current=series>0?V/series:0;return {voltage:V,current,loads:R.map(x=>({id:x.c.id,name:compDef(x.c.type).name,current:current,resistance:x.r}))}
 }
+function solverProject(){return {components:S.components.map(c=>({...c,pins:Array.from({length:compDef(c.type).pins},(_,i)=>c.id+":"+i)})),wires:electricalWires()}}
 function run(){
  S.running=true;syncRunControls();
- const project={components:S.components.map(c=>({...c,pins:Array.from({length:compDef(c.type).pins},(_,i)=>c.id+":"+i)})),wires:electricalWires()};
+ const project=solverProject();
  let r;
  if(window.VoltProEngine){
    r=VoltProEngine.analyze(project,{transient:{duration:.1,steps:40},ac:{frequency:50}});
@@ -192,7 +193,8 @@ function run(){
    r={dc:solve()};
  }
  const dc=r.dc||r;
- if(!dc.ok){S.running=false;$("#meterReadout").textContent="--";$("#console").textContent="RUN ERROR\\n"+(dc.error||"Unable to solve circuit.");$("#calcPanel").textContent="Check source, connections and component values.";renderCanvas();syncRunControls("error");return}
+ if(!dc.ok){S.running=false;S.lastAnalysis=null;S.lastAnalysisSignature="";$("#meterReadout").textContent="--";$("#console").textContent="RUN ERROR\\n"+(dc.error||"Unable to solve circuit.");$("#calcPanel").textContent="Check source, connections and component values.";renderCanvas();syncRunControls("error");return}
+ S.lastAnalysis=dc;S.lastAnalysisSignature=JSON.stringify(project);
  const amps=Number(dc.totalCurrent)||0;
  $("#meterReadout").textContent=amps.toFixed(4)+" A";
  $("#console").textContent="VOLTPro Engine v3\\nAnalysis: "+(dc.analysis||"DC operating point")+"\\nSource: "+(dc.sourceVoltage||0)+" V\\nTotal current: "+amps.toFixed(4)+" A\\nTotal power: "+(Number(dc.totalPower)||0).toFixed(4)+" W\\nNodes: "+(dc.nodes||0)+"\\n";
@@ -303,7 +305,28 @@ if(wireCableType)wireCableType.addEventListener("change",()=>{S.wireStyle.cableT
 if(wireSize)wireSize.addEventListener("change",()=>{S.wireStyle.size=wireSize.value;S.wireStyle.gauge=String(nearestAwg(wireSize.value));syncWireMenu()});
 if(wireGauge)wireGauge.addEventListener("change",()=>{S.wireStyle.gauge=wireGauge.value;S.wireStyle.size=nearestMetricSize(wireGauge.value);syncWireMenu()});
 if(startWireBtn)startWireBtn.addEventListener("click",toggleWireDrawing);$("#undoBtn").onclick=()=>{if(S.history.length){S.future.push(JSON.stringify({components:S.components,wires:S.wires,panel:S.panel||null}));restore(S.history.pop())}};$("#redoBtn").onclick=()=>{if(S.future.length){S.history.push(JSON.stringify({components:S.components,wires:S.wires,panel:S.panel||null}));restore(S.future.pop())}};$("#fitBtn").onclick=()=>{S.zoom=1;S.pan={x:0,y:0};render()};$("#zoomIn").onclick=()=>{S.zoom=Math.min(2.5,S.zoom*1.15);render()};$("#zoomOut").onclick=()=>{S.zoom=Math.max(.35,S.zoom/1.15);render()};
-$$("[data-meter]").forEach(b=>b.onclick=()=>{S.meter=b.dataset.meter;const r=solve();$("#meterReadout").textContent=S.meter==="voltage"?r.voltage.toFixed(2)+" V":S.meter==="current"?r.current.toFixed(3)+" A":S.meter==="resistance"?(r.current?(r.voltage/r.current).toFixed(1):"∞")+" Ω":(r.current?"PASS":"OPEN")});
+$("[data-meter]").forEach(b=>b.onclick=()=>{
+ S.meter=b.dataset.meter;
+ const project=solverProject(),signature=JSON.stringify(project);
+ let result=signature===S.lastAnalysisSignature?S.lastAnalysis:null;
+ if(!result?.ok){result=window.VoltProEngine?.dc(project);if(result?.ok){S.lastAnalysis=result;S.lastAnalysisSignature=signature}}
+ if(!result?.ok){$("#meterReadout").textContent="--";$("#console").textContent="METER ERROR\\n"+(result?.error||"Run the circuit and check its connections first.");return}
+ const selected=S.components.find(c=>c.id===S.selected);
+ const candidates=selected?(result.branches||[]).filter(x=>x.id===selected.id):[];
+ const branch=candidates.find(x=>x.contactId==="coil")||candidates.find(x=>!x.contactId)||candidates[0]||null;
+ if(selected&&!branch){$("#meterReadout").textContent="NO BRANCH";return}
+ const api=window.VoltProMeasurement;
+ const args=branch?{branchId:branch.id,contactId:branch.contactId}:{};
+ const sourceCurrent=Number(result.sourceCurrents?.[0]?.current)||0,sourceVoltage=Number(result.sourceVoltage)||0;
+ const measured=(type,fallback)=>api?.measure?api.measure(type,result,args):fallback;
+ let value,display;
+ if(S.meter==="voltage"){value=branch?measured("voltage",branch.voltage):sourceVoltage;display=(Number(value)||0).toFixed(2)+" V"}
+ else if(S.meter==="current"){value=branch?measured("current",branch.current):sourceCurrent;display=(Number(value)||0).toFixed(3)+" A"}
+ else if(S.meter==="resistance"){value=branch?measured("resistance",Math.abs(branch.current)>1e-12?Math.abs(branch.voltage/branch.current):Infinity):(Math.abs(sourceCurrent)>1e-12?Math.abs(sourceVoltage/sourceCurrent):Infinity);display=Number.isFinite(value)?value.toFixed(1)+" Ω":"∞ Ω"}
+ else if(!branch){display="SELECT PART"}
+ else {value=measured("continuity",Math.abs(branch.current)>1e-12&&Math.abs(branch.voltage/branch.current)<=.1);display=value?"PASS":"OPEN"}
+ $("#meterReadout").textContent=display;
+});
 $$(".mode").forEach(b=>b.onclick=()=>{$$(".mode").forEach(x=>x.classList.remove("active"));b.classList.add("active");S.mode=b.dataset.mode;$("#engineInfo").textContent=b.dataset.mode==="micro"?"Microcontroller workspace · local educational engine":b.dataset.mode==="panel"?"Panel planning workspace · local educational engine":"DC educational engine · local-only"});
 $("#themeBtn").onclick=()=>{document.body.classList.toggle("light");localStorage.setItem("voltpro-theme",document.body.classList.contains("light")?"light":"dark")};
 function toast(m){const t=document.createElement("div");t.textContent=m;t.style="position:fixed;right:18px;bottom:45px;background:#12314a;border:1px solid #39647f;color:white;padding:9px 13px;border-radius:8px;z-index:99;font-size:11px";document.body.append(t);setTimeout(()=>t.remove(),1600)}
