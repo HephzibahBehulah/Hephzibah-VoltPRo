@@ -36,6 +36,25 @@
   const path = (id, from, to, kind, extra = {}) => ({ id, from, to, kind, ...clone(extra) });
 
   // Device terminals and internal paths are model data, never inferred from SVG pin counts.
+  function arduinoUnoDefinition() {
+    const leftLabels=["D0","D1","D2","D3","D4","D5","D6","D7","D8","D9","D10","D11","D12","D13","AREF","GND","SDA","SCL"];
+    const rightLabels=["IOREF","RESET","3V3","5V","GND","GND","VIN","NC","A0","A1","A2","A3","A4","A5","MISO","VCC","SCK","MOSI","RESET","GND"];
+    const terminals=[];
+    leftLabels.forEach((label,i)=>{const id=label==="GND"?"GND_D":label;terminals.push(terminal(id,label,-100,(i-(leftLabels.length-1)/2)*14,{domain:["D0","D1","D2","D3","D4","D5","D6","D7","D8","D9","D10","D11","D12","D13","SDA","SCL"].includes(label)?"digital":label==="AREF"?"analog":label==="GND"?"ground":"dc",polarity:label==="GND"?"negative":null,metadata:{header:"digital"}}))});
+    rightLabels.forEach((label,i)=>{const id=label==="GND"?"GND_"+(i===4?"1":i===5?"2":"ICSP"):label==="RESET"?(i===1?"RESET_PWR":"RESET_ICSP"):label==="VCC"?"ICSP_VCC":label==="MISO"?"ICSP_MISO":label==="SCK"?"ICSP_SCK":label==="MOSI"?"ICSP_MOSI":label==="NC"?"NC":label;terminals.push(terminal(id,label,100,(i-(rightLabels.length-1)/2)*14,{domain:["A0","A1","A2","A3","A4","A5"].includes(label)?"analog":["MISO","VCC","SCK","MOSI"].includes(label)?"digital":label==="GND"?"ground":"dc",polarity:label==="GND"?"negative":null,metadata:{header:i<8?"power":i<14?"analog":"ICSP"}}))});
+    const paths=[path("gnd-header-to-power","GND_D","GND_1","passive"),path("gnd-power-link","GND_1","GND_2","passive"),path("gnd-to-icsp","GND_2","GND_ICSP","passive"),path("i2c-sda-alias","SDA","A4","passive"),path("i2c-scl-alias","SCL","A5","passive"),path("5v-to-icsp-vcc","5V","ICSP_VCC","passive"),path("reset-to-icsp","RESET_PWR","RESET_ICSP","passive")];
+    return {terminals,paths};
+  }
+  function breadboardBB400Definition() {
+    const terminals=[],paths=[],upper=["A","B","C","D","E"],lower=["F","G","H","I","J"];
+    for(const row of [...upper,...lower])for(let col=1;col<=30;col++)terminals.push(terminal(row+col,row+col,-261+(col-1)*18,row<="E"?-68+upper.indexOf(row)*16:24+lower.indexOf(row)*16,{domain:"dc",metadata:{kind:"breadboard-hole",strip:row}}));
+    const railRows=[["PPLUS","+",-116],["PMINUS","−",-100],["NPLUS","+",108],["NMINUS","−",124]];
+    for(const [prefix,label,y] of railRows)for(let col=1;col<=25;col++)terminals.push(terminal(prefix+col,label+col,-216+(col-1)*18,y,{domain:"dc",polarity:label==="+"?"positive":"negative",metadata:{kind:"breadboard-rail",rail:prefix}}));
+    for(let col=1;col<=30;col++){for(let row=0;row<4;row++)paths.push(path("strip-upper-"+col+"-"+row,String.fromCharCode(65+row)+col,String.fromCharCode(66+row)+col,"passive"));for(let row=0;row<4;row++)paths.push(path("strip-lower-"+col+"-"+row,String.fromCharCode(70+row)+col,String.fromCharCode(71+row)+col,"passive"))}
+    for(const [prefix] of railRows)for(let col=1;col<25;col++)paths.push(path("rail-"+prefix+"-"+col,prefix+col,prefix+(col+1),"passive"));
+    return {terminals,paths};
+  }
+
   function breakerDefinition(poles) {
     const phases = poles === 4 ? ["L1","L2","L3","N"] : poles === 2 ? ["L1","N"] : Array.from({length:poles},(_,i)=>"L"+(i+1));
     const outputs = phases.map((p,i)=>p==="N"?"TN":"T"+(i+1));
@@ -45,6 +64,8 @@
     return {terminals,paths:phases.map((phase,i)=>path("breaker-pole-"+(i+1),phase,outputs[i],"switchable",{stateKey:"closed",phase}))};
   }
   const DEFINITIONS = {
+    "arduino-uno-r3":arduinoUnoDefinition(),
+    "breadboard-bb400":breadboardBB400Definition(),
     ...Object.fromEntries([1,2,4].map(poles=>["circuit-breaker-"+poles+"p",breakerDefinition(poles)])),
     "auxiliary-contact-block": { terminals:[
       terminal("13","13",-24,-18,{number:"13",domain:"control"}),terminal("21","21",-24,-6,{number:"21",domain:"control"}),terminal("31","31",-24,6,{number:"31",domain:"control"}),terminal("41","41",-24,18,{number:"41",domain:"control"}),
@@ -101,7 +122,7 @@
 
   function definitionFor(type) {
     const normalized = String(type || "").toLowerCase().replace(/[_ ]+/g,"-");
-    const aliases = { pushbutton:"pushbutton-no", contactor3p:"contactor", motor3phase:"motor", "circuitbreaker":"circuit-breaker", mcb1p:"circuit-breaker-1p", "mcb-1p":"circuit-breaker-1p", "1-pole-mcb":"circuit-breaker-1p", mcb2p:"circuit-breaker-2p", "mcb-2p":"circuit-breaker-2p", "2-pole-mcb":"circuit-breaker-2p", mcb3p:"circuit-breaker-3p", "3-pole-mcb":"circuit-breaker-3p", "mcb-3p":"circuit-breaker-3p", mcb4p:"circuit-breaker-4p", "mcb-4p":"circuit-breaker-4p", "4-pole-mcb":"circuit-breaker-4p", "terminalblock":"terminal-block", "plc-input-module":"plc-input", "plc-output-module":"plc-output", sensor:"sensor", lamp:"lamp", voltmeter:"measurement-instrument", ammeter:"measurement-instrument", multimeter:"measurement-instrument" };
+    const aliases = { arduino:"arduino-uno-r3", uno:"arduino-uno-r3", bb400:"breadboard-bb400", breadboard:"breadboard-bb400", pushbutton:"pushbutton-no", contactor3p:"contactor", motor3phase:"motor", "circuitbreaker":"circuit-breaker", mcb1p:"circuit-breaker-1p", "mcb-1p":"circuit-breaker-1p", "1-pole-mcb":"circuit-breaker-1p", mcb2p:"circuit-breaker-2p", "mcb-2p":"circuit-breaker-2p", "2-pole-mcb":"circuit-breaker-2p", mcb3p:"circuit-breaker-3p", "3-pole-mcb":"circuit-breaker-3p", "mcb-3p":"circuit-breaker-3p", mcb4p:"circuit-breaker-4p", "mcb-4p":"circuit-breaker-4p", "4-pole-mcb":"circuit-breaker-4p", "terminalblock":"terminal-block", "plc-input-module":"plc-input", "plc-output-module":"plc-output", sensor:"sensor", lamp:"lamp", voltmeter:"measurement-instrument", ammeter:"measurement-instrument", multimeter:"measurement-instrument" };
     const def = DEFINITIONS[aliases[normalized] || normalized];
     return def ? clone(def) : null;
   }
