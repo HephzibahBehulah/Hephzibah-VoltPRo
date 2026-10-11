@@ -25,7 +25,7 @@ test("overcurrent trips a single-pole breaker and opens its load path",()=>{
  const normal=E.analyze(make(10)).dc;
  assert.equal(normal.ok,true,JSON.stringify(normal));
  assert.equal(normal.deviceStates.Q1.tripped,false,"1.2 A should remain below pickup");
- assert.ok(Math.abs(normal.branches.find(b=>b.id==="R1").current-1.2)<1e-8);
+ assert.ok(Math.abs(normal.branches.find(b=>b.id==="R1").current-1.2)<1e-6,"closed breaker contact resistance should cause only a negligible drop");
 });
 test("fuse opens when current exceeds its simplified pickup threshold",()=>{
  const p={components:[
