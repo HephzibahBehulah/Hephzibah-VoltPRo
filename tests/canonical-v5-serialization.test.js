@@ -89,3 +89,19 @@ test("canonical import preserves connectivity through the legacy MNA solver", ()
   assert.ok(resistor, "imported resistor must be present in solver results");
   assert.ok(Math.abs(resistor.current - 0.012) < 1e-8, "12 V / 1 kΩ should draw 12 mA after canonical import");
 });
+
+test("canonical import accepts structured wire endpoint references", () => {
+  const window = loadAdapters();
+  const canonical = window.VoltProProject.normalize({
+    version: 5,
+    devices: [
+      { id: "V1", type: "battery", terminals: [{ id: "+", label: "+" }, { id: "-", label: "-" }] },
+      { id: "R1", type: "resistor", terminals: [{ id: "1", label: "1" }, { id: "2", label: "2" }] }
+    ],
+    wires: [
+      { id: "W1", from: { deviceId: "V1", terminalId: "+" }, to: { deviceId: "R1", terminalId: "1" } }
+    ]
+  });
+  const legacy = window.VoltProProject.toLegacy(canonical);
+  assert.deepEqual(Array.from(legacy.wires, wire => [wire.a, wire.b]), [["V1:0", "R1:0"]]);
+});
