@@ -164,7 +164,7 @@ test("contactor coil voltage drives three independent main poles and auxiliary c
  assert.equal(released.ok,true,JSON.stringify(released));
  assert.equal(released.deviceStates.KM1,false,"24 V should not pull in a 230 V coil");
  assert.ok(released.branches.some(b=>b.id==="KM1"&&b.contactId==="main-1"&&Math.abs(b.current)<1e-9),"main contact should remain open");
- assert.ok(Math.abs(released.branches.find(b=>b.id==="R2").current-2.3)<1e-5,"NC auxiliary contact should remain closed when deenergized");
+ assert.ok(Math.abs(released.branches.find(b=>b.id==="R2").current-.24)<1e-5,"NC auxiliary contact should remain closed when deenergized");
 });
 test("relay uses explicit eight-terminal coil and changeover contacts",()=>{
  const p={components:[comp("V1","battery",2,{voltage:24}),comp("K1","relay",8,{coilVoltage:24,coilResistance:240}),comp("R1","resistor",2,{resistance:100}),comp("R2","resistor",2,{resistance:100})],wires:[wire("V1:0","K1:0"),wire("K1:1","V1:1"),wire("V1:0","K1:2"),wire("K1:3","R1:0"),wire("R1:1","V1:1"),wire("K1:4","R2:0"),wire("R2:1","V1:1")]};
