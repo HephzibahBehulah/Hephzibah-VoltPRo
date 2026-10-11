@@ -118,6 +118,14 @@
       path("aux-nc-95-96","95","96","switchable",{stateKey:"tripped",closedWhen:false,domain:"control"}),
       path("aux-no-97-98","97","98","switchable",{stateKey:"tripped",closedWhen:true,domain:"control"})
     ] },
+    "automatic-transfer-switch": { terminals:[
+      terminal("N-L1","N-L1",-36,-24,{domain:"ac3",phase:"L1"}),terminal("N-L2","N-L2",-36,-8,{domain:"ac3",phase:"L2"}),terminal("N-L3","N-L3",-36,8,{domain:"ac3",phase:"L3"}),terminal("N-N","N-N",-36,24,{domain:"ac3"}),
+      terminal("E-L1","E-L1",36,-24,{domain:"ac3",phase:"L1"}),terminal("E-L2","E-L2",36,-8,{domain:"ac3",phase:"L2"}),terminal("E-L3","E-L3",36,8,{domain:"ac3",phase:"L3"}),terminal("E-N","E-N",36,24,{domain:"ac3"}),
+      terminal("L1","L1",-24,48,{domain:"ac3",phase:"L1"}),terminal("L2","L2",-8,48,{domain:"ac3",phase:"L2"}),terminal("L3","L3",8,48,{domain:"ac3",phase:"L3"}),terminal("N","N",24,48,{domain:"ac3"})
+    ], paths:[
+      path("normal-L1","N-L1","L1","switchable",{stateKey:"transferSource",closedWhen:"normal"}),path("normal-L2","N-L2","L2","switchable",{stateKey:"transferSource",closedWhen:"normal"}),path("normal-L3","N-L3","L3","switchable",{stateKey:"transferSource",closedWhen:"normal"}),path("normal-N","N-N","N","switchable",{stateKey:"transferSource",closedWhen:"normal"}),
+      path("emergency-L1","E-L1","L1","switchable",{stateKey:"transferSource",closedWhen:"emergency"}),path("emergency-L2","E-L2","L2","switchable",{stateKey:"transferSource",closedWhen:"emergency"}),path("emergency-L3","E-L3","L3","switchable",{stateKey:"transferSource",closedWhen:"emergency"}),path("emergency-N","E-N","N","switchable",{stateKey:"transferSource",closedWhen:"emergency"})
+    ] },
     ground: { terminals:[terminal("PE","PE",0,0,{domain:"ground",polarity:"protective-earth"})], paths:[] },
     threephase: { terminals:[terminal("L1","L1",24,-12,{domain:"ac3",phase:"L1"}),terminal("L2","L2",24,0,{domain:"ac3",phase:"L2"}),terminal("L3","L3",24,12,{domain:"ac3",phase:"L3"}),terminal("N","N",-24,24,{domain:"ac3"})], paths:[] },
     motor: { terminals:[terminal("U1","U1",-24,-12,{domain:"ac3",phase:"L1"}),terminal("V1","V1",-24,0,{domain:"ac3",phase:"L2"}),terminal("W1","W1",-24,12,{domain:"ac3",phase:"L3"}),terminal("U2","U2",24,-12,{domain:"ac3"}),terminal("V2","V2",24,0,{domain:"ac3"}),terminal("W2","W2",24,12,{domain:"ac3"}),terminal("PE","PE",0,24,{domain:"ground",polarity:"protective-earth"})], paths:[path("phase-U","U1","U2","motor-winding",{phase:"L1"}),path("phase-V","V1","V2","motor-winding",{phase:"L2"}),path("phase-W","W1","W2","motor-winding",{phase:"L3"})] },
