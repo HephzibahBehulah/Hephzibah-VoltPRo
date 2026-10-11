@@ -1,0 +1,10 @@
+/* Stateless interaction helpers and accessible hole descriptions. */
+(function(root,factory){const api=factory();if(typeof module!=="undefined"&&module.exports)module.exports=api;if(root)root.VoltProInteractionLayer=api;})(typeof globalThis!=="undefined"?globalThis:this,function(){
+'use strict';
+const {holeAt,nodeOf}=typeof require==='function'?require('./BreadboardModel.js'):{holeAt:globalThis.VoltProBoardModel.holeAt,nodeOf:globalThis.VoltProBoardModel.nodeOf};
+function nearestHole(point,holes,toleranceMm=1.5){let best=null,d=Infinity;for(const h of holes){const q=(h.x-point.x)**2+(h.y-point.y)**2;if(q<d){d=q;best=h;}}return d<=toleranceMm*toleranceMm?best:null;}
+function describeHole(id,occupants=[],options={}){const h=holeAt(id);if(!h)return 'Unknown breadboard hole';if(h.kind==='rail')return (h.rail[0]==='T'?'Top':'Bottom')+' '+(h.rail[1]==='+'?'positive':'negative')+' rail, hole '+h.column+', '+(occupants.length?occupants.map(o=>o.kind==='leg'?'occupied by '+o.id+' leg':'connected to wire '+o.id).join(', '):'empty')+'.';return 'Column '+h.column+', row '+h.row+', '+h.block+' block, '+(occupants.length?occupants.map(o=>o.kind==='leg'?'occupied by '+o.id+' leg':'connected to wire '+o.id).join(', '):'empty')+'.';}
+function holeList(){const xs=[];for(const row of 'abcdefghij')for(let c=1;c<=63;c++)xs.push(holeAt(row+c));for(const s of ['T','B'])for(const p of ['+','-'])for(let c=1;c<=50;c++)xs.push(holeAt(s+'P'+p+c));return xs;}
+function nextHole(id,dx,dy,shift=false){const h=holeAt(id);if(!h)return null;const step=shift?5:1;if(h.kind==='terminal'){const rows='abcdefghij',r=rows.indexOf(h.row),nr=Math.max(0,Math.min(9,r+dy*step)),nc=Math.max(1,Math.min(63,h.column+dx*step));return rows[nr]+nc;}const m=/^([TB])P([+-])(\d+)$/.exec(id);if(!m)return id;return m[1]+'P'+m[2]+Math.max(1,Math.min(50,Number(m[3])+dx*step));}
+return {nearestHole,describeHole,holeList,nextHole,nodeOf};
+});
