@@ -63,6 +63,15 @@
     outputs.forEach((label,i)=>terminals.push(terminal(label,label,24,(i-(poles-1)/2)*spacing,{number:String(i*2+2),domain:poles>=3?"ac3":"ac",phase:phases[i]})));
     return {terminals,paths:phases.map((phase,i)=>path("breaker-pole-"+(i+1),phase,outputs[i],"switchable",{stateKey:"closed",phase}))};
   }
+  function contactorPoleDefinition(poles) {
+    const terminals=[terminal("A1","A1",-24,poles===4?-34:-22,{domain:"control",direction:"input"}),terminal("A2","A2",24,poles===4?-34:-22,{domain:"control",direction:"output"})];
+    const phases=poles===4?["L1","L2","L3","N"]:Array.from({length:poles},(_,i)=>"L"+(i+1));
+    const paths=[path("coil","A1","A2","coil",{domain:"control"})];
+    phases.forEach((phase,i)=>{const out=phase==="N"?"TN":"T"+(i+1),y=-6+i*12;terminals.push(terminal(phase,phase,-24,y,{number:String(i*2+1),domain:"ac3",phase}),terminal(out,out,24,y,{number:String(i*2+2),domain:"ac3",phase}));paths.push(path("main-"+(i+1),phase,out,"switchable",{stateKey:"energized",closedWhen:true,phase}))});
+    const auxY=-6+poles*12;terminals.push(terminal("13","13",-24,auxY,{number:"13",domain:"control"}),terminal("14","14",24,auxY,{number:"14",domain:"control"}),terminal("21","21",-24,auxY+12,{number:"21",domain:"control"}),terminal("22","22",24,auxY+12,{number:"22",domain:"control"}));
+    paths.push(path("aux-no-13-14","13","14","switchable",{stateKey:"energized",closedWhen:true,domain:"control"}),path("aux-nc-21-22","21","22","switchable",{stateKey:"energized",closedWhen:false,domain:"control"}));
+    return {terminals,paths};
+  }
   const DEFINITIONS = {
     "arduino-uno-r3":arduinoUnoDefinition(),
     "breadboard-bb400":breadboardBB400Definition(),
@@ -87,6 +96,8 @@
       terminal("L1","L1",-24,-12,{number:"1",domain:"ac3",phase:"L1"}), terminal("L2","L2",-24,0,{number:"3",domain:"ac3",phase:"L2"}), terminal("L3","L3",-24,12,{number:"5",domain:"ac3",phase:"L3"}),
       terminal("T1","T1",24,-12,{number:"2",domain:"ac3",phase:"L1"}), terminal("T2","T2",24,0,{number:"4",domain:"ac3",phase:"L2"}), terminal("T3","T3",24,12,{number:"6",domain:"ac3",phase:"L3"})
     ], paths:[path("breaker-pole-1","L1","T1","switchable",{stateKey:"closed",phase:"L1"}),path("breaker-pole-2","L2","T2","switchable",{stateKey:"closed",phase:"L2"}),path("breaker-pole-3","L3","T3","switchable",{stateKey:"closed",phase:"L3"})] },
+    "contactor-2p":contactorPoleDefinition(2),
+    "contactor-4p":contactorPoleDefinition(4),
     contactor: { terminals:[
       terminal("A1","A1",-24,-22,{domain:"control",direction:"input"}),terminal("A2","A2",24,-22,{domain:"control",direction:"output"}),
       terminal("L1","L1",-24,-6,{number:"1",domain:"ac3",phase:"L1"}),terminal("T1","T1",24,-6,{number:"2",domain:"ac3",phase:"L1"}),
@@ -154,7 +165,7 @@
 
   function definitionFor(type) {
     const normalized = String(type || "").toLowerCase().replace(/[_ ]+/g,"-");
-    const aliases = { "abb-aux-cb-11":"auxiliary-contact-block", "industrial-industrial-overload-relay":"overload-relay", "thermal-overload-relay":"overload-relay", arduino:"arduino-uno-r3", uno:"arduino-uno-r3", bb400:"breadboard-bb400", breadboard:"breadboard-bb400", pushbutton:"pushbutton-no", contactor3p:"contactor", motor3phase:"motor", "circuitbreaker":"circuit-breaker", mcb1p:"circuit-breaker-1p", "mcb-1p":"circuit-breaker-1p", "1-pole-mcb":"circuit-breaker-1p", mcb2p:"circuit-breaker-2p", "mcb-2p":"circuit-breaker-2p", "2-pole-mcb":"circuit-breaker-2p", mcb3p:"circuit-breaker-3p", "3-pole-mcb":"circuit-breaker-3p", "mcb-3p":"circuit-breaker-3p", mcb4p:"circuit-breaker-4p", "mcb-4p":"circuit-breaker-4p", "4-pole-mcb":"circuit-breaker-4p", "terminalblock":"terminal-block", "plc-input-module":"plc-input", "plc-output-module":"plc-output", sensor:"sensor", lamp:"lamp", voltmeter:"measurement-instrument", ammeter:"measurement-instrument", multimeter:"measurement-instrument" };
+    const aliases = { "contactors-contactor-24vac":"contactor", "contactors-contactor-24vdc":"contactor", "contactors-contactor-48vac":"contactor", "contactors-contactor-48vdc":"contactor", "contactors-contactor-110vac":"contactor", "contactors-contactor-110vdc":"contactor", "contactors-contactor-230vac":"contactor", "contactors-contactor-230vdc":"contactor", "contactors-contactor-400vac":"contactor", "contactors-contactor-415vac":"contactor", "contactors-contactor-2p":"contactor-2p", "contactors-contactor-3p":"contactor", "contactors-contactor-4p":"contactor-4p", "abb-aux-cb-11":"auxiliary-contact-block", "industrial-industrial-overload-relay":"overload-relay", "thermal-overload-relay":"overload-relay", arduino:"arduino-uno-r3", uno:"arduino-uno-r3", bb400:"breadboard-bb400", breadboard:"breadboard-bb400", pushbutton:"pushbutton-no", contactor3p:"contactor", motor3phase:"motor", "circuitbreaker":"circuit-breaker", mcb1p:"circuit-breaker-1p", "mcb-1p":"circuit-breaker-1p", "1-pole-mcb":"circuit-breaker-1p", mcb2p:"circuit-breaker-2p", "mcb-2p":"circuit-breaker-2p", "2-pole-mcb":"circuit-breaker-2p", mcb3p:"circuit-breaker-3p", "3-pole-mcb":"circuit-breaker-3p", "mcb-3p":"circuit-breaker-3p", mcb4p:"circuit-breaker-4p", "mcb-4p":"circuit-breaker-4p", "4-pole-mcb":"circuit-breaker-4p", "terminalblock":"terminal-block", "plc-input-module":"plc-input", "plc-output-module":"plc-output", sensor:"sensor", lamp:"lamp", voltmeter:"measurement-instrument", ammeter:"measurement-instrument", multimeter:"measurement-instrument" };
     const def = DEFINITIONS[aliases[normalized] || normalized];
     return def ? clone(def) : null;
   }
