@@ -128,6 +128,30 @@ test("catalog load equivalent respects disabled state",()=>{
  assert.ok(Math.abs(result.branches.find(b=>b.id==="H1").current)<1e-8);
 });
 
+
+test("catalog PT100 sensor uses its configured resistive operating point",()=>{
+ const p={components:[
+  comp("V1","battery",2,{voltage:12}),
+  comp("S1","sensors-sensor-pt100",2,{resistance:100})
+ ],wires:[wire("V1:0","S1:0"),wire("S1:1","V1:1")]};
+ const result=E.dc(p);
+ assert.equal(result.ok,true,JSON.stringify(result));
+ assert.ok(Math.abs(result.branches.find(b=>b.id==="S1").current-.12)<1e-6);
+});
+test("catalog proximity sensor opens and closes as its active state changes",()=>{
+ const make=(active)=>({components:[
+  comp("V1","battery",2,{voltage:12}),
+  comp("S1","sensors-sensor-proximity",2,{active}),
+  comp("R1","resistor",2,{resistance:100})
+ ],wires:[wire("V1:0","S1:0"),wire("S1:1","R1:0"),wire("R1:1","V1:1")]});
+ const inactive=E.dc(make(false));
+ assert.equal(inactive.ok,true,JSON.stringify(inactive));
+ assert.ok(Math.abs(inactive.branches.find(b=>b.id==="R1").current)<1e-8);
+ const active=E.dc(make(true));
+ assert.equal(active.ok,true,JSON.stringify(active));
+ assert.ok(Math.abs(active.branches.find(b=>b.id==="R1").current-.12)<1e-6);
+});
+
 test("BB400 joins each five-hole strip and power rail in the MNA topology",()=>{const p={components:[comp("V1","battery",2,{voltage:5}),comp("R1","resistor",2,{resistance:100}),comp("BB1","breadboard-bb400",400)],wires:[wire("V1:0","BB1:0"),wire("R1:0","BB1:30"),wire("R1:1","BB1:150"),wire("V1:1","BB1:150")]};const result=E.analyze(p).dc;assert.equal(result.ok,true,JSON.stringify(result));assert.ok(result.totalCurrent>0.04&&result.totalCurrent<0.06,"expected about 50 mA through 100 Ω at 5 V")});
 test("one-pole breaker opens and closes its actual line/load path",()=>{const base={components:[comp("V1","battery",2,{voltage:12}),comp("Q1","circuit-breaker-1p",2,{rating:16,closed:1}),comp("R1","resistor",2,{resistance:100})],wires:[wire("V1:0","Q1:0"),wire("Q1:1","R1:0"),wire("R1:1","V1:1")]};const closed=E.analyze(base).dc;assert.equal(closed.ok,true,JSON.stringify(closed));assert.ok(closed.totalCurrent>0.1);const opened=E.analyze({...base,components:base.components.map(c=>c.id==="Q1"?{...c,props:{...c.props,closed:0}}:c)}).dc;assert.equal(opened.ok,true,JSON.stringify(opened));assert.ok(Math.abs(opened.totalCurrent)<1e-9)});
 
