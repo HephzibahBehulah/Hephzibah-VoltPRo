@@ -195,7 +195,8 @@ function run(){
  const phaseSource=project.components.find(c=>c.type==="threephase"),phasor=r.ac?.ok?r.ac.sweep?.[0]:null;
  const dc=phaseSource?(phasor?.branches?{...phasor,ok:true,analysis:"Three-phase AC operating point (MNA)",engine:"VoltPRo MNA",sourceVoltage:Number(phaseSource.props?.lineVoltage??phaseSource.props?.voltage)||400,totalCurrent:(phasor.sourceCurrents||[]).filter(x=>x.id===phaseSource.id).reduce((sum,x)=>sum+x.current,0)/3,totalPower:phasor.totalPower||0,nodes:phasor.nodeVoltages?.length||0,branches:phasor.branches,sourceCurrents:phasor.sourceCurrents,nodeVoltages:phasor.nodeVoltages,threePhase:true}:{ok:false,error:r.ac?.error||"Three-phase AC analysis failed."}):(r.dc||r);
  if(!dc.ok){S.running=false;S.lastAnalysis=null;S.lastAnalysisSignature="";$("#meterReadout").textContent="--";$("#console").textContent="RUN ERROR\\n"+(dc.error||"Unable to solve circuit.");$("#calcPanel").textContent="Check source, connections and component values.";renderCanvas();syncRunControls("error");return}
- S.lastAnalysis=dc;S.lastAnalysisSignature=JSON.stringify(project);
+ for(const [id,energized] of Object.entries(dc.deviceStates||{})){const component=S.components.find(c=>c.id===id);if(component)component.state={...(component.state||{}),energized:Boolean(energized)}}
+ S.lastAnalysis=dc;S.lastAnalysisSignature=JSON.stringify(solverProject());
  const amps=Number(dc.totalCurrent)||0;
  $("#meterReadout").textContent=amps.toFixed(4)+" A";
  $("#console").textContent="VOLTPro Engine v3\\nAnalysis: "+(dc.analysis||"DC operating point")+"\\nSource: "+(dc.sourceVoltage||0)+" V\\nTotal current: "+amps.toFixed(4)+" A\\nTotal power: "+(Number(dc.totalPower)||0).toFixed(4)+" W\\nNodes: "+(dc.nodes||0)+"\\n";
