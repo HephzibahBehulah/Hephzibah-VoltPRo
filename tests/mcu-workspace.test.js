@@ -36,7 +36,7 @@ test("simulator loads MCU assets while breadboard uses its native electrical mod
 });
 
 test("service worker cache version is advanced for the MCU workspace release",()=>{
-  assert.match(worker,/const CACHE="voltpro-v72"/); 
+  assert.match(worker,/const CACHE="voltpro-v73"/); 
   assert.ok(worker.includes('"./platform/mcu-circuit-bridge.js"'));
   assert.ok(worker.includes('"./platform/mcu-lab-ui.js"'));
   assert.ok(worker.includes('"./platform/mcu-engine.js"'));
