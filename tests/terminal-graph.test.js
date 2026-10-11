@@ -19,3 +19,6 @@ test("PLC controller exposes power, digital inputs and four isolated relay outpu
 
 
 test('catalog contactor variants expose correct terminal counts and paths',()=>{const T=load();const v=T.definitionFor('contactors-contactor-24vac'),p2=T.definitionFor('contactors-contactor-2p'),p4=T.definitionFor('contactors-contactor-4p');assert.equal(v.terminals.length,12);assert.equal(v.paths.length,6);assert.equal(p2.terminals.length,10);assert.equal(p2.paths.length,5);assert.equal(p4.terminals.length,14);assert.equal(p4.paths.length,7);assert.ok(p4.terminals.some(t=>t.id==='TN'));});
+
+
+test('catalog relay variants expose coil and two changeover contact sets',()=>{const T=load();const d=T.definitionFor('relays-relay-24vdc');assert.equal(d.terminals.length,8);assert.equal(d.paths.length,5);assert.ok(d.paths.some(p=>p.id==='changeover-1-no'));assert.ok(d.paths.some(p=>p.id==='changeover-2-nc'));});
