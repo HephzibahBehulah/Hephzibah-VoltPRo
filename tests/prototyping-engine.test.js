@@ -220,3 +220,20 @@ test("Arduino 5 V pin powers an external load through the board supply rail",()=
  assert.ok(result.branches.find(b=>b.id==="R1").current>.0049);
  assert.ok(result.branches.find(b=>b.id==="R1").current<.0051);
 });
+
+test("Arduino digitalRead input voltage changes the output pin in the live circuit",()=>{
+ const sketch="void setup(){pinMode(2,INPUT);pinMode(13,OUTPUT);}void loop(){if(digitalRead(2)==HIGH){digitalWrite(13,HIGH);}else{digitalWrite(13,LOW);}}";
+ const p={components:[comp("CS1","controlsource",2,{voltage:24}),comp("UNO","arduino-uno-r3",38,{logicVoltage:5,inputResistance:1000000,sketch}),comp("S1","pushbutton-no",2,{pressed:true}),comp("R1","resistor",2,{resistance:220})],wires:[
+  wire("CS1:0","S1:0"),wire("S1:1","UNO:2"),wire("CS1:1","UNO:15"),
+  wire("UNO:13","R1:0"),wire("R1:1","UNO:15")
+ ]};
+ const high=E.analyze(p).dc;
+ assert.equal(high.ok,true,JSON.stringify(high));
+ assert.equal(high.deviceStates.UNO.pins["13"].voltage,5);
+ assert.ok(high.branches.find(b=>b.id==="R1").current>.02);
+ p.components.find(c=>c.id==="S1").props.pressed=false;
+ const low=E.analyze(p).dc;
+ assert.equal(low.ok,true,JSON.stringify(low));
+ assert.equal(low.deviceStates.UNO.pins["13"].voltage,0);
+ assert.ok(Math.abs(low.branches.find(b=>b.id==="R1").current)<1e-9);
+});
