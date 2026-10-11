@@ -58,6 +58,36 @@ test("catalog fuse ID uses its encoded current rating for overcurrent pickup",()
  assert.equal(result.deviceStates.F1.tripped,true,"2 A catalog fuse should open above its simplified pickup");
 });
 
+
+test("catalog normally-open pushbutton switches its two-terminal path",()=>{
+ const make=(pressed)=>({components:[
+  comp("V1","battery",2,{voltage:12}),
+  comp("S1","switching-switch-pushbutton-no",2,{pressed}),
+  comp("R1","resistor",2,{resistance:100})
+ ],wires:[wire("V1:0","S1:0"),wire("S1:1","R1:0"),wire("R1:1","V1:1")]});
+ const released=E.dc(make(false));
+ assert.equal(released.ok,true,JSON.stringify(released));
+ assert.ok(Math.abs(released.branches.find(b=>b.id==="R1").current)<1e-8);
+ const pressed=E.dc(make(true));
+ assert.equal(pressed.ok,true,JSON.stringify(pressed));
+ assert.ok(Math.abs(pressed.branches.find(b=>b.id==="R1").current-.12)<1e-6);
+});
+test("catalog normally-closed pushbutton and emergency stop open when pressed",()=>{
+ for(const type of ["switching-switch-pushbutton-nc","switching-switch-emergency-stop"]){
+  const make=(pressed)=>({components:[
+   comp("V1","battery",2,{voltage:12}),
+   comp("S1",type,2,{pressed}),
+   comp("R1","resistor",2,{resistance:100})
+  ],wires:[wire("V1:0","S1:0"),wire("S1:1","R1:0"),wire("R1:1","V1:1")]});
+  const released=E.dc(make(false));
+  assert.equal(released.ok,true,JSON.stringify(released));
+  assert.ok(Math.abs(released.branches.find(b=>b.id==="R1").current-.12)<1e-6,type+" should be closed when released");
+  const pressed=E.dc(make(true));
+  assert.equal(pressed.ok,true,JSON.stringify(pressed));
+  assert.ok(Math.abs(pressed.branches.find(b=>b.id==="R1").current)<1e-8,type+" should open when pressed");
+ }
+});
+
 test("BB400 joins each five-hole strip and power rail in the MNA topology",()=>{const p={components:[comp("V1","battery",2,{voltage:5}),comp("R1","resistor",2,{resistance:100}),comp("BB1","breadboard-bb400",400)],wires:[wire("V1:0","BB1:0"),wire("R1:0","BB1:30"),wire("R1:1","BB1:150"),wire("V1:1","BB1:150")]};const result=E.analyze(p).dc;assert.equal(result.ok,true,JSON.stringify(result));assert.ok(result.totalCurrent>0.04&&result.totalCurrent<0.06,"expected about 50 mA through 100 Ω at 5 V")});
 test("one-pole breaker opens and closes its actual line/load path",()=>{const base={components:[comp("V1","battery",2,{voltage:12}),comp("Q1","circuit-breaker-1p",2,{rating:16,closed:1}),comp("R1","resistor",2,{resistance:100})],wires:[wire("V1:0","Q1:0"),wire("Q1:1","R1:0"),wire("R1:1","V1:1")]};const closed=E.analyze(base).dc;assert.equal(closed.ok,true,JSON.stringify(closed));assert.ok(closed.totalCurrent>0.1);const opened=E.analyze({...base,components:base.components.map(c=>c.id==="Q1"?{...c,props:{...c.props,closed:0}}:c)}).dc;assert.equal(opened.ok,true,JSON.stringify(opened));assert.ok(Math.abs(opened.totalCurrent)<1e-9)});
 
