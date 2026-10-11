@@ -126,6 +126,19 @@
       path("normal-L1","N-L1","L1","switchable",{stateKey:"transferSource",closedWhen:"normal"}),path("normal-L2","N-L2","L2","switchable",{stateKey:"transferSource",closedWhen:"normal"}),path("normal-L3","N-L3","L3","switchable",{stateKey:"transferSource",closedWhen:"normal"}),path("normal-N","N-N","N","switchable",{stateKey:"transferSource",closedWhen:"normal"}),
       path("emergency-L1","E-L1","L1","switchable",{stateKey:"transferSource",closedWhen:"emergency"}),path("emergency-L2","E-L2","L2","switchable",{stateKey:"transferSource",closedWhen:"emergency"}),path("emergency-L3","E-L3","L3","switchable",{stateKey:"transferSource",closedWhen:"emergency"}),path("emergency-N","E-N","N","switchable",{stateKey:"transferSource",closedWhen:"emergency"})
     ] },
+    "plc-controller": { terminals:[
+      terminal("L+","L+",-20,-42,{domain:"control",polarity:"positive"}),terminal("M","M",20,-42,{domain:"control",polarity:"negative"}),
+      terminal("I0","I0",-36,-18,{domain:"control"}),terminal("I1","I1",-36,0,{domain:"control"}),terminal("I2","I2",-36,18,{domain:"control"}),
+      terminal("Q0COM","Q0COM",36,-30,{domain:"control"}),terminal("Q0","Q0",36,-16,{domain:"control"}),
+      terminal("Q1COM","Q1COM",36,-2,{domain:"control"}),terminal("Q1","Q1",36,12,{domain:"control"}),
+      terminal("Q2COM","Q2COM",36,26,{domain:"control"}),terminal("Q2","Q2",36,40,{domain:"control"}),
+      terminal("Q3COM","Q3COM",36,54,{domain:"control"}),terminal("Q3","Q3",36,68,{domain:"control"})
+    ], paths:[
+      path("supply-load","L+","M","supply-load"),
+      path("input-I0","I0","M","input-resistor"),path("input-I1","I1","M","input-resistor"),path("input-I2","I2","M","input-resistor"),
+      path("output-Q0","Q0COM","Q0","switchable",{stateKey:"Q0",closedWhen:true}),path("output-Q1","Q1COM","Q1","switchable",{stateKey:"Q1",closedWhen:true}),
+      path("output-Q2","Q2COM","Q2","switchable",{stateKey:"Q2",closedWhen:true}),path("output-Q3","Q3COM","Q3","switchable",{stateKey:"Q3",closedWhen:true})
+    ] },
     ground: { terminals:[terminal("PE","PE",0,0,{domain:"ground",polarity:"protective-earth"})], paths:[] },
     threephase: { terminals:[terminal("L1","L1",24,-12,{domain:"ac3",phase:"L1"}),terminal("L2","L2",24,0,{domain:"ac3",phase:"L2"}),terminal("L3","L3",24,12,{domain:"ac3",phase:"L3"}),terminal("N","N",-24,24,{domain:"ac3"})], paths:[] },
     motor: { terminals:[terminal("U1","U1",-24,-12,{domain:"ac3",phase:"L1"}),terminal("V1","V1",-24,0,{domain:"ac3",phase:"L2"}),terminal("W1","W1",-24,12,{domain:"ac3",phase:"L3"}),terminal("U2","U2",24,-12,{domain:"ac3"}),terminal("V2","V2",24,0,{domain:"ac3"}),terminal("W2","W2",24,12,{domain:"ac3"}),terminal("PE","PE",0,24,{domain:"ground",polarity:"protective-earth"})], paths:[path("phase-U","U1","U2","motor-winding",{phase:"L1"}),path("phase-V","V1","V2","motor-winding",{phase:"L2"}),path("phase-W","W1","W2","motor-winding",{phase:"L3"})] },
