@@ -664,12 +664,20 @@
       "category": "logic",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "S",
+          "name": "Set"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "R",
+          "name": "Reset"
+        },
+        {
+          "id": "Q",
+          "name": "Q"
+        },
+        {
+          "id": "QB",
+          "name": "Q̅"
         }
       ],
       "parameters": {
@@ -687,6 +695,20 @@
         "value": {
           "type": "number",
           "default": 1
+        },
+        "inputThreshold": {
+          "type": "number",
+          "unit": "V",
+          "default": 2.5,
+          "min": 0,
+          "max": 5
+        },
+        "logicVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 5,
+          "min": 0,
+          "max": 24
         }
       },
       "ratings": {
@@ -703,15 +725,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "logic",
-        "engine": "VoltPro MNA educational",
+        "type": "logic-sequential",
+        "engine": "VoltPro stateful logic MNA",
         "editable": true
       },
       "behaviorModel": {
-        "type": "logic-node",
+        "type": "rs-latch",
         "states": [
-          "enabled",
-          "disabled"
+          "Q-low",
+          "Q-high"
         ]
       },
       "faultModes": [
@@ -720,8 +742,8 @@
         "parameter-out-of-range"
       ],
       "documentation": {
-        "summary": "Educational Logic model for RS-Latch.",
-        "usage": "Double-click to edit parameters, connect terminals and run simulation.",
+        "summary": "Stateful digital logic component with electrical Q and complementary QB outputs.",
+        "usage": "Connect logic inputs and clock/enable pins; outputs are referenced to circuit ground and state persists between simulation ticks.",
         "standards": [
           "IEC-oriented educational representation"
         ]
@@ -733,12 +755,20 @@
       "category": "logic",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "D",
+          "name": "Data"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "EN",
+          "name": "Enable"
+        },
+        {
+          "id": "Q",
+          "name": "Q"
+        },
+        {
+          "id": "QB",
+          "name": "Q̅"
         }
       ],
       "parameters": {
@@ -756,6 +786,20 @@
         "value": {
           "type": "number",
           "default": 1
+        },
+        "inputThreshold": {
+          "type": "number",
+          "unit": "V",
+          "default": 2.5,
+          "min": 0,
+          "max": 5
+        },
+        "logicVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 5,
+          "min": 0,
+          "max": 24
         }
       },
       "ratings": {
@@ -772,15 +816,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "logic",
-        "engine": "VoltPro MNA educational",
+        "type": "logic-sequential",
+        "engine": "VoltPro stateful logic MNA",
         "editable": true
       },
       "behaviorModel": {
-        "type": "logic-node",
+        "type": "d-latch",
         "states": [
-          "enabled",
-          "disabled"
+          "Q-low",
+          "Q-high"
         ]
       },
       "faultModes": [
@@ -789,8 +833,8 @@
         "parameter-out-of-range"
       ],
       "documentation": {
-        "summary": "Educational Logic model for D-Latch.",
-        "usage": "Double-click to edit parameters, connect terminals and run simulation.",
+        "summary": "Stateful digital logic component with electrical Q and complementary QB outputs.",
+        "usage": "Connect logic inputs and clock/enable pins; outputs are referenced to circuit ground and state persists between simulation ticks.",
         "standards": [
           "IEC-oriented educational representation"
         ]
@@ -802,12 +846,20 @@
       "category": "logic",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "D",
+          "name": "Data"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "CLK",
+          "name": "Clock"
+        },
+        {
+          "id": "Q",
+          "name": "Q"
+        },
+        {
+          "id": "QB",
+          "name": "Q̅"
         }
       ],
       "parameters": {
@@ -825,6 +877,20 @@
         "value": {
           "type": "number",
           "default": 1
+        },
+        "inputThreshold": {
+          "type": "number",
+          "unit": "V",
+          "default": 2.5,
+          "min": 0,
+          "max": 5
+        },
+        "logicVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 5,
+          "min": 0,
+          "max": 24
         }
       },
       "ratings": {
@@ -841,15 +907,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "logic",
-        "engine": "VoltPro MNA educational",
+        "type": "logic-sequential",
+        "engine": "VoltPro stateful logic MNA",
         "editable": true
       },
       "behaviorModel": {
-        "type": "logic-node",
+        "type": "d-flipflop",
         "states": [
-          "enabled",
-          "disabled"
+          "Q-low",
+          "Q-high"
         ]
       },
       "faultModes": [
@@ -858,8 +924,8 @@
         "parameter-out-of-range"
       ],
       "documentation": {
-        "summary": "Educational Logic model for D-FlipFlop.",
-        "usage": "Double-click to edit parameters, connect terminals and run simulation.",
+        "summary": "Stateful digital logic component with electrical Q and complementary QB outputs.",
+        "usage": "Connect logic inputs and clock/enable pins; outputs are referenced to circuit ground and state persists between simulation ticks.",
         "standards": [
           "IEC-oriented educational representation"
         ]
@@ -871,12 +937,24 @@
       "category": "logic",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "J",
+          "name": "J"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "K",
+          "name": "K"
+        },
+        {
+          "id": "CLK",
+          "name": "Clock"
+        },
+        {
+          "id": "Q",
+          "name": "Q"
+        },
+        {
+          "id": "QB",
+          "name": "Q̅"
         }
       ],
       "parameters": {
@@ -894,6 +972,20 @@
         "value": {
           "type": "number",
           "default": 1
+        },
+        "inputThreshold": {
+          "type": "number",
+          "unit": "V",
+          "default": 2.5,
+          "min": 0,
+          "max": 5
+        },
+        "logicVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 5,
+          "min": 0,
+          "max": 24
         }
       },
       "ratings": {
@@ -910,15 +1002,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "logic",
-        "engine": "VoltPro MNA educational",
+        "type": "logic-sequential",
+        "engine": "VoltPro stateful logic MNA",
         "editable": true
       },
       "behaviorModel": {
-        "type": "logic-node",
+        "type": "jk-flipflop",
         "states": [
-          "enabled",
-          "disabled"
+          "Q-low",
+          "Q-high"
         ]
       },
       "faultModes": [
@@ -927,8 +1019,8 @@
         "parameter-out-of-range"
       ],
       "documentation": {
-        "summary": "Educational Logic model for JK-FlipFlop.",
-        "usage": "Double-click to edit parameters, connect terminals and run simulation.",
+        "summary": "Stateful digital logic component with electrical Q and complementary QB outputs.",
+        "usage": "Connect logic inputs and clock/enable pins; outputs are referenced to circuit ground and state persists between simulation ticks.",
         "standards": [
           "IEC-oriented educational representation"
         ]
@@ -940,12 +1032,20 @@
       "category": "logic",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "T",
+          "name": "Toggle"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "CLK",
+          "name": "Clock"
+        },
+        {
+          "id": "Q",
+          "name": "Q"
+        },
+        {
+          "id": "QB",
+          "name": "Q̅"
         }
       ],
       "parameters": {
@@ -963,6 +1063,20 @@
         "value": {
           "type": "number",
           "default": 1
+        },
+        "inputThreshold": {
+          "type": "number",
+          "unit": "V",
+          "default": 2.5,
+          "min": 0,
+          "max": 5
+        },
+        "logicVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 5,
+          "min": 0,
+          "max": 24
         }
       },
       "ratings": {
@@ -979,15 +1093,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "logic",
-        "engine": "VoltPro MNA educational",
+        "type": "logic-sequential",
+        "engine": "VoltPro stateful logic MNA",
         "editable": true
       },
       "behaviorModel": {
-        "type": "logic-node",
+        "type": "t-flipflop",
         "states": [
-          "enabled",
-          "disabled"
+          "Q-low",
+          "Q-high"
         ]
       },
       "faultModes": [
@@ -996,8 +1110,8 @@
         "parameter-out-of-range"
       ],
       "documentation": {
-        "summary": "Educational Logic model for T-FlipFlop.",
-        "usage": "Double-click to edit parameters, connect terminals and run simulation.",
+        "summary": "Stateful digital logic component with electrical Q and complementary QB outputs.",
+        "usage": "Connect logic inputs and clock/enable pins; outputs are referenced to circuit ground and state persists between simulation ticks.",
         "standards": [
           "IEC-oriented educational representation"
         ]
