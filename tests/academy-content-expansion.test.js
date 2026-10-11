@@ -8,7 +8,7 @@ test("Academy expansion is loaded after the existing Academy script", () => {
   const html = read("index.html");
   assert.match(html, /<script src="script\.js[^"]*"><\/script>\s*<script src="academy-content-expansion\.js\?v=20261011a"><\/script>/);
   assert.match(read("service-worker.js"), /"\.\/academy-content-expansion\.js"/);
-  assert.match(read("service-worker.js"), /voltpro-v63/);
+  assert.match(read("service-worker.js"), /voltpro-v64/);
 });
 
 test("Academy expansion parses and expands existing content collections", () => {
