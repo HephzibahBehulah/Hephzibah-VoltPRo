@@ -173,10 +173,10 @@ function canvasDevice(c,d){
  if(!physicalCanvasKinds.has(key))return symbol(c);
  const sizes=key==="arduino"?{x:-143,y:-105,w:286,h:210}:key==="breadboard"?{x:-280,y:-137,w:560,h:274}:key==="resistor"?{x:-70,y:-34,w:140,h:68}:key==="motor"?{x:-70,y:-70,w:140,h:140}:{x:-56,y:-70,w:112,h:140};
  const url=visuals?.photoCatalog?.[key]?.url;
- if(!url&&(c.type==="arduino-uno-r3"||c.type==="breadboard-bb400"))return symbol(c);
+ const nativeFallback=c.type==="arduino-uno-r3"||c.type==="breadboard-bb400";
  const raw=visuals?.svg?.(c.type,d.name,c.id)||"";
  const inner=raw.replace(/^<svg\b[^>]*>/,"").replace(/<\/svg>\s*$/,"");
- const fallback='<svg class="physical-device-fallback" x="'+sizes.x+'" y="'+sizes.y+'" width="'+sizes.w+'" height="'+sizes.h+'" viewBox="0 0 128 150" preserveAspectRatio="xMidYMid meet" style="'+(url?"display:none":"")+'">'+inner+'</svg>';
+ const fallback=nativeFallback?'<g class="physical-device-fallback" style="'+(url?"display:none":"")+'">'+symbol(c)+'</g>':'<svg class="physical-device-fallback" x="'+sizes.x+'" y="'+sizes.y+'" width="'+sizes.w+'" height="'+sizes.h+'" viewBox="0 0 128 150" preserveAspectRatio="xMidYMid meet" style="'+(url?"display:none":"")+'">'+inner+'</svg>';
  const photo=url?'<image class="physical-device-photo" href="'+esc(url)+'" x="'+sizes.x+'" y="'+sizes.y+'" width="'+sizes.w+'" height="'+sizes.h+'" preserveAspectRatio="xMidYMid meet" onerror="this.style.display=&quot;none&quot;;this.nextElementSibling.style.display=&quot;inline&quot;"><title>'+esc(d.name||c.type)+' representative product photograph</title></image>':"";
  return '<g class="physical-device-face" aria-label="'+esc(d.name||c.type)+' physical device view">'+photo+fallback+'</g>';
 }
