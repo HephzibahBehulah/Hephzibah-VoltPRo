@@ -2,7 +2,7 @@ const test=require("node:test");const assert=require("node:assert/strict");const
 const T=require("../src/core/terminal-graph.js");
 const source=fs.readFileSync("engine/voltpro-engine.js","utf8");
 function engine(){const ctx={window:{VoltProTerminalGraph:T},console,Date};vm.createContext(ctx);vm.runInContext(source,ctx);return ctx.window.VoltProEngine}
-function engineWithCanonicalNetResolver(){const window={VoltProTerminalGraph:T,defs:{battery:{pins:2},resistor:{pins:2},"breadboard-bb400":{pins:400}}};const ctx={window,console,Date,structuredClone,Map,Set,Array,String,Number,Boolean,Object,JSON,Math,Error};vm.createContext(ctx);vm.runInContext(fs.readFileSync("src/core/net-resolver.js","utf8"),ctx);vm.runInContext(fs.readFileSync("platform/v5-runtime.js","utf8"),ctx);vm.runInContext(source,ctx);return {engine:window.VoltProEngine,window}}
+function engineWithCanonicalNetResolver(){const window={VoltProTerminalGraph:T,defs:{battery:{pins:2},resistor:{pins:2},"breadboard-bb400":{pins:400}}};const ctx={window,console,Date,structuredClone,Map,Set,Array,String,Number,Boolean,Object,JSON,Math,Error};vm.createContext(ctx);vm.runInContext(fs.readFileSync("src/core/net-resolver.js","utf8"),ctx);vm.runInContext(fs.readFileSync("src/simulation/faults.js","utf8"),ctx);vm.runInContext(fs.readFileSync("platform/fault-engine.js","utf8"),ctx);vm.runInContext(fs.readFileSync("platform/v5-runtime.js","utf8"),ctx);vm.runInContext(source,ctx);return {engine:window.VoltProEngine,window}}
 function circuit(r=1000){return {components:[{id:"v1",type:"battery",props:{voltage:12},pins:["v1:0","v1:1"]},{id:"r1",type:"resistor",props:{resistance:r},pins:["r1:0","r1:1"]}],wires:[{a:"v1:0",b:"r1:0"},{a:"r1:1",b:"v1:1"}]}}
 test("MNA DC solves a 12V/1kΩ circuit",()=>{const a=engine().dc(circuit());assert.equal(a.ok,true);assert.ok(Math.abs(a.totalCurrent-0.012)<1e-9);assert.ok(Math.abs(a.totalPower-0.144)<1e-6)});
 test("MNA supports RLC analysis contracts",()=>{const e=engine(),p={components:[{id:"v",type:"battery",pins:["v:0","v:1"],props:{voltage:12}},{id:"r",type:"resistor",pins:["r:0","r:1"],props:{resistance:1000}},{id:"c",type:"capacitor",pins:["c:0","c:1"],props:{capacitance:1e-6}},{id:"l",type:"inductor",pins:["l:0","l:1"],props:{inductance:1e-3}}],wires:[{a:"v:0",b:"r:0"},{a:"r:1",b:"c:0"},{a:"c:1",b:"l:0"},{a:"l:1",b:"v:1"}]};assert.equal(e.transient(p,{duration:.01,steps:10}).ok,true);assert.equal(e.ac(p,{start:10,stop:1000,points:5}).ok,true)});
@@ -39,4 +39,27 @@ test("MNA sees BB400 passive strip continuity through canonical net IDs",()=>{
  const result=loaded.engine.dc(project);
  assert.equal(result.ok,true,result.error);
  assert.ok(Math.abs(result.totalCurrent-0.012)<1e-9);
+});
+
+
+test("short-circuit fault changes the target resistance before MNA analysis",()=>{
+ const loaded=engineWithCanonicalNetResolver(),p=circuit();
+ p.wires[0].id="W1";p.wires[1].id="W2";
+ p.faults=[{id:"F_SHORT",type:"short-circuit",target:"r1",parameters:{resistance:0.01},active:true}];
+ const faulted=loaded.window.VoltProFaults.applyToProject(p);
+ assert.deepEqual(Array.from(faulted.faultDiagnostics.applied),["F_SHORT"]);
+ const result=loaded.engine.dc(faulted);
+ assert.equal(result.ok,true,result.error);
+ assert.ok(result.totalCurrent>100,"short circuit should raise current far above the 12 mA baseline");
+});
+
+test("open-wire fault removes the targeted wire from the MNA topology",()=>{
+ const loaded=engineWithCanonicalNetResolver(),p=circuit();
+ p.wires[0].id="W1";p.wires[1].id="W2";
+ p.faults=[{id:"F_OPEN",type:"open-wire",target:"W1",active:true}];
+ const faulted=loaded.window.VoltProFaults.applyToProject(p);
+ assert.equal(faulted.wires.some(w=>w.id==="W1"),false);
+ assert.deepEqual(Array.from(faulted.faultDiagnostics.applied),["F_OPEN"]);
+ const result=loaded.engine.dc(faulted);
+ assert.ok(!result.ok||Math.abs(result.totalCurrent)<1e-9,"open wire must not preserve the baseline current");
 });
