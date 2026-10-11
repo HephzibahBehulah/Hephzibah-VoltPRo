@@ -1035,7 +1035,7 @@
           "type": "number",
           "unit": "V",
           "default": 230,
-          "min": 0,
+          "min": 1,
           "max": 1000
         },
         "resistance": {
@@ -1044,6 +1044,13 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "ratedPower": {
+          "type": "number",
+          "unit": "W",
+          "default": 18,
+          "min": 0.1,
+          "max": 1000000
         }
       },
       "ratings": {
@@ -1060,12 +1067,12 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "load",
+        "engine": "VoltPRo MNA rated resistive equivalent",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "two-terminal-rated-load",
         "states": [
           "enabled",
           "disabled"
@@ -1107,7 +1114,7 @@
           "type": "number",
           "unit": "V",
           "default": 230,
-          "min": 0,
+          "min": 1,
           "max": 1000
         },
         "resistance": {
@@ -1116,6 +1123,13 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "ratedPower": {
+          "type": "number",
+          "unit": "W",
+          "default": 36,
+          "min": 0.1,
+          "max": 1000000
         }
       },
       "ratings": {
@@ -1132,12 +1146,12 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "load",
+        "engine": "VoltPRo MNA rated resistive equivalent",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "two-terminal-rated-load",
         "states": [
           "enabled",
           "disabled"
@@ -1179,7 +1193,7 @@
           "type": "number",
           "unit": "V",
           "default": 230,
-          "min": 0,
+          "min": 1,
           "max": 1000
         },
         "resistance": {
@@ -1188,6 +1202,13 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "ratedPower": {
+          "type": "number",
+          "unit": "W",
+          "default": 58,
+          "min": 0.1,
+          "max": 1000000
         }
       },
       "ratings": {
@@ -1204,12 +1225,12 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "load",
+        "engine": "VoltPRo MNA rated resistive equivalent",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "two-terminal-rated-load",
         "states": [
           "enabled",
           "disabled"
