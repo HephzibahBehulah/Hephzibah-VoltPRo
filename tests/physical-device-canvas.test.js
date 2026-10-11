@@ -11,6 +11,7 @@ const worker = fs.readFileSync(path.join(__dirname, "../service-worker.js"), "ut
 test("physical devices render as large canvas faces rather than photos over schematic blocks", () => {
   assert.match(source, /const physicalCanvasKinds=new Set/);
   assert.match(source, /function canvasDevice\(c,d\)/);
+  assert.match(source, /function physicalTerminalPoint\(c,i,n\)/);
   assert.match(source, /canvasDevice\(c,d\)/);
   assert.doesNotMatch(source, /symbol\(c\)\+canvasPhoto\(c,d\)/);
   assert.match(source, /physical-device-photo/);
