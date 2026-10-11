@@ -41,22 +41,18 @@ test("simulator exposes one in-page dropdown system without duplicated controls"
   const html = read("simulator.html");
   const js = read("simulator.js");
   const ui = read("platform/ui.js");
-  assert.match(html, /data-vp-menu="demos"/);
-  assert.match(html, /data-vp-menu="faults"/);
-  assert.match(html, /data-vp-menu="challenges"/);
-  assert.match(html, /data-vp-menu="tutorials"/);
-  assert.match(html, /data-vp-menu="mcu"/);
-  assert.doesNotMatch(html, /href="academy-workbench\\.html/);
-  assert.match(js, /voltpro-library-import/);
-  assert.match(js, /libraryImport/);
-  assert.match(js, /loadProject\\(pending\\)/);
+  for (const menu of ["demos","faults","challenges","tutorials","mcu"]) assert.ok(html.includes('data-vp-menu="' + menu + '"'));
+  assert.ok(!html.includes('href="academy-workbench.html'));
+  assert.ok(js.includes("voltpro-library-import"));
+  assert.ok(js.includes("libraryImport"));
+  assert.ok(js.includes("loadProject(pending)"));
   assert.equal((html.match(/class="sim-top"/g) || []).length, 1);
   assert.equal((html.match(/class="toolbar"/g) || []).length, 1);
-  const ids = [...html.matchAll(/\\bid="([^"]+)"/g)].map(m => m[1]);
+  const ids = Array.from(html.matchAll(new RegExp('id="([^"]+)"', "g")), m => m[1]);
   assert.equal(ids.length, new Set(ids).size, "HTML IDs must be unique");
-  assert.doesNotMatch(ui, /bar\\.appendChild\\(b\\)/);
-  assert.match(ui, /window\\.VoltProPlatformActions=actions/);
-  assert.match(html, /service-worker\\.js\\?v=20261012a/);
+  assert.ok(!ui.includes("bar.appendChild(b)"));
+  assert.ok(ui.includes("window.VoltProPlatformActions=actions"));
+  assert.ok(html.includes("service-worker.js?v=20261012a"));
 });
 
 test("colour console accepts standard HEX lengths but not five-digit HEX", () => {
