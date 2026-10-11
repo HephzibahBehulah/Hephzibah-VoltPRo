@@ -5,10 +5,34 @@ const vm=require("node:vm");
 const T=require("../src/core/terminal-graph.js");
 const Ladder=require("../platform/ladder-engine.js");
 const MCU=require("../platform/mcu-engine.js");
-function loadEngine(){const window={VoltProTerminalGraph:T,VoltProLadder:Ladder,VoltProMCU:MCU};vm.runInNewContext(fs.readFileSync("engine/voltpro-engine.js","utf8"),{window,Map,Set,Array,String,Number,Math,Boolean,Object,JSON,Error});return window.VoltProEngine}
+function loadEngine(registry){const window={VoltProTerminalGraph:T,VoltProLadder:Ladder,VoltProMCU:MCU};if(registry)window.VoltProRegistry=registry;vm.runInNewContext(fs.readFileSync("engine/voltpro-engine.js","utf8"),{window,Map,Set,Array,String,Number,Math,Boolean,Object,JSON,Error});return window.VoltProEngine}
 const E=loadEngine();
 function comp(id,type,pins,props={}){return {id,type,pins:Array.from({length:pins},(_,i)=>id+":"+i),props}}
 function wire(a,b){return {a,b}}
+
+test("catalog motor IDs resolve to a working two-terminal electrical equivalent",()=>{
+ const p={components:[
+  comp("V1","battery",2,{voltage:12}),
+  comp("M1","motors-motor-dc-12v",2,{ratedVoltage:12,resistance:6})
+ ],wires:[wire("V1:0","M1:0"),wire("M1:1","V1:1")]};
+ const result=E.analyze(p).dc;
+ assert.equal(result.ok,true,JSON.stringify(result));
+ const motor=result.branches.find(b=>b.id==="M1");
+ assert.ok(motor,"catalog motor must appear in the solved branch list");
+ assert.ok(Math.abs(motor.current-2)<1e-6,"12 V / 6 Ω motor equivalent should draw approximately 2 A");
+});
+test("registry electricalModel metadata can activate a motor model for a custom catalog ID",()=>{
+ const registry={get:id=>id==="custom-motor-test"?{electricalModel:{type:"motor"}}:null};
+ const Engine=loadEngine(registry);
+ const p={components:[
+  comp("V1","battery",2,{voltage:24}),
+  comp("M1","custom-motor-test",2,{resistance:12})
+ ],wires:[wire("V1:0","M1:0"),wire("M1:1","V1:1")]};
+ const result=Engine.dc(p);
+ assert.equal(result.ok,true,JSON.stringify(result));
+ assert.ok(Math.abs(result.branches.find(b=>b.id==="M1").current-2)<1e-6);
+});
+
 test("BB400 joins each five-hole strip and power rail in the MNA topology",()=>{const p={components:[comp("V1","battery",2,{voltage:5}),comp("R1","resistor",2,{resistance:100}),comp("BB1","breadboard-bb400",400)],wires:[wire("V1:0","BB1:0"),wire("R1:0","BB1:30"),wire("R1:1","BB1:150"),wire("V1:1","BB1:150")]};const result=E.analyze(p).dc;assert.equal(result.ok,true,JSON.stringify(result));assert.ok(result.totalCurrent>0.04&&result.totalCurrent<0.06,"expected about 50 mA through 100 Ω at 5 V")});
 test("one-pole breaker opens and closes its actual line/load path",()=>{const base={components:[comp("V1","battery",2,{voltage:12}),comp("Q1","circuit-breaker-1p",2,{rating:16,closed:1}),comp("R1","resistor",2,{resistance:100})],wires:[wire("V1:0","Q1:0"),wire("Q1:1","R1:0"),wire("R1:1","V1:1")]};const closed=E.analyze(base).dc;assert.equal(closed.ok,true,JSON.stringify(closed));assert.ok(closed.totalCurrent>0.1);const opened=E.analyze({...base,components:base.components.map(c=>c.id==="Q1"?{...c,props:{...c.props,closed:0}}:c)}).dc;assert.equal(opened.ok,true,JSON.stringify(opened));assert.ok(Math.abs(opened.totalCurrent)<1e-9)});
 
