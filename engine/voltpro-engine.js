@@ -54,7 +54,7 @@ function build(project,options={}){
  const refs=(project.wires||[]).flatMap(w=>[w.a,w.b]).filter(Boolean);
  refs.forEach(nodeFor);
  const wired=new Set(refs);
- const branches=[], voltageSources=[], currentSources=[];
+ const branches=[], voltageSources=[], currentSources=[], transformers=[];
  const addBranch=(comp,a,b,kind,extra={})=>branches.push({comp,a:nodeFor(a),b:nodeFor(b),kind,...extra});
  for(const x of comps){
   const p=pinsOf(x),ty=typeOf(x),definition=window.VoltProTerminalGraph?.definitionFor?.(x.type);
@@ -72,6 +72,15 @@ function build(project,options={}){
     const stateValue=contact.stateKey==="energized"?energized:(x.state?.[contact.stateKey]??x.props?.[contact.stateKey]);
     const closed=typeof contact.closedWhen==="string"?String(stateValue??"off")===contact.closedWhen:(stateValue===undefined?contact.closedWhen!==false:Boolean(stateValue)===Boolean(contact.closedWhen??true));
     addBranch(x,a,b,"resistor",{R:closed?Math.max(EPS,value(x,["onResistance"],1e-6)):Math.max(EPS,value(x,["offResistance"],3e10)),contactId:contact.id});
+   }
+   continue;
+  }
+  if(ty==="transformer"){
+   const index=new Map((definition?.terminals||[]).map((terminal,i)=>[String(terminal.id),p[i]]));
+   const p1=index.get("P1"),p2=index.get("P2"),s1=index.get("S1"),s2=index.get("S2");
+   if([p1,p2,s1,s2].every(pin=>pin&&wired.has(pin))){
+    const primary=Math.max(EPS,value(x,["primaryVoltage"],230)),secondary=Math.max(EPS,value(x,["secondaryVoltage"],24));
+    transformers.push({comp:x,p1:nodeFor(p1),p2:nodeFor(p2),s1:nodeFor(s1),s2:nodeFor(s2),ratio:Math.max(EPS,value(x,["turnsRatio","ratio"],primary/secondary))});
    }
    continue;
   }
@@ -152,7 +161,7 @@ function build(project,options={}){
   else if(["vcvs","dependent_voltage_source"].includes(ty))voltageSources.push({comp:x,a:nodeFor(a),b:nodeFor(b),kind:"vcvs",gain:value(x,["gain"],1),cp:nodeFor(p[2]||a),cm:nodeFor(p[3]||b)});
   else if(["vccs","dependent_current_source"].includes(ty))addBranch(x,a,b,"vccs",{gm:value(x,["transconductance","gm"],1e-3),cp:nodeFor(p[2]||a),cm:nodeFor(p[3]||b)});
  }
- return {t,comps,nodeFor,nodeKeys,ground,branches,voltageSources,currentSources,wired,N:nodeKeys.length};
+ return {t,comps,nodeFor,nodeKeys,ground,branches,voltageSources,currentSources,transformers,wired,N:nodeKeys.length};
 }
 function stampG(A,a,b,g){
  if(a>0)A[a-1][a-1]=add(A[a-1][a-1],g);
@@ -160,9 +169,9 @@ function stampG(A,a,b,g){
  if(a>0&&b>0){A[a-1][b-1]=sub(A[a-1][b-1],g);A[b-1][a-1]=sub(A[b-1][a-1],g)}
 }
 function stampI(z,a,b,i){if(a>0)z[a-1]=sub(z[a-1],i);if(b>0)z[b-1]=add(z[b-1],i)}
-function stampV(A,z,a,b,k,v){const j=A.length-1-k;if(a>0){A[a-1][j]=add(A[a-1][j],C(1));A[j][a-1]=add(A[j][a-1],C(1))}if(b>0){A[b-1][j]=sub(A[b-1][j],C(1));A[j][b-1]=sub(A[j][b-1],C(1))}z[j]=add(z[j],v)}
+function stampV(A,z,a,b,j,v){if(a>0){A[a-1][j]=add(A[a-1][j],C(1));A[j][a-1]=add(A[j][a-1],C(1))}if(b>0){A[b-1][j]=sub(A[b-1][j],C(1));A[j][b-1]=sub(A[j][b-1],C(1))}z[j]=add(z[j],v)}
 function linearSolve(b,options,history={}){
- const n=b.N, vs=b.voltageSources.length, size=n+vs, A=Array.from({length:size},()=>Array.from({length:size},()=>C())),z=Array.from({length:size},()=>C());
+ const n=b.N, vs=b.voltageSources.length, ts=b.transformers?.length||0, size=n+vs+2*ts, A=Array.from({length:size},()=>Array.from({length:size},()=>C())),z=Array.from({length:size},()=>C());
  const xPrev=options.xPrev||Array.from({length:n},()=>C());
  const v=node=>node===0?C():xPrev[node-1]||C();
  for(const q of b.branches){
@@ -180,7 +189,25 @@ function linearSolve(b,options,history={}){
   let vv=C(q.value);
   if(q.kind==="voltage"&&options.ac&&(q.phasor||["ac_source","acsource"].includes(typeOf(q.comp)))){const ph=(q.phase||0)*Math.PI/180;vv=C(q.value*Math.cos(ph),q.value*Math.sin(ph))}
   if(q.kind==="vcvs")vv=mul(C(q.gain),sub(v(q.cp),v(q.cm)));
-  stampV(A,z,q.a,q.b,vs-1-k,vv);
+  stampV(A,z,q.a,q.b,n+k,vv);
+ });
+ // Ideal transformer: Vp = ratio*Vs and Ip = -Is/ratio. Two MNA
+ // current unknowns preserve galvanic isolation between primary and secondary.
+ (b.transformers||[]).forEach((q,i)=>{
+  const ip=n+vs+2*i,is=ip+1;
+  if(q.p1>0)A[q.p1-1][ip]=add(A[q.p1-1][ip],C(1));
+  if(q.p2>0)A[q.p2-1][ip]=sub(A[q.p2-1][ip],C(1));
+  if(q.s1>0)A[q.s1-1][is]=add(A[q.s1-1][is],C(1));
+  if(q.s2>0)A[q.s2-1][is]=sub(A[q.s2-1][is],C(1));
+  if(q.p1>0)A[ip][q.p1-1]=add(A[ip][q.p1-1],C(1));
+  if(q.p2>0)A[ip][q.p2-1]=sub(A[ip][q.p2-1],C(1));
+  if(q.s1>0)A[ip][q.s1-1]=sub(A[ip][q.s1-1],C(q.ratio));
+  if(q.s2>0)A[ip][q.s2-1]=add(A[ip][q.s2-1],C(q.ratio));
+  A[is][ip]=add(A[is][ip],C(1));
+  A[is][is]=add(A[is][is],C(1/q.ratio));
+  // The isolated secondary has arbitrary common-mode voltage. This 1 GΩ
+  // solver reference stabilizes the matrix and is negligible beside loads.
+  if(q.s2>0)stampG(A,q.s2,0,C(1e-9));
  });
  let x;try{x=solve(A,z)}catch(e){return {ok:false,error:e.message}};
  return {ok:true,x,nodeCount:n,sourceCount:vs};
