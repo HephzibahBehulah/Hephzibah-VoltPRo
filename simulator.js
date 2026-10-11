@@ -40,7 +40,7 @@ const defs={
  logic_or:{cat:"Logic",name:"OR Gate",symbol:"OR",pins:3,props:{}},
  logic_not:{cat:"Logic",name:"NOT Gate",symbol:"NOT",pins:2,props:{}},
  arduino:{cat:"Microcontroller",name:"Arduino UNO (legacy)",symbol:"UNO",pins:8,props:{code:"blink"}},
- "arduino-uno-r3":{cat:"Microcontroller",name:"Arduino Uno R3",symbol:"UNO R3",pins:38,props:{code:"blink",logicVoltage:5}},
+ "arduino-uno-r3":{cat:"Microcontroller",name:"Arduino Uno R3",symbol:"UNO R3",pins:38,props:{code:"blink",logicVoltage:5,sketch:"void setup() { pinMode(13, OUTPUT); digitalWrite(13, HIGH); }"}},
  "breadboard-bb400":{cat:"Prototyping",name:"BB400 Solderless Breadboard",symbol:"BB400",pins:400,props:{rows:10,columns:30,railHoles:100}},
  gpio:{cat:"Microcontroller",name:"GPIO Pin",symbol:"GPIO",pins:1,props:{state:0}},
  sensor:{cat:"Microcontroller",name:"Virtual Sensor",symbol:"S",pins:1,props:{value:50}},
