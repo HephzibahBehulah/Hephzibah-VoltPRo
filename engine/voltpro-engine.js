@@ -91,12 +91,13 @@ function build(project,options={}){
    const energized=options.stateOverrides?.[x.id]??x.state?.energized??x.props?.energized??false;
    for(const contact of definition?.paths||[]){const a=index.get(String(contact.from)),b=index.get(String(contact.to));if(!a||!b||!wired.has(a)||!wired.has(b))continue;
     if(contact.kind==="coil"){
-     addBranch(x,a,b,"resistor",{R:Math.max(EPS,value(x,["coilResistance"],ty==="contactor"?82:240)),contactId:contact.id,coil:true});
+     addBranch(x,a,b,"resistor",{R:x.state?.coilFailed?1e12:Math.max(EPS,value(x,["coilResistance"],ty==="contactor"?82:240)),contactId:contact.id,coil:true});
      continue;
     }
     if(contact.kind!=="switchable")continue;
     const stateValue=contact.stateKey==="energized"?energized:(x.state?.[contact.stateKey]??x.props?.[contact.stateKey]);
-    const closed=typeof contact.closedWhen==="string"?String(stateValue??"off")===contact.closedWhen:(stateValue===undefined?contact.closedWhen!==false:Boolean(stateValue)===Boolean(contact.closedWhen??true));
+    let closed=typeof contact.closedWhen==="string"?String(stateValue??"off")===contact.closedWhen:(stateValue===undefined?contact.closedWhen!==false:Boolean(stateValue)===Boolean(contact.closedWhen??true));
+    if(x.state?.forcedOpen)closed=false;else if(x.state?.forcedClosed)closed=true;
     addBranch(x,a,b,"resistor",{R:closed?Math.max(EPS,value(x,["onResistance"],1e-6)):Math.max(EPS,value(x,["offResistance"],3e10)),contactId:contact.id});
    }
    continue;
@@ -119,8 +120,8 @@ function build(project,options={}){
   if(ty==="threephase"){
    const neutral=p[3]||ground,lineVoltage=Math.max(EPS,catalogSourceVoltage(x,400)),phaseVoltage=lineVoltage/Math.sqrt(3);
    const reverse=String(x.props?.sequence??x.state?.sequence??"ABC").toUpperCase()==="ACB";
-   const angles=reverse?[0,120,-120]:[0,-120,120];
-   for(let i=0;i<3;i++)if(p[i])voltageSources.push({comp:x,a:nodeFor(p[i]),b:nodeFor(neutral),kind:"voltage",value:phaseVoltage,phase:angles[i],phasor:true,phaseName:["L1","L2","L3"][i]});
+   const angles=reverse?[0,120,-120]:[0,-120,120],lost=String(x.state?.lostPhase??x.props?.lostPhase??"").toUpperCase(),lostIndex=({A:0,B:1,C:2,L1:0,L2:1,L3:2})[lost];
+   for(let i=0;i<3;i++)if(p[i]&&i!==lostIndex)voltageSources.push({comp:x,a:nodeFor(p[i]),b:nodeFor(neutral),kind:"voltage",value:phaseVoltage,phase:angles[i],phasor:true,phaseName:["L1","L2","L3"][i]});
    continue;
   }
   if(["logic_mux","logic_demux","logic_encoder","logic_decoder","logic_adder","logic_subtractor"].includes(ty)){const index=new Map((definition?.terminals||[]).map((t,i)=>[String(t.id),p[i]])),state=options.stateOverrides?.[x.id]||x.state||{},outputs=state.outputs||{},ids=ty==="logic_mux"?["Y"]:ty==="logic_demux"?["Y0","Y1"]:ty==="logic_encoder"?["Y0","Y1"]:ty==="logic_decoder"?["Y0","Y1","Y2","Y3"]:ty==="logic_adder"?["Sum","Cout"]:["Diff","Borrow"];for(const id of ids){const pin=index.get(id);if(pin&&wired.has(pin))voltageSources.push({comp:x,a:nodeFor(pin),b:0,kind:"voltage",value:Number(outputs[id]??0),phase:0,pinName:id})}continue;}
@@ -177,7 +178,8 @@ function build(project,options={}){
    const index=new Map((definition?.terminals||[]).map((t,i)=>[String(t.id),p[i]]));
    for(const contact of definition?.paths||[]){if(contact.kind!=="switchable")continue;const a=index.get(String(contact.from)),b=index.get(String(contact.to));if(!a||!b||!wired.has(a)||!wired.has(b))continue;
     const stateValue=x.state?.[contact.stateKey]??x.props?.[contact.stateKey]??(contact.stateKey==="closed"?x.props?.closed:undefined);
-    const closed=typeof contact.closedWhen==="string"?String(stateValue??"off")===contact.closedWhen:(stateValue===undefined?contact.closedWhen!==false:Boolean(stateValue)===Boolean(contact.closedWhen??true));
+    let closed=typeof contact.closedWhen==="string"?String(stateValue??"off")===contact.closedWhen:(stateValue===undefined?contact.closedWhen!==false:Boolean(stateValue)===Boolean(contact.closedWhen??true));
+    if(x.state?.forcedOpen)closed=false;else if(x.state?.forcedClosed)closed=true;
     const tripped=x.state?.tripped===true;
     addBranch(x,a,b,"resistor",{R:closed&&!tripped?Math.max(EPS,value(x,["onResistance"],1e-6)):Math.max(EPS,value(x,["offResistance"],3e10)),contactId:contact.id});
    }
@@ -194,6 +196,7 @@ function build(project,options={}){
    let closed=raw===undefined?true:!(raw===false||raw===0||raw==="0"||String(raw).toLowerCase()==="open"||String(raw).toLowerCase()==="false");
    if(["pushbutton_no","pedal_no"].includes(ty))closed=pressed;
    else if(["pushbutton_nc","pedal_nc","emergency_stop"].includes(ty))closed=!pressed;
+   if(x.state?.forcedOpen)closed=false;else if(x.state?.forcedClosed)closed=true;
    const tripped=Boolean(options.stateOverrides?.[x.id]?.tripped??x.state?.tripped??x.props?.tripped??false);
    addBranch(x,a,b,"resistor",{R:closed&&!tripped?Math.max(EPS,value(x,["onResistance"],1e-6)):Math.max(EPS,value(x,["offResistance"],3e10))});
   } else if(["capacitor","c"].includes(ty))addBranch(x,a,b,"capacitor",{C:Math.max(EPS,catalogPassiveValue(x,"capacitance"))});
