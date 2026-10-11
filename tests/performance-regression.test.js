@@ -96,10 +96,11 @@ test("toolbar SVG export, library collapse, and grid spacing are wired", () => {
   assert.ok(source.includes('pat.setAttribute("width",S.grid)'));
 });
 
-test("PLC input switches calculate output state instead of only appending toggle logs", () => {
+test("PLC input switches execute ladder scans and calculate output state", () => {
   const source = fs.readFileSync(path.join(root, "platform/workbench.js"), "utf8");
-  assert.ok(source.includes("io.q0=io.i0&&!io.i1&&!io.i2"));
-  assert.ok(source.includes('io.q1=io.q0'));
+  assert.ok(source.includes("window.VoltProLadder?.scan"));
+  assert.ok(source.includes("io.q0=Boolean(result.outputs.Q0)"));
+  assert.ok(source.includes("io.q1=Boolean(result.outputs.Q1)"));
   assert.ok(source.includes('else if(b.dataset.mode==="plc")plc()'));
 });
 
