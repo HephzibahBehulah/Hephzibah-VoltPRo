@@ -28,6 +28,8 @@ function topology(project){
  const union=(a,b)=>{const x=find(a),y=find(b);if(x!==y)parent.set(x,y)};
  (project.components||[]).forEach(x=>pinsOf(x).forEach(p=>find(p)));
  (project.wires||[]).forEach(w=>{if(w.a&&w.b)union(w.a,w.b)});
+ // Passive internal paths are real electrical connections: breadboard strips, rails and board pin aliases.
+ (project.components||[]).forEach(x=>{const def=window.VoltProTerminalGraph?.definitionFor?.(x.type);if(!def?.terminals?.length)return;const pins=pinsOf(x),index=new Map(def.terminals.map((t,i)=>[String(t.id),pins[i]]));for(const p of def.paths||[]){if(p.kind!=="passive")continue;const a=index.get(String(p.from)),b=index.get(String(p.to));if(a&&b)union(a,b)}});
  return {find};
 }
 function build(project,options={}){
@@ -37,12 +39,24 @@ function build(project,options={}){
  if(!comps.some(x=>pinsOf(x).includes(explicit)) && source)ground=pinsOf(source)[1];
  const nodeKeys=[], nodeMap=new Map();
  const nodeFor=r=>{const q=t.find(r);if(t.find(ground)===q)return 0;if(!nodeMap.has(q)){nodeMap.set(q,nodeKeys.length+1);nodeKeys.push(q)}return nodeMap.get(q)};
- const refs=(project.components||[]).flatMap(pinsOf);
+ const refs=(project.wires||[]).flatMap(w=>[w.a,w.b]).filter(Boolean);
  refs.forEach(nodeFor);
+ const wired=new Set(refs);
  const branches=[], voltageSources=[];
  const addBranch=(comp,a,b,kind,extra={})=>branches.push({comp,a:nodeFor(a),b:nodeFor(b),kind,...extra});
  for(const x of comps){
-  const p=pinsOf(x),ty=typeOf(x);if(p.length<2)continue;
+  const p=pinsOf(x),ty=typeOf(x),definition=window.VoltProTerminalGraph?.definitionFor?.(x.type);
+  if(/^circuit-breaker-[1234]p$/.test(String(x.type))||x.type==="auxiliary-contact-block"){
+   const index=new Map((definition?.terminals||[]).map((t,i)=>[String(t.id),p[i]]));
+   for(const contact of definition?.paths||[]){if(contact.kind!=="switchable")continue;const a=index.get(String(contact.from)),b=index.get(String(contact.to));if(!a||!b||!wired.has(a)||!wired.has(b))continue;
+    const stateValue=x.state?.[contact.stateKey]??x.props?.[contact.stateKey]??(contact.stateKey==="closed"?x.props?.closed:undefined);
+    const closed=stateValue===undefined?contact.closedWhen!==false:Boolean(stateValue)===Boolean(contact.closedWhen??true);
+    const tripped=x.state?.tripped===true;
+    addBranch(x,a,b,closed&&!tripped?"resistor":"open",{R:Math.max(EPS,value(x,["onResistance"],1e-6)),contactId:contact.id});
+   }
+   continue;
+  }
+  if(p.length<2)continue;
   const a=p[0],b=p[1];
   if(["resistor","lamp","heater","buzzer"].includes(ty))addBranch(x,a,b,"resistor",{R:Math.max(EPS,value(x,["resistance","resistance_ohm","value"],1000))});
   else if(ty==="switch"||["fuse","breaker","mcb","mccb","rcd","rcbo","relay","contactor","emergency_stop"].includes(ty)){
