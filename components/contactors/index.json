@@ -2116,12 +2116,20 @@
       "category": "contactors",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "A1",
+          "name": "Coil A1"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "A2",
+          "name": "Coil A2"
+        },
+        {
+          "id": "13",
+          "name": "NO common 13"
+        },
+        {
+          "id": "14",
+          "name": "NO normally open 14"
         }
       ],
       "parameters": {
@@ -2142,6 +2150,38 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "coilVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 230,
+          "min": 1,
+          "max": 1000
+        },
+        "coilResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 82,
+          "min": 1,
+          "max": 100000
+        },
+        "energized": {
+          "type": "boolean",
+          "default": false
+        },
+        "onResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 0.000001,
+          "min": 0.000001,
+          "max": 1
+        },
+        "offResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 30000000000,
+          "min": 1,
+          "max": 1000000000000
         }
       },
       "ratings": {
@@ -2158,15 +2198,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "contactor",
+        "engine": "VoltPRo MNA auxiliary contactor",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "contactor",
         "states": [
-          "enabled",
-          "disabled"
+          "deenergized",
+          "energized"
         ]
       },
       "faultModes": [
@@ -2188,12 +2228,28 @@
       "category": "contactors",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "A1",
+          "name": "Coil A1"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "A2",
+          "name": "Coil A2"
+        },
+        {
+          "id": "13",
+          "name": "NO common 13"
+        },
+        {
+          "id": "14",
+          "name": "NO normally open 14"
+        },
+        {
+          "id": "23",
+          "name": "NO common 23"
+        },
+        {
+          "id": "24",
+          "name": "NO normally open 24"
         }
       ],
       "parameters": {
@@ -2214,6 +2270,38 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "coilVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 230,
+          "min": 1,
+          "max": 1000
+        },
+        "coilResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 82,
+          "min": 1,
+          "max": 100000
+        },
+        "energized": {
+          "type": "boolean",
+          "default": false
+        },
+        "onResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 0.000001,
+          "min": 0.000001,
+          "max": 1
+        },
+        "offResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 30000000000,
+          "min": 1,
+          "max": 1000000000000
         }
       },
       "ratings": {
@@ -2230,15 +2318,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "contactor",
+        "engine": "VoltPRo MNA auxiliary contactor",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "contactor",
         "states": [
-          "enabled",
-          "disabled"
+          "deenergized",
+          "energized"
         ]
       },
       "faultModes": [
@@ -2404,12 +2492,20 @@
       "category": "contactors",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "A1",
+          "name": "Coil A1"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "A2",
+          "name": "Coil A2"
+        },
+        {
+          "id": "21",
+          "name": "NC common 21"
+        },
+        {
+          "id": "22",
+          "name": "NC normally closed 22"
         }
       ],
       "parameters": {
@@ -2430,6 +2526,38 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "coilVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 230,
+          "min": 1,
+          "max": 1000
+        },
+        "coilResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 82,
+          "min": 1,
+          "max": 100000
+        },
+        "energized": {
+          "type": "boolean",
+          "default": false
+        },
+        "onResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 0.000001,
+          "min": 0.000001,
+          "max": 1
+        },
+        "offResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 30000000000,
+          "min": 1,
+          "max": 1000000000000
         }
       },
       "ratings": {
@@ -2446,15 +2574,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "contactor",
+        "engine": "VoltPRo MNA auxiliary contactor",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "contactor",
         "states": [
-          "enabled",
-          "disabled"
+          "deenergized",
+          "energized"
         ]
       },
       "faultModes": [
@@ -2476,12 +2604,28 @@
       "category": "contactors",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "A1",
+          "name": "Coil A1"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "A2",
+          "name": "Coil A2"
+        },
+        {
+          "id": "21",
+          "name": "NC common 21"
+        },
+        {
+          "id": "22",
+          "name": "NC normally closed 22"
+        },
+        {
+          "id": "31",
+          "name": "NC common 31"
+        },
+        {
+          "id": "32",
+          "name": "NC normally closed 32"
         }
       ],
       "parameters": {
@@ -2502,6 +2646,38 @@
           "default": 100,
           "min": 0.001,
           "max": 10000000
+        },
+        "coilVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 230,
+          "min": 1,
+          "max": 1000
+        },
+        "coilResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 82,
+          "min": 1,
+          "max": 100000
+        },
+        "energized": {
+          "type": "boolean",
+          "default": false
+        },
+        "onResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 0.000001,
+          "min": 0.000001,
+          "max": 1
+        },
+        "offResistance": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 30000000000,
+          "min": 1,
+          "max": 1000000000000
         }
       },
       "ratings": {
@@ -2518,15 +2694,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "contactor",
+        "engine": "VoltPRo MNA auxiliary contactor",
         "editable": true
       },
       "behaviorModel": {
-        "type": "two-terminal",
+        "type": "contactor",
         "states": [
-          "enabled",
-          "disabled"
+          "deenergized",
+          "energized"
         ]
       },
       "faultModes": [
