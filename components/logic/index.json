@@ -2277,12 +2277,32 @@
       "category": "logic",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "SER",
+          "name": "Serial In"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "CLK",
+          "name": "Clock"
+        },
+        {
+          "id": "EN",
+          "name": "Enable"
+        },
+        {
+          "id": "Q0",
+          "name": "Q0"
+        },
+        {
+          "id": "Q1",
+          "name": "Q1"
+        },
+        {
+          "id": "Q2",
+          "name": "Q2"
+        },
+        {
+          "id": "Q3",
+          "name": "Q3"
         }
       ],
       "parameters": {
@@ -2300,6 +2320,20 @@
         "value": {
           "type": "number",
           "default": 1
+        },
+        "inputThreshold": {
+          "type": "number",
+          "unit": "V",
+          "default": 2.5,
+          "min": 0,
+          "max": 5
+        },
+        "logicVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 5,
+          "min": 0,
+          "max": 24
         }
       },
       "ratings": {
@@ -2316,15 +2350,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "logic",
-        "engine": "VoltPro MNA educational",
+        "type": "logic-shift-register",
+        "engine": "VoltPro sequential logic MNA",
         "editable": true
       },
       "behaviorModel": {
-        "type": "logic-node",
+        "type": "four-bit-serial-in-shift-register",
         "states": [
-          "enabled",
-          "disabled"
+          "bits",
+          "previousClock"
         ]
       },
       "faultModes": [
@@ -2333,8 +2367,8 @@
         "parameter-out-of-range"
       ],
       "documentation": {
-        "summary": "Educational Logic model for ShiftRegister.",
-        "usage": "Double-click to edit parameters, connect terminals and run simulation.",
+        "summary": "Four-bit serial-in shift register with rising-edge clock and enable.",
+        "usage": "Connect SER, CLK and EN; Q0–Q3 expose the stored bit pattern.",
         "standards": [
           "IEC-oriented educational representation"
         ]
