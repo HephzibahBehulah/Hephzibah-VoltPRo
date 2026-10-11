@@ -77,3 +77,13 @@ test("catalog timed logic exposes clock, timer, edge and counter terminals",()=>
  for(const id of ["logic-logic-timer-delay","logic-logic-pulse","logic-logic-oneshot","logic-logic-edge-rising","logic-logic-edge-falling"])assert.equal(T.definitionFor(id).terminals.map(t=>t.id).join(","),"IN,OUT",id);
  for(const id of ["logic-logic-counter-up","logic-logic-counter-down"])assert.equal(T.definitionFor(id).terminals.map(t=>t.id).join(","),"CLK,EN,Q0,Q1,Q2,Q3",id);
 });
+
+test("catalog combinational blocks expose their full signal pin lists",()=>{
+ const T=load();
+ assert.equal(T.definitionFor("logic-logic-multiplexer").terminals.map(t=>t.id).join(","),"A,B,S,Y");
+ assert.equal(T.definitionFor("logic-logic-demultiplexer").terminals.map(t=>t.id).join(","),"D,S,Y0,Y1");
+ assert.equal(T.definitionFor("logic-logic-encoder").terminals.map(t=>t.id).join(","),"I0,I1,I2,I3,Y0,Y1");
+ assert.equal(T.definitionFor("logic-logic-decoder").terminals.map(t=>t.id).join(","),"A0,A1,Y0,Y1,Y2,Y3");
+ assert.equal(T.definitionFor("logic-logic-adder").terminals.map(t=>t.id).join(","),"A,B,Cin,Sum,Cout");
+ assert.equal(T.definitionFor("logic-logic-subtractor").terminals.map(t=>t.id).join(","),"A,B,Bin,Diff,Borrow");
+});
