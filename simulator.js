@@ -90,7 +90,7 @@ function physicalTerminalPoint(c,i,n){
  const visual=window.VoltProRealisticDevices,kind=visual?.kind?.(c.type,compDef(c.type).name);
  const terminals=window.VoltProTerminalGraph?.definitionFor?.(c.type)?.terminals||[];
  const label=String(terminals[i]?.id||terminals[i]?.label||terminals[i]?.name||"").toUpperCase();
- if(c.type==="arduino-uno-r3"&&terminals[i]&&Number.isFinite(Number(terminals[i].x))&&Number.isFinite(Number(terminals[i].y)))return{x:Number(terminals[i].x),y:Number(terminals[i].y)};
+ if(c.type==="arduino-uno-r3"&&terminals[i]?.position&&Number.isFinite(Number(terminals[i].position.x))&&Number.isFinite(Number(terminals[i].position.y)))return{x:Number(terminals[i].position.x),y:Number(terminals[i].position.y)};
  if(["mcb","rcd","rcbo","mccb","isolator","fuse"].includes(kind)&&n>=2){
   const poles=Math.max(1,Math.floor(n/2));
   if(n===2)return i===0?{x:0,y:-58}:{x:0,y:58};
