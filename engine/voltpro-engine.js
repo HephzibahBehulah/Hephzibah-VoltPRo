@@ -8,7 +8,7 @@ const EPS=1e-12;
 const C=(re=0,im=0)=>({re:+re||0,im:+im||0});
 const add=(a,b)=>C(a.re+b.re,a.im+b.im), sub=(a,b)=>C(a.re-b.re,a.im-b.im);
 const mul=(a,b)=>C(a.re*b.re-a.im*b.im,a.re*b.im+a.im*b.re);
-const div=(a,b)=>{const d=b.re*b.re+b.im*b.im;if(d<EPS)throw Error("Singular complex division");return C((a.re*b.re+a.im*b.im)/d,(a.im*b.re-a.re*b.im)/d)};
+const div=(a,b)=>{const d=b.re*b.re+b.im*b.im;if(d<EPS*EPS)throw Error("Singular complex division");return C((a.re*b.re+a.im*b.im)/d,(a.im*b.re-a.re*b.im)/d)};
 const mag=a=>Math.hypot(a.re,a.im), deg=a=>Math.atan2(a.im,a.re)*180/Math.PI;
 function solve(A,b){
  const n=A.length;if(!n)return [];
@@ -33,7 +33,7 @@ function topology(project){
  return {find};
 }
 function build(project,options={}){
- const t=topology(project), comps=project.components||[], source=comps.find(x=>["battery","dcsource","voltage_source","ac_source","acsource","threephase"].includes(typeOf(x)));
+ const t=topology(project), comps=project.components||[], source=comps.find(x=>["battery","dcsource","voltage_source","ac_source","acsource","threephase","controlsource"].includes(typeOf(x)));
  const explicit=options.groundRef||project.groundRef||"GND";
  let ground=explicit;
  if(!comps.some(x=>pinsOf(x).includes(explicit)) && source)ground=typeOf(source)==="threephase"?(pinsOf(source)[3]||pinsOf(source)[1]):pinsOf(source)[1];
@@ -59,7 +59,7 @@ function build(project,options={}){
     if(contact.kind!=="switchable")continue;
     const stateValue=contact.stateKey==="energized"?energized:(x.state?.[contact.stateKey]??x.props?.[contact.stateKey]);
     const closed=stateValue===undefined?contact.closedWhen!==false:Boolean(stateValue)===Boolean(contact.closedWhen??true);
-    addBranch(x,a,b,closed?"resistor":"open",{R:Math.max(EPS,value(x,["onResistance"],1e-6)),contactId:contact.id});
+    addBranch(x,a,b,"resistor",{R:closed?Math.max(EPS,value(x,["onResistance"],1e-6)):Math.max(EPS,value(x,["offResistance"],3e10)),contactId:contact.id});
    }
    continue;
   }
@@ -75,13 +75,23 @@ function build(project,options={}){
    for(const winding of definition?.paths||[]){if(winding.kind!=="motor-winding")continue;const a=index.get(String(winding.from)),b=index.get(String(winding.to));if(!a||!b||!wired.has(a)||!wired.has(b))continue;addBranch(x,a,b,"resistor",{R:Math.max(EPS,value(x,["windingResistance","resistance"],24)),contactId:winding.id,phase:winding.phase||null})}
    continue;
   }
+  if(definition?.paths?.some(contact=>contact.kind==="switchable")){
+   const index=new Map((definition.terminals||[]).map((t,i)=>[String(t.id),p[i]]));
+   for(const contact of definition.paths){if(contact.kind!=="switchable")continue;const a=index.get(String(contact.from)),b=index.get(String(contact.to));if(!a||!b||!wired.has(a)||!wired.has(b))continue;
+    const stateValue=x.state?.[contact.stateKey]??x.props?.[contact.stateKey]??(contact.stateKey==="pressed"?false:undefined);
+    const closed=stateValue===undefined?contact.closedWhen!==false:Boolean(stateValue)===Boolean(contact.closedWhen??true);
+    const tripped=x.state?.tripped===true||x.props?.tripped===true;
+    addBranch(x,a,b,"resistor",{R:closed&&!tripped?Math.max(EPS,value(x,["onResistance"],1e-6)):Math.max(EPS,value(x,["offResistance"],3e10)),contactId:contact.id});
+   }
+   continue;
+  }
   if(/^circuit-breaker-[1234]p$/.test(String(x.type))||x.type==="auxiliary-contact-block"||x.type==="abb-aux-cb-11"){
    const index=new Map((definition?.terminals||[]).map((t,i)=>[String(t.id),p[i]]));
    for(const contact of definition?.paths||[]){if(contact.kind!=="switchable")continue;const a=index.get(String(contact.from)),b=index.get(String(contact.to));if(!a||!b||!wired.has(a)||!wired.has(b))continue;
     const stateValue=x.state?.[contact.stateKey]??x.props?.[contact.stateKey]??(contact.stateKey==="closed"?x.props?.closed:undefined);
     const closed=stateValue===undefined?contact.closedWhen!==false:Boolean(stateValue)===Boolean(contact.closedWhen??true);
     const tripped=x.state?.tripped===true;
-    addBranch(x,a,b,closed&&!tripped?"resistor":"open",{R:Math.max(EPS,value(x,["onResistance"],1e-6)),contactId:contact.id});
+    addBranch(x,a,b,"resistor",{R:closed&&!tripped?Math.max(EPS,value(x,["onResistance"],1e-6)):Math.max(EPS,value(x,["offResistance"],3e10)),contactId:contact.id});
    }
    continue;
   }
@@ -91,14 +101,14 @@ function build(project,options={}){
   else if(ty==="switch"||["fuse","breaker","mcb","mccb","rcd","rcbo","emergency_stop"].includes(ty)){
    const raw=x.state?.closed??x.props?.closed??x.props?.state;
    const closed=raw===undefined?true:!(raw===false||raw===0||raw==="0"||String(raw).toLowerCase()==="open"||String(raw).toLowerCase()==="false");
-   addBranch(x,a,b,closed?"resistor":"open",{R:closed?Math.max(EPS,value(x,["onResistance"],1e-6)):1e30});
+   addBranch(x,a,b,"resistor",{R:closed?Math.max(EPS,value(x,["onResistance"],1e-6)):Math.max(EPS,value(x,["offResistance"],3e10))});
   } else if(["capacitor","c"].includes(ty))addBranch(x,a,b,"capacitor",{C:Math.max(EPS,value(x,["capacitance","value"],1e-6))});
   else if(["inductor","l"].includes(ty))addBranch(x,a,b,"inductor",{L:Math.max(EPS,value(x,["inductance","value"],1e-3))});
   else if(["diode","zener","led"].includes(ty))addBranch(x,a,b,"diode",{vf:Math.max(0,value(x,["forward","forwardVoltage","vf"],ty==="led"?2:0.7)),rd:Math.max(1e-6,value(x,["resistance","dynamicResistance"],10)),reverse:Math.max(1e-9,value(x,["reverseLeakage"],1e-9))});
   else if(["bjt","transistor","npn","pnp"].includes(ty))addBranch(x,a,b,"bjt",{beta:Math.max(1,value(x,["beta","gain"],100)),vt:0.7});
   else if(["mosfet","nmos","pmos","igbt"].includes(ty))addBranch(x,a,b,"mosfet",{threshold:value(x,["threshold","vth"],3),onResistance:Math.max(1e-6,value(x,["onResistance","rdsOn"],1))});
   else if(["current_source","isource"].includes(ty))currentSources.push({comp:x,a:nodeFor(a),b:nodeFor(b),kind:"current",value:value(x,["current","amplitude"],1)});
-  else if(["battery","dcsource","voltage_source","ac_source","acsource"].includes(ty))voltageSources.push({comp:x,a:nodeFor(a),b:nodeFor(b),kind:"voltage",value:value(x,["voltage","amplitude"],12),phase:value(x,["phase","phaseDeg"],0)});
+  else if(["battery","dcsource","voltage_source","ac_source","acsource","controlsource"].includes(ty))voltageSources.push({comp:x,a:nodeFor(a),b:nodeFor(b),kind:"voltage",value:value(x,["voltage","amplitude"],12),phase:value(x,["phase","phaseDeg"],0)});
   else if(["vcvs","dependent_voltage_source"].includes(ty))voltageSources.push({comp:x,a:nodeFor(a),b:nodeFor(b),kind:"vcvs",gain:value(x,["gain"],1),cp:nodeFor(p[2]||a),cm:nodeFor(p[3]||b)});
   else if(["vccs","dependent_current_source"].includes(ty))addBranch(x,a,b,"vccs",{gm:value(x,["transconductance","gm"],1e-3),cp:nodeFor(p[2]||a),cm:nodeFor(p[3]||b)});
  }
