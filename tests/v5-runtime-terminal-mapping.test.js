@@ -7,9 +7,10 @@ const T = require("../src/core/terminal-graph.js");
 
 function runtime(defs = {}) {
   const window = { VoltProTerminalGraph: T, defs };
-  vm.runInNewContext(fs.readFileSync(path.join(__dirname, "../platform/v5-runtime.js"), "utf8"), {
-    window, structuredClone, Map, String, Number, Array, Boolean, Object
-  });
+  const context = { window, structuredClone, Map, String, Number, Array, Boolean, Object };
+  vm.createContext(context);
+  vm.runInContext(fs.readFileSync(path.join(__dirname, "../src/core/net-resolver.js"), "utf8"), context);
+  vm.runInContext(fs.readFileSync(path.join(__dirname, "../platform/v5-runtime.js"), "utf8"), context);
   return window.VoltProV5Runtime;
 }
 
@@ -48,4 +49,29 @@ test("three-phase source and three-pole breaker adapt to phase-labelled terminal
   ]));
   const topology=T.build(result).validateTopology();
   assert.equal(topology.valid,true,JSON.stringify(topology.errors));
+});
+
+
+test("v5 analysis reports valid topology using the graph validator", () => {
+  const result = runtime({ resistor: { pins: 2 } }).analyze({
+    components: [
+      { id: "R1", type: "resistor", x: 0, y: 0 },
+      { id: "R2", type: "resistor", x: 100, y: 0 }
+    ],
+    wires: [{ id: "W1", a: "R1:0", b: "R2:1" }]
+  });
+  assert.equal(result.topology.valid, true, JSON.stringify(result.topology.errors));
+  assert.equal(result.topology.errors.length, 0);
+  assert.equal(result.topology.netErrors.length, 0);
+  assert.equal(result.topology.nets.some(net => net.terminals.includes("R1:1") && net.terminals.includes("R2:2")), true);
+});
+
+test("v5 analysis flags an unknown wire endpoint instead of returning a false status", () => {
+  const result = runtime({ resistor: { pins: 2 } }).analyze({
+    components: [{ id: "R1", type: "resistor", x: 0, y: 0 }],
+    wires: [{ id: "W_BAD", a: "R1:0", b: "MISSING:0" }]
+  });
+  assert.equal(result.topology.valid, false);
+  assert.ok(result.topology.errors.some(error => error.code === "INVALID_TERMINAL_REFERENCE"));
+  assert.ok(result.topology.netErrors.some(error => error.code === "WIRE_ENDPOINT_UNKNOWN"));
 });
