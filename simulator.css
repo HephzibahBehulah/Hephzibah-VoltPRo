@@ -200,3 +200,8 @@ body.simulator-page.light .status[data-state="error"]{background:#fff0f1;border-
  .workspace.palette-hidden #palette{display:block!important;transform:translateX(-105%)}
  .workspace.inspector-hidden #inspectorPanel{display:none!important}
 }
+
+
+@media(max-width:800px){
+ .workspace:not(.inspector-hidden) #inspectorPanel{position:fixed;z-index:9200;right:0;top:100px;bottom:24px;width:min(330px,90vw);max-height:none;display:block!important;overflow:auto;background:#081321;border-left:1px solid var(--line);box-shadow:-18px 0 48px #0009}
+}
