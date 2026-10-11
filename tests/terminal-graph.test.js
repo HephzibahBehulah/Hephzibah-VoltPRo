@@ -41,3 +41,12 @@ test("catalog three-phase power sources expose L1/L2/L3/N and power buses pass t
   const d=T.definitionFor(id);assert.equal(d.terminals.length,2,id);assert.equal(d.paths.length,1,id);assert.equal(d.paths[0].kind,"passive",id);
  }
 });
+
+test("catalog transistor variants expose their true three-terminal pin names",()=>{
+ const T=load();
+ assert.equal(T.definitionFor("semiconductor-device-bjt-npn").terminals.map(t=>t.id).join(","),"B,C,E");
+ assert.equal(T.definitionFor("semiconductor-device-bjt-pnp").terminals.map(t=>t.id).join(","),"B,C,E");
+ assert.equal(T.definitionFor("semiconductor-device-mosfet-n").terminals.map(t=>t.id).join(","),"G,D,S");
+ assert.equal(T.definitionFor("semiconductor-device-mosfet-p").terminals.map(t=>t.id).join(","),"G,D,S");
+ assert.equal(T.definitionFor("semiconductor-device-igbt").terminals.map(t=>t.id).join(","),"G,C,E");
+});
