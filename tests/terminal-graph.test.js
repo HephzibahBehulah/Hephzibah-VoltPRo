@@ -31,3 +31,13 @@ test('auxiliary contactor catalog variants expose matching terminal/path counts'
 
 
 test("catalog three-phase transformer variants expose 8 or 10 winding terminals",()=>{const T=load();assert.equal(T.definitionFor("transformers-transformer-3p-400-230").terminals.length,8);assert.equal(T.definitionFor("transformers-transformer-3p-400-230").paths.length,6);assert.equal(T.definitionFor("transformers-transformer-3p-400-230-24").terminals.length,10);});
+
+test("catalog three-phase power sources expose L1/L2/L3/N and power buses pass through",()=>{
+ const T=load();
+ for(const id of ["power-power-3p-400v","power-power-3p-415v"]){
+  const d=T.definitionFor(id);assert.equal(d.terminals.map(t=>t.id).join(","),"L1,L2,L3,N",id);
+ }
+ for(const id of ["power-power-dc-bus","power-power-ac-bus","power-power-neutral-bus","power-power-earth-bus"]){
+  const d=T.definitionFor(id);assert.equal(d.terminals.length,2,id);assert.equal(d.paths.length,1,id);assert.equal(d.paths[0].kind,"passive",id);
+ }
+});

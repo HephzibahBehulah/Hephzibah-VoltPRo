@@ -700,12 +700,20 @@
       "category": "power",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "L1",
+          "name": "Phase L1"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "L2",
+          "name": "Phase L2"
+        },
+        {
+          "id": "L3",
+          "name": "Phase L3"
+        },
+        {
+          "id": "N",
+          "name": "Neutral"
         }
       ],
       "parameters": {
@@ -716,7 +724,7 @@
         "ratedVoltage": {
           "type": "number",
           "unit": "V",
-          "default": 24,
+          "default": 400,
           "min": 0,
           "max": 1000
         },
@@ -739,12 +747,12 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "three-phase-source",
+        "engine": "VoltPRo balanced three-phase MNA source",
         "editable": true
       },
       "behaviorModel": {
-        "type": "power-node",
+        "type": "three-phase-source",
         "states": [
           "enabled",
           "disabled"
@@ -756,8 +764,8 @@
         "parameter-out-of-range"
       ],
       "documentation": {
-        "summary": "Educational Power model for 3P-400V.",
-        "usage": "Double-click to edit parameters, connect terminals and run simulation.",
+        "summary": "Balanced three-phase educational AC source with L1/L2/L3/N terminals.",
+        "usage": "Connect the three phase terminals and neutral to a compatible three-phase circuit.",
         "standards": [
           "IEC-oriented educational representation"
         ]
@@ -769,12 +777,20 @@
       "category": "power",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "L1",
+          "name": "Phase L1"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "L2",
+          "name": "Phase L2"
+        },
+        {
+          "id": "L3",
+          "name": "Phase L3"
+        },
+        {
+          "id": "N",
+          "name": "Neutral"
         }
       ],
       "parameters": {
@@ -785,7 +801,7 @@
         "ratedVoltage": {
           "type": "number",
           "unit": "V",
-          "default": 24,
+          "default": 415,
           "min": 0,
           "max": 1000
         },
@@ -808,12 +824,12 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "lumped",
-        "engine": "VoltPro MNA educational",
+        "type": "three-phase-source",
+        "engine": "VoltPRo balanced three-phase MNA source",
         "editable": true
       },
       "behaviorModel": {
-        "type": "power-node",
+        "type": "three-phase-source",
         "states": [
           "enabled",
           "disabled"
@@ -825,8 +841,8 @@
         "parameter-out-of-range"
       ],
       "documentation": {
-        "summary": "Educational Power model for 3P-415V.",
-        "usage": "Double-click to edit parameters, connect terminals and run simulation.",
+        "summary": "Balanced three-phase educational AC source with L1/L2/L3/N terminals.",
+        "usage": "Connect the three phase terminals and neutral to a compatible three-phase circuit.",
         "standards": [
           "IEC-oriented educational representation"
         ]
