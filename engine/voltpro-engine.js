@@ -22,7 +22,7 @@ function solve(A,b){
 }
 function pinsOf(x){return Array.isArray(x.pins)&&x.pins.length?x.pins:Array.from({length:2},(_,i)=>x.id+":"+i)}
 function value(x,names,fallback){const p=x.props||x.parameters||{};for(const n of names){if(p[n]!==undefined)return Number(p[n]);}return fallback}
-function typeOf(x){return String(x.type||x.model||"").toLowerCase().replace(/[-\s]/g,"_")}
+function typeOf(x){const raw=String(x.type||x.model||""),registryModel=window.VoltProRegistry?.get?.(raw)?.electricalModel?.type;if(registryModel==="motor"||/^motors[-_]motor[-_]/i.test(raw))return "motor";return raw.toLowerCase().replace(/[-\s]/g,"_")}
 function plcProgram(device){const raw=device.props?.program??device.props?.ladderProgram;if(raw&&typeof raw==="object")return raw;if(typeof raw==="string"){try{return JSON.parse(raw)}catch{return null}}return null}
 function plcScan(device,b,voltageAt,stateOverrides,ladderAdvanced,scanTimeMsOverride){
  const definition=window.VoltProTerminalGraph?.definitionFor?.(device.type),pins=pinsOf(device),map=new Map((definition?.terminals||[]).map((t,i)=>[String(t.id),pins[i]])),pin=id=>map.get(id),read=id=>{const p=pin(id);return p&&b.wired.has(p)?voltageAt(b.nodeFor(p)):null},m=read("M"),lplus=read("L+"),powered=m!==null&&lplus!==null&&magnitudeDifference(lplus,m)>=Math.max(EPS,value(device,["minVoltage","supplyThreshold"],18)),threshold=Math.max(EPS,value(device,["inputThreshold"],12)),inputs={};
@@ -92,8 +92,9 @@ function build(project,options={}){
    continue;
   }
   if(ty==="motor"){
-   const index=new Map((definition?.terminals||[]).map((t,i)=>[String(t.id),p[i]]));
-   for(const winding of definition?.paths||[]){if(winding.kind!=="motor-winding")continue;const a=index.get(String(winding.from)),b=index.get(String(winding.to));if(!a||!b||!wired.has(a)||!wired.has(b))continue;addBranch(x,a,b,"resistor",{R:Math.max(EPS,value(x,["windingResistance","resistance"],24)),contactId:winding.id,phase:winding.phase||null})}
+   const index=new Map((definition?.terminals||[]).map((t,i)=>[String(t.id),p[i]])),windings=(definition?.paths||[]).filter(w=>w.kind==="motor-winding");
+   if(windings.length){for(const winding of windings){const a=index.get(String(winding.from)),b=index.get(String(winding.to));if(!a||!b||!wired.has(a)||!wired.has(b))continue;addBranch(x,a,b,"resistor",{R:Math.max(EPS,value(x,["windingResistance","resistance"],24)),contactId:winding.id,phase:winding.phase||null})}}
+   else if(p.length>=2&&wired.has(p[0])&&wired.has(p[1]))addBranch(x,p[0],p[1],"resistor",{R:Math.max(EPS,value(x,["windingResistance","resistance","resistance_ohm","value"],32)),contactId:"motor-equivalent"});
    continue;
   }
   if(["overload_relay","thermal_overload_relay","industrial_industrial_overload_relay"].includes(ty)){
