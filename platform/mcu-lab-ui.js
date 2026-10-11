@@ -37,7 +37,7 @@ function open(options={}){
  $("#vpwMcuOut").textContent=(result.serial||[]).join("\n")||"No Serial output in this sketch.";$("#vpwMcuDetails").textContent=result.note||"";
  renderBoard(result);
  }
- function stepSimulation(dt){const source=code.value;if(source!==lastCode){state=null;lastCode=source;inputs={};serialLines=[]}const mappedInputs={...inputs};const buttonPin=$("#vpwButtonPin").value,mode=$("#vpwButtonMode").value;if(buttonPressed)mappedInputs[buttonPin]=mode==="INPUT_PULLUP"?false:true;else if(mode==="INPUT_PULLUP")mappedInputs[buttonPin]=true;else mappedInputs[buttonPin]=false;
+ function stepSimulation(dt){const source=code.value;if(source!==lastCode){state=null;lastCode=source;inputs={};serialLines=[]}const buttonPin=$("#vpwButtonPin").value,mode=$("#vpwButtonMode").value;if(buttonPressed)inputs[buttonPin]=mode==="INPUT_PULLUP"?false:true;else if(mode==="INPUT_PULLUP")inputs[buttonPin]=true;else inputs[buttonPin]=false;const mappedInputs={...inputs};
  const result=window.VoltProMCU?.simulate(source,{target:board.value,state:state||undefined,inputs:mappedInputs,dtMs:dt});if(!result){status.textContent="ERROR · MCU engine did not load";$("#vpwMcuDetails").textContent="Reload the simulator and try again.";stopTimer();return null}state=result.state;showResult(result);return result}
  function scheduleTick(){if(timer!==null)clearTimeout(timer);timer=setTimeout(()=>{if(!run.disabled)return;stepSimulation(Number(stepField.value)||50);scheduleTick()},Math.max(10,Number(stepField.value)||50))}
  run.onclick=()=>{if(run.disabled)return;stepSimulation(0);status.textContent="RUNNING · Local sketch interpreter advancing";run.disabled=true;stop.disabled=false;scheduleTick()};
