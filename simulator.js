@@ -220,7 +220,7 @@ function fitCanvasToContent(){
 }
 function applyViewport(){const t="translate("+S.pan.x+" "+S.pan.y+") scale("+S.zoom+")";[comps,wires,labels,selg,$("#gridRect")].forEach(el=>{if(el)el.setAttribute("transform",t)});}
 function renderWires(){
- wires.innerHTML=S.wires.map((w,i)=>{
+ wires.innerHTML=S.wires.filter(w=>!w.internal).map((w,i)=>{
   const a=getPin(w.a),b=getPin(w.b);if(!a||!b)return "";
   const route=window.VoltProWiring?window.VoltProWiring.routeOrthogonal(a,b,{grid:S.grid,bends:w.bends}):{points:[a,b]};
   const d=route.points.map((p,j)=>(j?"L":"M")+p.x+" "+p.y).join(" ");
