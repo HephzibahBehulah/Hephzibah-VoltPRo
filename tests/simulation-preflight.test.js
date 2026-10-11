@@ -43,3 +43,17 @@ test("preflight safely falls back when v5 diagnostics are unavailable",()=>{
  assert.equal(result.available,false);
  assert.equal(result.valid,true);
 });
+
+
+test("meter re-solves cannot bypass structural topology preflight",()=>{
+ const source=fs.readFileSync("simulator.js","utf8");
+ const start=source.indexOf('$("[data-meter]")');
+ const end=source.indexOf('$(".mode")',start);
+ assert.ok(start>=0&&end>start,"meter handler should be present");
+ const handler=source.slice(start,end);
+ const check=handler.indexOf("VoltProSimulationPreflight");
+ const block=handler.indexOf("preflight?.valid===false");
+ const solve=handler.indexOf("window.VoltProEngine?.dc(project)");
+ assert.ok(check>=0,"meter handler should run the shared preflight");
+ assert.ok(block>check&&solve>block,"meter preflight must run before any fallback solver call");
+});
