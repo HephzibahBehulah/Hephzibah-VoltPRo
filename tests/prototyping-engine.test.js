@@ -718,3 +718,19 @@ test("catalog DC bus internally joins both terminals without adding a voltage so
  assert.equal(result.ok,true,JSON.stringify(result));
  assert.ok(Math.abs(result.branches.find(b=>b.id==="R1").current-.05)<1e-7);
 });
+
+test("catalog passive NTC follows its beta curve around 25 C",()=>{
+ const make=temperatureC=>({components:[comp("V1","battery",2,{voltage:1}),comp("S1","electronics-passive-ntc",2,{resistance:100,temperatureC,beta:3950}),comp("R1","resistor",2,{resistance:1000})],wires:[wire("V1:0","S1:0"),wire("S1:1","R1:0"),wire("R1:1","V1:1")]});
+ const room=E.dc(make(25)),hot=E.dc(make(50));
+ assert.equal(room.ok,true,JSON.stringify(room));assert.equal(hot.ok,true,JSON.stringify(hot));
+ const iRoom=room.branches.find(b=>b.id==="S1").current,iHot=hot.branches.find(b=>b.id==="S1").current;
+ assert.ok(Math.abs(iRoom-1/11000)<1e-7,"default NTC catalog part should use 10 kOhm at 25 C");
+ assert.ok(iHot>iRoom,"NTC current should rise as its resistance falls with temperature");
+});
+test("catalog passive PTC resistance rises sharply at its configured trip temperature",()=>{
+ const make=temperatureC=>({components:[comp("V1","battery",2,{voltage:1}),comp("S1","electronics-passive-ptc",2,{resistance:100,temperatureC,tripTemperatureC:120,resistanceRatio:1000}),comp("R1","resistor",2,{resistance:1000})],wires:[wire("V1:0","S1:0"),wire("S1:1","R1:0"),wire("R1:1","V1:1")]});
+ const cold=E.dc(make(25)),hot=E.dc(make(130));
+ assert.equal(cold.ok,true,JSON.stringify(cold));assert.equal(hot.ok,true,JSON.stringify(hot));
+ const iCold=cold.branches.find(b=>b.id==="S1").current,iHot=hot.branches.find(b=>b.id==="S1").current;
+ assert.ok(iCold>iHot*50,"PTC current should drop after the thermal resistance transition");
+});
