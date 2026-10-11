@@ -19,3 +19,14 @@ test("digitalRead if/else branches select the matching output state",()=>{
  assert.equal(MCU.simulate(sketch,{inputs:{"2":true}}).pins["13"].voltage,5);
  assert.equal(MCU.simulate(sketch,{inputs:{"2":false}}).pins["13"].voltage,0);
 });
+
+test("timed loop sequences advance through digitalWrite and delay instructions",()=>{
+ const sketch="void setup(){pinMode(13,OUTPUT);}void loop(){digitalWrite(13,HIGH);delay(100);digitalWrite(13,LOW);delay(100);}";
+ let r=MCU.simulate(sketch,{dtMs:0});assert.equal(r.pins["13"].voltage,0);
+ r=MCU.simulate(sketch,{state:r.state,dtMs:50});assert.equal(r.pins["13"].voltage,5);assert.equal(r.state.delayRemainingMs,50);
+ r=MCU.simulate(sketch,{state:r.state,dtMs:50});assert.equal(r.pins["13"].voltage,0);assert.equal(r.state.delayRemainingMs,100);
+});
+test("non-delayed loop writes execute immediately without waiting for a time tick",()=>{
+ const r=MCU.simulate("void setup(){pinMode(13,OUTPUT);}void loop(){digitalWrite(13,HIGH);}");
+ assert.equal(r.pins["13"].voltage,5);
+});
