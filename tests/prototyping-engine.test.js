@@ -823,7 +823,7 @@ test("catalog four-bit up-counter advances only on rising enabled clock edges",(
  r=E.dc(make(true,r.deviceStates.C1));assert.equal(r.ok,true,JSON.stringify(r));assert.equal(r.deviceStates.C1.count,2);
 });
 test("catalog clock output toggles with its configured frequency and scan interval",()=>{
- const p={components:[comp("CLK","logic-logic-clock",2,{frequencyHz:5,scanTimeMs:50,logicVoltage:5}),comp("R1","resistor",2,{resistance:1000})],wires:[wire("CLK:0","R1:0"),wire("R1:1","CLK:1")]};
+ const p={components:[comp("V1","battery",2,{voltage:5}),comp("CLK","logic-logic-clock",2,{frequencyHz:5,scanTimeMs:50,logicVoltage:5}),comp("R1","resistor",2,{resistance:1000})],wires:[wire("V1:1","CLK:1"),wire("V1:1","R1:1"),wire("CLK:0","R1:0")]};
  let r=E.dc(p,{scanTimeMs:50});assert.equal(r.ok,true,JSON.stringify(r));assert.equal(r.deviceStates.CLK.outputHigh,true);
  p.components.find(c=>c.id==="CLK").state={...r.deviceStates.CLK};
  r=E.dc(p,{scanTimeMs:50});assert.equal(r.ok,true,JSON.stringify(r));assert.equal(r.deviceStates.CLK.outputHigh,false);
