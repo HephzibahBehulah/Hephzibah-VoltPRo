@@ -36,7 +36,25 @@
   const path = (id, from, to, kind, extra = {}) => ({ id, from, to, kind, ...clone(extra) });
 
   // Device terminals and internal paths are model data, never inferred from SVG pin counts.
+  function breakerDefinition(poles) {
+    const phases = poles === 4 ? ["L1","L2","L3","N"] : poles === 2 ? ["L1","N"] : Array.from({length:poles},(_,i)=>"L"+(i+1));
+    const outputs = phases.map((p,i)=>p==="N"?"TN":"T"+(i+1));
+    const spacing = poles===3?12:poles===4?12:poles===2?10:0;
+    const terminals = phases.map((label,i)=>terminal(label,label,-24,(i-(poles-1)/2)*spacing,{number:String(i*2+1),domain:poles>=3?"ac3":"ac",phase:label==="N"?"N":label}));
+    outputs.forEach((label,i)=>terminals.push(terminal(label,label,24,(i-(poles-1)/2)*spacing,{number:String(i*2+2),domain:poles>=3?"ac3":"ac",phase:phases[i]})));
+    return {terminals,paths:phases.map((phase,i)=>path("breaker-pole-"+(i+1),phase,outputs[i],"switchable",{stateKey:"closed",phase}))};
+  }
   const DEFINITIONS = {
+    ...Object.fromEntries([1,2,4].map(poles=>["circuit-breaker-"+poles+"p",breakerDefinition(poles)])),
+    "auxiliary-contact-block": { terminals:[
+      terminal("13","13",-24,-18,{number:"13",domain:"control"}),terminal("21","21",-24,-6,{number:"21",domain:"control"}),terminal("31","31",-24,6,{number:"31",domain:"control"}),terminal("41","41",-24,18,{number:"41",domain:"control"}),
+      terminal("14","14",24,-18,{number:"14",domain:"control"}),terminal("22","22",24,-6,{number:"22",domain:"control"}),terminal("32","32",24,6,{number:"32",domain:"control"}),terminal("42","42",24,18,{number:"42",domain:"control"})
+    ], paths:[
+      path("aux-no-13-14","13","14","switchable",{stateKey:"actuated",closedWhen:true,domain:"control"}),
+      path("aux-nc-21-22","21","22","switchable",{stateKey:"actuated",closedWhen:false,domain:"control"}),
+      path("aux-nc-31-32","31","32","switchable",{stateKey:"actuated",closedWhen:false,domain:"control"}),
+      path("aux-nc-41-42","41","42","switchable",{stateKey:"actuated",closedWhen:false,domain:"control"})
+    ]},
     resistor: { terminals:[terminal("1","1",-20,0,{number:"1"}),terminal("2","2",20,0,{number:"2"})], paths:[path("resistance","1","2","resistive")] },
     lamp: { terminals:[terminal("1","L",-20,0,{direction:"input"}),terminal("2","N",20,0,{direction:"output"})], paths:[path("lamp-load","1","2","load")] },
     switch: { terminals:[terminal("1","1",-20,0),terminal("2","2",20,0)], paths:[path("switch-contact","1","2","switchable",{stateKey:"closed"})] },
@@ -83,7 +101,7 @@
 
   function definitionFor(type) {
     const normalized = String(type || "").toLowerCase().replace(/[_ ]+/g,"-");
-    const aliases = { pushbutton:"pushbutton-no", contactor3p:"contactor", motor3phase:"motor", "circuitbreaker":"circuit-breaker", mcb3p:"circuit-breaker-3p", "3-pole-mcb":"circuit-breaker-3p", "mcb-3p":"circuit-breaker-3p", "terminalblock":"terminal-block", "plc-input-module":"plc-input", "plc-output-module":"plc-output", sensor:"sensor", lamp:"lamp", voltmeter:"measurement-instrument", ammeter:"measurement-instrument", multimeter:"measurement-instrument" };
+    const aliases = { pushbutton:"pushbutton-no", contactor3p:"contactor", motor3phase:"motor", "circuitbreaker":"circuit-breaker", mcb1p:"circuit-breaker-1p", "mcb-1p":"circuit-breaker-1p", "1-pole-mcb":"circuit-breaker-1p", mcb2p:"circuit-breaker-2p", "mcb-2p":"circuit-breaker-2p", "2-pole-mcb":"circuit-breaker-2p", mcb3p:"circuit-breaker-3p", "3-pole-mcb":"circuit-breaker-3p", "mcb-3p":"circuit-breaker-3p", mcb4p:"circuit-breaker-4p", "mcb-4p":"circuit-breaker-4p", "4-pole-mcb":"circuit-breaker-4p", "terminalblock":"terminal-block", "plc-input-module":"plc-input", "plc-output-module":"plc-output", sensor:"sensor", lamp:"lamp", voltmeter:"measurement-instrument", ammeter:"measurement-instrument", multimeter:"measurement-instrument" };
     const def = DEFINITIONS[aliases[normalized] || normalized];
     return def ? clone(def) : null;
   }
