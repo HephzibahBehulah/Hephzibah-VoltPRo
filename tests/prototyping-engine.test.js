@@ -773,3 +773,16 @@ test("catalog NOT gate inverts a measured input and drives a real load",()=>{
  assert.equal(high.deviceStates.G1.outputVoltage,5);
  assert.equal(low.deviceStates.G1.outputVoltage,0);
 });
+
+test("catalog analog comparator drives high when A exceeds B and low when A is below B",()=>{
+ const make=(a,b)=>({components:[comp("VA","battery",2,{voltage:a}),comp("VB","battery",2,{voltage:b}),comp("G1","logic-logic-comparator",3,{logicVoltage:5,comparisonOffset:0}),comp("R1","resistor",2,{resistance:1000})],wires:[wire("VA:1","VB:1"),wire("VA:0","G1:0"),wire("VB:0","G1:1"),wire("G1:2","R1:0"),wire("R1:1","VA:1")]});
+ const high=E.dc(make(3,2)),low=E.dc(make(1,2));
+ assert.equal(high.ok,true,JSON.stringify(high));assert.equal(low.ok,true,JSON.stringify(low));
+ assert.equal(high.deviceStates.G1.outputVoltage,5);assert.equal(low.deviceStates.G1.outputVoltage,0);
+});
+test("catalog Schmitt trigger retains state inside the hysteresis window",()=>{
+ const make=(a,state)=>{const components=[comp("VA","battery",2,{voltage:a}),comp("VB","battery",2,{voltage:2}),comp("G1","logic-logic-schmitt",3,{logicVoltage:5,hysteresis:.4}),comp("R1","resistor",2,{resistance:1000})];if(state)components.find(c=>c.id==="G1").state=state;return {components,wires:[wire("VA:1","VB:1"),wire("VA:0","G1:0"),wire("VB:0","G1:1"),wire("G1:2","R1:0"),wire("R1:1","VA:1")]};};
+ const high=E.dc(make(3,null));assert.equal(high.ok,true,JSON.stringify(high));assert.equal(high.deviceStates.G1.outputHigh,true);
+ const held=E.dc(make(2.1,high.deviceStates.G1));assert.equal(held.ok,true,JSON.stringify(held));assert.equal(held.deviceStates.G1.outputHigh,true);
+ const low=E.dc(make(1.5,held.deviceStates.G1));assert.equal(low.ok,true,JSON.stringify(low));assert.equal(low.deviceStates.G1.outputHigh,false);
+});
