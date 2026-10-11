@@ -36,6 +36,7 @@ test("canonical v5 serialization preserves topology, viewport, and wire styling"
   assert.equal(decoded.devices.length, 2);
   assert.equal(decoded.devices[1].registryId, "catalog-resistor");
   assert.equal(decoded.faults[0].id, "F1");
+  assert.equal(window.VoltProProject.toLegacy(decoded).faults[0].id, "F1");
   assert.equal(decoded.wires.length, 1);
   assert.equal(decoded.wires[0].from, "V1:0");
   assert.equal(decoded.wires[0].to, "R1:0");
