@@ -240,6 +240,30 @@ test("catalog 24 V relay variant switches its NO and NC contacts with coil state
  assert.ok(Math.abs(released.branches.find(b=>b.id==="R2").current-.05)<1e-5);
 });
 
+
+test("catalog auxiliary contactor 1NO+1NC switches both contacts with its coil",()=>{
+ const make=(voltage)=>({components:[
+  comp("V1","battery",2,{voltage}),
+  comp("KM1","contactors-contactor-1no1nc",6,{coilVoltage:24,coilResistance:82}),
+  comp("R1","resistor",2,{resistance:100}),
+  comp("R2","resistor",2,{resistance:100})
+ ],wires:[
+  wire("V1:0","KM1:0"),wire("KM1:1","V1:1"),
+  wire("V1:0","KM1:2"),wire("KM1:3","R1:0"),wire("R1:1","V1:1"),
+  wire("V1:0","KM1:4"),wire("KM1:5","R2:0"),wire("R2:1","V1:1")
+ ]});
+ const energized=E.dc(make(24));
+ assert.equal(energized.ok,true,JSON.stringify(energized));
+ assert.equal(energized.deviceStates.KM1,true);
+ assert.ok(Math.abs(energized.branches.find(b=>b.id==="R1").current-.24)<1e-5);
+ assert.ok(Math.abs(energized.branches.find(b=>b.id==="R2").current)<1e-8);
+ const released=E.dc(make(5));
+ assert.equal(released.ok,true,JSON.stringify(released));
+ assert.equal(released.deviceStates.KM1,false);
+ assert.ok(Math.abs(released.branches.find(b=>b.id==="R1").current)<1e-8);
+ assert.ok(Math.abs(released.branches.find(b=>b.id==="R2").current-.05)<1e-5);
+});
+
 test("contactor coil voltage drives three independent main poles and auxiliary contacts",()=>{
  const make=(voltage)=>({components:[comp("V1","battery",2,{voltage}),comp("KM1","contactor",12,{coilVoltage:230,coilResistance:82}),comp("R1","resistor",2,{resistance:100}),comp("R2","resistor",2,{resistance:100})],wires:[wire("V1:0","KM1:0"),wire("KM1:1","V1:1"),wire("V1:0","KM1:2"),wire("KM1:3","R1:0"),wire("R1:1","V1:1"),wire("V1:0","KM1:8"),wire("KM1:9","R1:0"),wire("V1:0","KM1:10"),wire("KM1:11","R2:0"),wire("R2:1","V1:1")]});
  const energized=E.analyze(make(230)).dc;
