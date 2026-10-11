@@ -1423,12 +1423,16 @@
       "category": "logic",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "A",
+          "name": "Signal A"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "B",
+          "name": "Reference B"
+        },
+        {
+          "id": "Y",
+          "name": "Output Y"
         }
       ],
       "parameters": {
@@ -1446,6 +1450,34 @@
         "value": {
           "type": "number",
           "default": 1
+        },
+        "logicVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 5,
+          "min": 0,
+          "max": 24
+        },
+        "outputLowVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 0,
+          "min": 0,
+          "max": 24
+        },
+        "comparisonOffset": {
+          "type": "number",
+          "unit": "V",
+          "default": 0,
+          "min": -24,
+          "max": 24
+        },
+        "hysteresis": {
+          "type": "number",
+          "unit": "V",
+          "default": 0.4,
+          "min": 0,
+          "max": 10
         }
       },
       "ratings": {
@@ -1462,15 +1494,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "logic",
-        "engine": "VoltPro MNA educational",
+        "type": "analog-comparator",
+        "engine": "VoltPro combinational logic MNA",
         "editable": true
       },
       "behaviorModel": {
-        "type": "logic-node",
+        "type": "voltage-comparator",
         "states": [
-          "enabled",
-          "disabled"
+          "output-low",
+          "output-high"
         ]
       },
       "faultModes": [
@@ -1479,8 +1511,8 @@
         "parameter-out-of-range"
       ],
       "documentation": {
-        "summary": "Educational Logic model for Comparator.",
-        "usage": "Double-click to edit parameters, connect terminals and run simulation.",
+        "summary": "Analog comparator with differential input and electrical output.",
+        "usage": "Connect signal to A, reference to B, and load to Y relative to circuit ground.",
         "standards": [
           "IEC-oriented educational representation"
         ]
@@ -1492,12 +1524,16 @@
       "category": "logic",
       "terminals": [
         {
-          "id": "T1",
-          "name": "Terminal 1"
+          "id": "A",
+          "name": "Signal A"
         },
         {
-          "id": "T2",
-          "name": "Terminal 2"
+          "id": "B",
+          "name": "Reference B"
+        },
+        {
+          "id": "Y",
+          "name": "Output Y"
         }
       ],
       "parameters": {
@@ -1515,6 +1551,34 @@
         "value": {
           "type": "number",
           "default": 1
+        },
+        "logicVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 5,
+          "min": 0,
+          "max": 24
+        },
+        "outputLowVoltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 0,
+          "min": 0,
+          "max": 24
+        },
+        "comparisonOffset": {
+          "type": "number",
+          "unit": "V",
+          "default": 0,
+          "min": -24,
+          "max": 24
+        },
+        "hysteresis": {
+          "type": "number",
+          "unit": "V",
+          "default": 0.4,
+          "min": 0,
+          "max": 10
         }
       },
       "ratings": {
@@ -1531,15 +1595,15 @@
         "interactive": true
       },
       "electricalModel": {
-        "type": "logic",
-        "engine": "VoltPro MNA educational",
+        "type": "schmitt-trigger",
+        "engine": "VoltPro combinational logic MNA",
         "editable": true
       },
       "behaviorModel": {
-        "type": "logic-node",
+        "type": "hysteretic-comparator",
         "states": [
-          "enabled",
-          "disabled"
+          "output-low",
+          "output-high"
         ]
       },
       "faultModes": [
@@ -1548,8 +1612,8 @@
         "parameter-out-of-range"
       ],
       "documentation": {
-        "summary": "Educational Logic model for Schmitt.",
-        "usage": "Double-click to edit parameters, connect terminals and run simulation.",
+        "summary": "Schmitt trigger with configurable hysteresis.",
+        "usage": "Connect signal to A, reference to B, and load to Y relative to circuit ground.",
         "standards": [
           "IEC-oriented educational representation"
         ]
