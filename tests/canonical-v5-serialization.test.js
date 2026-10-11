@@ -58,6 +58,7 @@ test("canonical v5 project converts back to the legacy canvas endpoint conventio
   });
   const legacy = window.VoltProProject.toLegacy(canonical);
   assert.deepEqual(Array.from(legacy.wires, wire => [wire.a, wire.b]), [["V1:0", "R1:0"]]);
+  assert.deepEqual(Array.from(legacy.components, component => component.pins), [["V1:0", "V1:1"], ["R1:0", "R1:1"]], "legacy solver pins must be string endpoint IDs, not canonical terminal objects");
   assert.equal(legacy.wires[0].color, "#123456");
   assert.equal(legacy.wires[0].width, 4);
   assert.equal(legacy.wireStyle.cableType, "flexible");
