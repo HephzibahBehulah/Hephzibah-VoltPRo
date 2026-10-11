@@ -39,7 +39,7 @@ test("three-phase source and three-pole breaker adapt to phase-labelled terminal
     ],
     wires:[{a:"PS1:0",b:"QF1:0"},{a:"PS1:1",b:"QF1:1"},{a:"PS1:2",b:"QF1:2"}]
   });
-  assert.equal(JSON.stringify(result.devices[0].terminals.map(t=>t.id)),JSON.stringify(["L1","L2","L3"]));
+  assert.equal(JSON.stringify(result.devices[0].terminals.map(t=>t.id)),JSON.stringify(["L1","L2","L3","N"]));
   assert.equal(JSON.stringify(result.devices[1].terminals.map(t=>t.id)),JSON.stringify(["L1","L2","L3","T1","T2","T3"]));
   assert.equal(JSON.stringify(result.wires.map(w=>[w.from,w.to,w.domain])),JSON.stringify([
     ["PS1:L1","QF1:L1","ac3"],
