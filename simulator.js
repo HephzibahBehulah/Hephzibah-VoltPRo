@@ -193,7 +193,7 @@ function run(){
    r={dc:solve()};
  }
  const phaseSource=project.components.find(c=>c.type==="threephase"),phasor=r.ac?.ok?r.ac.sweep?.[0]:null;
- const dc=phaseSource&&phasor?.branches?{...phasor,ok:true,analysis:"Three-phase AC operating point (MNA)",engine:"VoltPRo MNA",sourceVoltage:Number(phaseSource.props?.lineVoltage??phaseSource.props?.voltage)||400,totalCurrent:(phasor.sourceCurrents||[]).filter(x=>x.id===phaseSource.id).reduce((sum,x)=>sum+x.current,0)/3,totalPower:phasor.totalPower||0,nodes:phasor.nodeVoltages?.length||0,branches:phasor.branches,sourceCurrents:phasor.sourceCurrents,nodeVoltages:phasor.nodeVoltages,threePhase:true}:(r.dc||r);
+ const dc=phaseSource?(phasor?.branches?{...phasor,ok:true,analysis:"Three-phase AC operating point (MNA)",engine:"VoltPRo MNA",sourceVoltage:Number(phaseSource.props?.lineVoltage??phaseSource.props?.voltage)||400,totalCurrent:(phasor.sourceCurrents||[]).filter(x=>x.id===phaseSource.id).reduce((sum,x)=>sum+x.current,0)/3,totalPower:phasor.totalPower||0,nodes:phasor.nodeVoltages?.length||0,branches:phasor.branches,sourceCurrents:phasor.sourceCurrents,nodeVoltages:phasor.nodeVoltages,threePhase:true}:{ok:false,error:r.ac?.error||"Three-phase AC analysis failed."}):(r.dc||r);
  if(!dc.ok){S.running=false;S.lastAnalysis=null;S.lastAnalysisSignature="";$("#meterReadout").textContent="--";$("#console").textContent="RUN ERROR\\n"+(dc.error||"Unable to solve circuit.");$("#calcPanel").textContent="Check source, connections and component values.";renderCanvas();syncRunControls("error");return}
  S.lastAnalysis=dc;S.lastAnalysisSignature=JSON.stringify(project);
  const amps=Number(dc.totalCurrent)||0;
@@ -315,14 +315,15 @@ $("[data-meter]").forEach(b=>b.onclick=()=>{
  const selected=S.components.find(c=>c.id===S.selected);
  const candidates=selected?(result.branches||[]).filter(x=>x.id===selected.id):[];
  const branch=candidates.find(x=>x.contactId==="coil")||candidates.find(x=>!x.contactId)||candidates[0]||null;
- if(selected&&!branch){$("#meterReadout").textContent="NO BRANCH";return}
+ const sourceSelected=selected?.type==="threephase";
+ if(selected&&!branch&&!sourceSelected){$("#meterReadout").textContent="NO BRANCH";return}
  const api=window.VoltProMeasurement;
  const args=branch?{branchId:branch.id,contactId:branch.contactId}:{};
  const sourceCurrent=Number(result.sourceCurrents?.[0]?.current)||0,sourceVoltage=Number(result.sourceVoltage)||0;
  const measured=(type,fallback)=>api?.measure?api.measure(type,result,args):fallback;
  let value,display;
  if(S.meter==="voltage"){value=branch?measured("voltage",branch.voltage):sourceVoltage;display=(Number(value)||0).toFixed(2)+" V"}
- else if(S.meter==="current"){value=branch?measured("current",branch.current):sourceCurrent;display=(Number(value)||0).toFixed(3)+" A"}
+ else if(S.meter==="current"){value=branch?measured("current",branch.current):sourceSelected?(result.sourceCurrents||[]).filter(x=>x.id===selected.id).reduce((sum,x)=>sum+Math.abs(Number(x.current)||0),0)/3:Math.abs(sourceCurrent);display=(Number(value)||0).toFixed(3)+" A"}
  else if(S.meter==="resistance"){value=branch?measured("resistance",Math.abs(branch.current)>1e-12?Math.abs(branch.voltage/branch.current):Infinity):(Math.abs(sourceCurrent)>1e-12?Math.abs(sourceVoltage/sourceCurrent):Infinity);display=Number.isFinite(value)?value.toFixed(1)+" Ω":"∞ Ω"}
  else if(!branch){display="SELECT PART"}
  else {value=measured("continuity",Math.abs(branch.current)>1e-12&&Math.abs(branch.voltage/branch.current)<=.1);display=value?"PASS":"OPEN"}
