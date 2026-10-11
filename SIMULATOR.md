@@ -18,7 +18,7 @@ VoltPRo Simulator is the interactive simulation workspace for VoltPRo Academy.
 - Explicit 1P/2P/3P/4P breaker pole paths and an ABB AUX-CB-11 front auxiliary contact block (1NO + 3NC).
 - Arduino Uno R3 terminal map with shared GND, RESET, 5 V/ICSP VCC and I²C aliases.
 - BB400 breadboard representation with 400 individually addressable holes, five-hole strips and four continuous power rails.
-- Passive breadboard and board-pin aliases participate in the MNA topology; Arduino firmware execution remains outside this pin-map milestone.
+- Arduino `pinMode`, `digitalWrite`, `analogWrite` (DC-equivalent PWM), 5 V and 3.3 V rails drive real MNA branches. This is a deterministic static I/O interpreter, not a native compiler: conditional control flow, timed `loop()` execution, peripherals and full AVR behavior remain unsupported.
 - Schematic / Panel / Microcontroller workspace modes.
 - No account, server or paid dependency is required.
 
