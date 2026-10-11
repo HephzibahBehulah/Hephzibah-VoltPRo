@@ -51,7 +51,7 @@ test("catalog fuse ID uses its encoded current rating for overcurrent pickup",()
  const p={components:[
   comp("V1","battery",2,{voltage:12}),
   comp("F1","protection-mcb-fuse-2a",2,{rating:16,tripMultiplier:1.5}),
-  comp("R1","resistor",2,{resistance:4})
+  comp("R1","resistor",2,{resistance:3})
  ],wires:[wire("V1:0","F1:0"),wire("F1:1","R1:0"),wire("R1:1","V1:1")]};
  const result=E.dc(p);
  assert.equal(result.ok,true,JSON.stringify(result));
