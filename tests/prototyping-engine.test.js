@@ -105,6 +105,29 @@ test("catalog 230-to-24 V transformer performs isolated AC voltage conversion",(
  assert.ok(Math.abs(load.current-.24)<1e-6,"100 Ω load should draw 240 mA: "+JSON.stringify(load));
 });
 
+
+test("rated catalog lamp uses its nameplate voltage and power in the AC solve",()=>{
+ const p={components:[
+  comp("V1","ac_source",2,{voltage:230,frequency:50}),
+  comp("L1","loads-load-lamp-60w",2,{ratedVoltage:230,ratedPower:60})
+ ],wires:[wire("V1:0","L1:0"),wire("L1:1","V1:1")]};
+ const result=E.ac(p,{frequency:50,points:1});
+ assert.equal(result.ok,true,JSON.stringify(result));
+ const lamp=result.sweep[0].branches.find(b=>b.id==="L1");
+ assert.ok(Math.abs(lamp.voltage-230)<1e-6);
+ assert.ok(Math.abs(lamp.current-(60/230))<1e-5,"60 W at 230 V should draw about 261 mA: "+JSON.stringify(lamp));
+ assert.ok(Math.abs(lamp.power-60)<1e-3,"lamp should dissipate its rated 60 W: "+JSON.stringify(lamp));
+});
+test("catalog load equivalent respects disabled state",()=>{
+ const p={components:[
+  comp("V1","battery",2,{voltage:230}),
+  comp("H1","loads-load-heater-500w",2,{ratedVoltage:230,ratedPower:500,enabled:false})
+ ],wires:[wire("V1:0","H1:0"),wire("H1:1","V1:1")]};
+ const result=E.dc(p);
+ assert.equal(result.ok,true,JSON.stringify(result));
+ assert.ok(Math.abs(result.branches.find(b=>b.id==="H1").current)<1e-8);
+});
+
 test("BB400 joins each five-hole strip and power rail in the MNA topology",()=>{const p={components:[comp("V1","battery",2,{voltage:5}),comp("R1","resistor",2,{resistance:100}),comp("BB1","breadboard-bb400",400)],wires:[wire("V1:0","BB1:0"),wire("R1:0","BB1:30"),wire("R1:1","BB1:150"),wire("V1:1","BB1:150")]};const result=E.analyze(p).dc;assert.equal(result.ok,true,JSON.stringify(result));assert.ok(result.totalCurrent>0.04&&result.totalCurrent<0.06,"expected about 50 mA through 100 Ω at 5 V")});
 test("one-pole breaker opens and closes its actual line/load path",()=>{const base={components:[comp("V1","battery",2,{voltage:12}),comp("Q1","circuit-breaker-1p",2,{rating:16,closed:1}),comp("R1","resistor",2,{resistance:100})],wires:[wire("V1:0","Q1:0"),wire("Q1:1","R1:0"),wire("R1:1","V1:1")]};const closed=E.analyze(base).dc;assert.equal(closed.ok,true,JSON.stringify(closed));assert.ok(closed.totalCurrent>0.1);const opened=E.analyze({...base,components:base.components.map(c=>c.id==="Q1"?{...c,props:{...c.props,closed:0}}:c)}).dc;assert.equal(opened.ok,true,JSON.stringify(opened));assert.ok(Math.abs(opened.totalCurrent)<1e-9)});
 
