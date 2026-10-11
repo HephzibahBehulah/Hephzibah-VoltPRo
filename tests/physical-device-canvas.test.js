@@ -22,7 +22,7 @@ test("multi-pole breaker and contactor terminals map to physical terminal rows",
   assert.ok(source.includes("spacing=poles===4?22:24"));
   assert.ok(source.includes("y:-58"));
   assert.ok(source.includes("y:58"));
-  assert.ok(source.includes('const aux=label.match(/^([1-4])([1-4])$/)'));
+  assert.ok(source.includes('const aux=label.match(/^([1-4])([34])$/)'));
 });
 
 test("physical canvas terminals and labels remain visually prominent and cache-busted", () => {
