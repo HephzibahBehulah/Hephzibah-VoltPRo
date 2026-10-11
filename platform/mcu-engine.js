@@ -12,7 +12,7 @@ function parseInstructions(code){const list=[];let m;INSTRUCTION_RE.lastIndex=0;
 function simulate(code,opts={}){
  const source=String(code||""),inputs=opts.inputs||{},prior=opts.state?.signature===source?(opts.state||{}):{},pins={},serial=[];let m;
  PIN_RE.lastIndex=0;while((m=PIN_RE.exec(source))){const old=prior.pins?.[m[1]];pins[m[1]]=old?.mode===m[2]?{...old}:{mode:m[2],state:0,voltage:0}}
- const setup=functionBody(source,"setup"),loop=functionBody(source,"loop"),hasTimedLoop=loop!==null&&!/if\\s*\\(\\s*digitalRead/.test(loop),instructions=hasTimedLoop?parseInstructions(loop):[];
+ const setup=functionBody(source,"setup"),loop=functionBody(source,"loop"),hasTimedLoop=loop!==null&&!/if\s*\(\s*digitalRead/.test(loop),instructions=hasTimedLoop?parseInstructions(loop):[];
  let pc=Number(prior.pc)||0,delayRemainingMs=Math.max(0,Number(prior.delayRemainingMs)||0),initialized=Boolean(prior.initialized);
  if(!initialized){if(setup!==null){runWrites(setup,pins);runConditionals(setup,pins,inputs)}initialized=true}
  if(loop===null){runWrites(source,pins);runConditionals(source,pins,inputs)}
