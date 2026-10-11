@@ -42,7 +42,7 @@ function build(project,options={}){
  const refs=(project.wires||[]).flatMap(w=>[w.a,w.b]).filter(Boolean);
  refs.forEach(nodeFor);
  const wired=new Set(refs);
- const branches=[], voltageSources=[];
+ const branches=[], voltageSources=[], currentSources=[];
  const addBranch=(comp,a,b,kind,extra={})=>branches.push({comp,a:nodeFor(a),b:nodeFor(b),kind,...extra});
  for(const x of comps){
   const p=pinsOf(x),ty=typeOf(x),definition=window.VoltProTerminalGraph?.definitionFor?.(x.type);
@@ -97,12 +97,12 @@ function build(project,options={}){
   else if(["diode","zener","led"].includes(ty))addBranch(x,a,b,"diode",{vf:Math.max(0,value(x,["forward","forwardVoltage","vf"],ty==="led"?2:0.7)),rd:Math.max(1e-6,value(x,["resistance","dynamicResistance"],10)),reverse:Math.max(1e-9,value(x,["reverseLeakage"],1e-9))});
   else if(["bjt","transistor","npn","pnp"].includes(ty))addBranch(x,a,b,"bjt",{beta:Math.max(1,value(x,["beta","gain"],100)),vt:0.7});
   else if(["mosfet","nmos","pmos","igbt"].includes(ty))addBranch(x,a,b,"mosfet",{threshold:value(x,["threshold","vth"],3),onResistance:Math.max(1e-6,value(x,["onResistance","rdsOn"],1))});
-  else if(["current_source","isource"].includes(ty))voltageSources.push({comp:x,a:nodeFor(a),b:nodeFor(b),kind:"current",value:value(x,["current","amplitude"],1)});
+  else if(["current_source","isource"].includes(ty))currentSources.push({comp:x,a:nodeFor(a),b:nodeFor(b),kind:"current",value:value(x,["current","amplitude"],1)});
   else if(["battery","dcsource","voltage_source","ac_source","acsource"].includes(ty))voltageSources.push({comp:x,a:nodeFor(a),b:nodeFor(b),kind:"voltage",value:value(x,["voltage","amplitude"],12),phase:value(x,["phase","phaseDeg"],0)});
   else if(["vcvs","dependent_voltage_source"].includes(ty))voltageSources.push({comp:x,a:nodeFor(a),b:nodeFor(b),kind:"vcvs",gain:value(x,["gain"],1),cp:nodeFor(p[2]||a),cm:nodeFor(p[3]||b)});
   else if(["vccs","dependent_current_source"].includes(ty))addBranch(x,a,b,"vccs",{gm:value(x,["transconductance","gm"],1e-3),cp:nodeFor(p[2]||a),cm:nodeFor(p[3]||b)});
  }
- return {t,comps,nodeFor,nodeKeys,ground,branches,voltageSources,N:nodeKeys.length};
+ return {t,comps,nodeFor,nodeKeys,ground,branches,voltageSources,currentSources,N:nodeKeys.length};
 }
 function stampG(A,a,b,g){
  if(a>0)A[a-1][a-1]=add(A[a-1][a-1],g);
@@ -125,11 +125,12 @@ function linearSolve(b,options,history={}){
   else if(q.kind==="mosfet"){const vd=v(q.a).re-v(q.b).re;stampG(A,q.a,q.b,C(vd>q.threshold?1/q.onResistance:1e-9))}
   else if(q.kind==="vccs"){const j1=q.cp,j2=q.cm;if(q.a>0&&j1>0)A[q.a-1][j1-1]=add(A[q.a-1][j1-1],C(q.gm));if(q.a>0&&j2>0)A[q.a-1][j2-1]=sub(A[q.a-1][j2-1],C(q.gm));if(q.b>0&&j1>0)A[q.b-1][j1-1]=sub(A[q.b-1][j1-1],C(q.gm));if(q.b>0&&j2>0)A[q.b-1][j2-1]=add(A[q.b-1][j2-1],C(q.gm))}
  }
+ for(const q of b.currentSources||[])stampI(z,q.a,q.b,C(q.value));
  b.voltageSources.forEach((q,k)=>{
   let vv=C(q.value);
   if(q.kind==="voltage"&&options.ac&&(q.phasor||["ac_source","acsource"].includes(typeOf(q.comp)))){const ph=(q.phase||0)*Math.PI/180;vv=C(q.value*Math.cos(ph),q.value*Math.sin(ph))}
   if(q.kind==="vcvs")vv=mul(C(q.gain),sub(v(q.cp),v(q.cm)));
-  if(q.kind==="current")stampI(z,q.a,q.b,C(q.value));else stampV(A,z,q.a,q.b,k,vv);
+  stampV(A,z,q.a,q.b,vs-1-k,vv);
  });
  let x;try{x=solve(A,z)}catch(e){return {ok:false,error:e.message}};
  return {ok:true,x,nodeCount:n,sourceCount:vs};
