@@ -277,7 +277,7 @@ function solveSimulationTick(continuous=false){
    if(canonicalApi&&adapter){
      const canonicalProject=canonicalApi.migrate(legacyProject);
      const domains=new Set(canonicalProject.devices.flatMap(d=>d.terminals.map(t=>t.domain)));
-     const hasUnsupportedDomain=[...domains].some(domain=>domain!=="dc"&&domain!=="signal"&&domain!=="logic");
+     const hasUnsupportedDomain=[...domains].some(domain=>domain!=="dc");
      if(!hasUnsupportedDomain){
        const adapted=adapter.toSolverProject(canonicalProject,canonicalApi);
        project={...legacyProject,components:adapted.components,wires:adapted.wires,topology:adapted.topology};
