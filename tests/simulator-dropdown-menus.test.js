@@ -55,14 +55,14 @@ test("MCU Lab accepts named example sketches and retains explicit interpreter li
  assert.doesNotThrow(()=>new Function(ui));
  assert.ok(ui.includes("function open(options={})"));
  for(const sample of ["blink","button","pwm"])assert.ok(ui.includes(sample));
- assert.ok(ui.includes("if (digitalRead(2) == HIGH)"));
+ assert.ok(ui.includes("if (digitalRead(2) == LOW)"));
  assert.ok(ui.includes("analogWrite(9, 64)"));
  assert.ok(ui.includes("not a native compiler"));
 });
 
 test("cache and deployment version invalidates stale simulator shell and precaches menu runtime",()=>{
  const html=read("simulator.html"),worker=read("service-worker.js"),css=read("simulator-layout-restore.css");
- assert.ok(worker.includes('const CACHE="voltpro-v69"'));
+ assert.ok(worker.includes('const CACHE="voltpro-v70"'));
  assert.ok(worker.includes('"./platform/toolbar-menus.js"'));
  assert.ok(worker.includes('"./platform/ui.js"'));
  assert.ok(worker.includes('"./platform/workbench.js"'));
