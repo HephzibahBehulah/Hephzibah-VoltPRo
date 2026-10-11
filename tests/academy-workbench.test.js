@@ -63,7 +63,11 @@ test("simulator toolbar is organised into task groups without duplicate workbenc
     assert.match(html, new RegExp('id="' + id + '"'));
   }
   assert.equal((html.match(/href="academy-workbench\.html"/g) || []).length, 1);
-  assert.doesNotMatch(html, /href="academy-workbench\.html#(faults|challenges|demos)"/);
+  assert.match(html, /href="academy-workbench\.html#demos"/);
+  assert.match(html, /href="academy-workbench\.html#faults"/);
+  assert.match(html, /href="academy-workbench\.html#challenges"/);
+  assert.match(html, /href="academy-workbench\.html#tutorials"/);
+  assert.match(html, /href="academy-workbench\.html#logic-lab"/);
   assert.match(html, /href="academy-workbench\.html#projects"/);
   assert.match(read("simulator.js"), /getBoundingClientRect\(\)/);
 });
