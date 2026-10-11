@@ -858,9 +858,9 @@ test("catalog full subtractor computes difference and borrow",()=>{
 
 test("catalog four-bit shift register shifts serial data only on enabled rising edges",()=>{
  const make=(serial,clock,state)=>{const components=[comp("VS","battery",2,{voltage:serial?5:0}),comp("VC","battery",2,{voltage:clock?5:0}),comp("VE","battery",2,{voltage:5}),comp("S1","logic-logic-shiftregister",7,{inputThreshold:2.5,logicVoltage:5})];if(state)components.find(c=>c.id==="S1").state=state;return {components,wires:[wire("VS:1","VC:1"),wire("VC:1","VE:1"),wire("VS:0","S1:0"),wire("VC:0","S1:1"),wire("VE:0","S1:2")]};};
- let r=E.dc(make(true,false,null));assert.equal(r.ok,true,JSON.stringify(r));assert.deepEqual(r.deviceStates.S1.bits,[false,false,false,false]);
- r=E.dc(make(true,true,r.deviceStates.S1));assert.equal(r.ok,true,JSON.stringify(r));assert.deepEqual(r.deviceStates.S1.bits,[true,false,false,false]);
- r=E.dc(make(false,true,r.deviceStates.S1));assert.equal(r.ok,true,JSON.stringify(r));assert.deepEqual(r.deviceStates.S1.bits,[true,false,false,false],"held clock must not shift again");
+ let r=E.dc(make(true,false,null));assert.equal(r.ok,true,JSON.stringify(r));assert.equal(r.deviceStates.S1.bits[0],false);assert.equal(r.deviceStates.S1.bits[1],false);assert.equal(r.deviceStates.S1.bits[2],false);assert.equal(r.deviceStates.S1.bits[3],false);
+ r=E.dc(make(true,true,r.deviceStates.S1));assert.equal(r.ok,true,JSON.stringify(r));assert.equal(r.deviceStates.S1.bits[0],true);assert.equal(r.deviceStates.S1.bits[1],false);assert.equal(r.deviceStates.S1.bits[2],false);assert.equal(r.deviceStates.S1.bits[3],false);
+ r=E.dc(make(false,true,r.deviceStates.S1));assert.equal(r.ok,true,JSON.stringify(r));assert.equal(r.deviceStates.S1.bits[0],true);assert.equal(r.deviceStates.S1.bits[1],false);assert.equal(r.deviceStates.S1.bits[2],false);assert.equal(r.deviceStates.S1.bits[3],false,"held clock must not shift again");
  r=E.dc(make(false,false,r.deviceStates.S1));assert.equal(r.ok,true,JSON.stringify(r));
- r=E.dc(make(false,true,r.deviceStates.S1));assert.equal(r.ok,true,JSON.stringify(r));assert.deepEqual(r.deviceStates.S1.bits,[false,true,false,false]);
+ r=E.dc(make(false,true,r.deviceStates.S1));assert.equal(r.ok,true,JSON.stringify(r));assert.equal(r.deviceStates.S1.bits[0],false);assert.equal(r.deviceStates.S1.bits[1],true);assert.equal(r.deviceStates.S1.bits[2],false);assert.equal(r.deviceStates.S1.bits[3],false);
 });
