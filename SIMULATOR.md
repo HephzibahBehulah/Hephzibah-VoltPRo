@@ -16,7 +16,7 @@ VoltPRo Simulator is the interactive simulation workspace for VoltPRo Academy.
 - A wired PLC controller with 24 V supply sensing, three electrically sensed digital inputs, four isolated relay outputs, and ladder scan co-simulation with the MNA engine.
 - Run mode re-solves the circuit on a live 250 ms tick; Stop halts the loop. PLC timers advance with simulation ticks, and changing inputs can update relay outputs and contactor state without restarting analysis.
 - Undo/redo, project persistence, `.voltpro` JSON export/import.
-- Component registry designed for progressive expansion; catalog motor variants with two terminals now resolve to a solved resistive electrical equivalent. These generic catalog motors do not yet calculate speed, torque, back-EMF, mechanical load or starting current.
+- Component registry designed for progressive expansion; two-terminal catalog motor variants resolve to a resistive electrical equivalent, and catalog MCB/MCCB/RCBO/fuse IDs resolve to protective paths with ratings inferred from their model IDs when generic defaults are present. Generic catalog motors do not calculate speed, torque, back-EMF, mechanical load or starting current; RCD leakage detection is not modeled.
 - Explicit 1P/2P/3P/4P breaker pole paths and an ABB AUX-CB-11 front auxiliary contact block (1NO + 3NC).
 - Arduino Uno R3 terminal map with shared GND, RESET, 5 V/ICSP VCC and I²C aliases.
 - BB400 breadboard representation with 400 individually addressable holes, five-hole strips and four continuous power rails.
