@@ -285,7 +285,7 @@ function solveSimulationTick(continuous=false){
  const amps=Number(dc.totalCurrent)||0;
  $("#meterReadout").textContent=amps.toFixed(4)+" A";
  $("#console").textContent="VOLTPro Engine v3\\nAnalysis: "+(dc.analysis||"DC operating point")+"\\nSource: "+(dc.sourceVoltage||0)+" V\\nTotal current: "+amps.toFixed(4)+" A\\nTotal power: "+(Number(dc.totalPower)||0).toFixed(4)+" W\\nNodes: "+(dc.nodes||0)+"\\n";
- (dc.branches||[]).forEach(x=>$("#console").textContent+=x.name+" · "+(Number(x.voltage)||0).toFixed(3)+" V · "+(Number(x.current)||0).toFixed(4)+" A · "+(Number(x.power)||0).toFixed(4)+" W\\n");
+ (dc.branches||[]).forEach(x=>$("#console").textContent+=x.name+" · "+(Number(x.voltage)||0).toFixed(3)+" V · "+(Number(x.current)||0).toFixed(4)+" A · "+(Number(x.power)||0).toFixed(4)+" W\\n");if(project.faultDiagnostics?.applied?.length)$("#console").textContent+="Faults applied: "+project.faultDiagnostics.applied.join(", ")+"\\n";if(project.faultDiagnostics?.unsupported?.length)$("#console").textContent+="Unsupported faults: "+project.faultDiagnostics.unsupported.map(f=>f.id+" ("+f.reason+")").join("; ")+"\\n";
  $("#calcPanel").innerHTML="<b>DC operating point</b><br>Current: "+amps.toFixed(4)+" A<br>Power: "+(Number(dc.totalPower)||0).toFixed(4)+" W<br><small>Engine v3 · educational analysis</small>";
  if(!continuous||visualBefore!==visualSignature())renderCanvas();syncRunControls();if(!continuous)log("Engine v3 analysis complete.");
 }
