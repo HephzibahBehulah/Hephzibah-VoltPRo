@@ -41,3 +41,17 @@ test("numeric zero opens a legacy generic switch rather than being treated as cl
  assert.equal(result.ok,true,JSON.stringify(result));
  assert.ok(Math.abs(result.totalCurrent)<1e-9);
 });
+
+test("balanced three-phase MNA source drives all three motor windings at phase voltage",()=>{
+ const p={components:[comp("PS1","threephase",4,{voltage:400,frequency:50,sequence:"ABC"}),comp("Q1","circuit-breaker-3p",6,{closed:1}),comp("M1","motor",7,{resistance:24})],wires:[
+ wire("PS1:0","Q1:0"),wire("PS1:1","Q1:1"),wire("PS1:2","Q1:2"),
+ wire("Q1:3","M1:0"),wire("Q1:4","M1:1"),wire("Q1:5","M1:2"),
+ wire("M1:3","PS1:3"),wire("M1:4","PS1:3"),wire("M1:5","PS1:3")
+ ]};
+ const result=E.ac(p,{frequency:50,points:1});
+ assert.equal(result.ok,true,JSON.stringify(result));
+ const row=result.sweep[0],windings=row.branches.filter(b=>b.id==="M1");
+ assert.equal(windings.length,3);
+ for(const winding of windings){assert.ok(Math.abs(winding.voltage-400/Math.sqrt(3))<.1,"expected phase voltage: "+JSON.stringify(winding));assert.ok(Math.abs(winding.current-(400/Math.sqrt(3))/24)<.01,"expected winding current: "+JSON.stringify(winding))}
+ assert.equal(row.sourceCurrents.filter(s=>s.id==="PS1").length,3);
+});
