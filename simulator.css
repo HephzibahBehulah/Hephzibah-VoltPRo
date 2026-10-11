@@ -222,3 +222,6 @@ body.simulator-page.light .status[data-state="error"]{background:#fff0f1;border-
  .workspace.inspector-hidden #inspectorPanel{display:none!important}
  .workspace.palette-hidden #palette{display:block!important;transform:translateX(-110%)}
 }
+
+/* Arduino Uno header labels use compact vertical text so adjacent pin names remain legible. */
+.component .arduino-terminal-label{font-size:7px;font-weight:900;letter-spacing:0;paint-order:stroke;stroke:#176b58;stroke-width:1.4px;stroke-linejoin:round}
