@@ -200,7 +200,7 @@ test("catalog relay coil rating is inferred from a 24 VDC model ID",()=>{
   comp("R1","resistor",2,{resistance:100})
  ],wires:[
   wire("V1:0","K1:0"),wire("K1:1","V1:1"),
-  wire("V1:0","K1:2"),wire("K1:3","R1:0"),wire("R1:1","V1:1")
+  wire("V1:0","K1:2"),wire("K1:4","R1:0"),wire("R1:1","V1:1")
  ]};
  const result=E.analyze(p).dc;
  assert.equal(result.ok,true,JSON.stringify(result));
