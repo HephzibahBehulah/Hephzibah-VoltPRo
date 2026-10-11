@@ -172,3 +172,7 @@ body.simulator-page.light .status[data-state="error"]{background:#fff0f1;border-
 .component .breadboard-pin:hover{r:5;fill:#35d5ff;stroke:#fff;stroke-width:1.5;}
 .component .board-pin{r:3.5;fill:#d7e4e7;stroke:#263d43;stroke-width:1.2;}
 .component .board-pin:hover{r:6;fill:#ffc45c;stroke:#fff;stroke-width:1.5;}
+
+/* Live electrical state feedback from the MNA engine */
+.component.energized .symbol{stroke:#16a34a;filter:drop-shadow(0 0 4px rgba(22,163,74,.55))}
+.component.tripped .symbol{stroke:#dc2626;filter:drop-shadow(0 0 5px rgba(220,38,38,.65))}
