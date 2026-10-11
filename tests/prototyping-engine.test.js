@@ -4,7 +4,8 @@ const fs=require("node:fs");
 const vm=require("node:vm");
 const T=require("../src/core/terminal-graph.js");
 const Ladder=require("../platform/ladder-engine.js");
-function loadEngine(){const window={VoltProTerminalGraph:T,VoltProLadder:Ladder};vm.runInNewContext(fs.readFileSync("engine/voltpro-engine.js","utf8"),{window,Map,Set,Array,String,Number,Math,Boolean,Object,JSON,Error});return window.VoltProEngine}
+const MCU=require("../platform/mcu-engine.js");
+function loadEngine(){const window={VoltProTerminalGraph:T,VoltProLadder:Ladder,VoltProMCU:MCU};vm.runInNewContext(fs.readFileSync("engine/voltpro-engine.js","utf8"),{window,Map,Set,Array,String,Number,Math,Boolean,Object,JSON,Error});return window.VoltProEngine}
 const E=loadEngine();
 function comp(id,type,pins,props={}){return {id,type,pins:Array.from({length:pins},(_,i)=>id+":"+i),props}}
 function wire(a,b){return {a,b}}
@@ -200,4 +201,22 @@ test("PLC ladder outputs drive a wired contactor and respect stop interlocks",()
  assert.equal(stopped.deviceStates.PLC1.Q0,false,"opening the physical Stop input should reset the ladder rung");
  assert.equal(stopped.deviceStates.KM1,false);
  assert.ok(Math.abs(stopped.branches.find(b=>b.id==="R1").current)<1e-6);
+});
+
+test("Arduino Uno sketch drives D13 into a real resistor branch",()=>{
+ const p={components:[comp("UNO","arduino-uno-r3",38,{logicVoltage:5,sketch:"void setup(){pinMode(13,OUTPUT);digitalWrite(13,HIGH);}"}),comp("R1","resistor",2,{resistance:220})],wires:[wire("UNO:13","R1:0"),wire("R1:1","UNO:15")]};
+ const high=E.analyze(p).dc;
+ assert.equal(high.ok,true,JSON.stringify(high));
+ assert.ok(high.branches.find(b=>b.id==="R1").current>.02);
+ p.components[0].props.sketch="void setup(){pinMode(13,OUTPUT);digitalWrite(13,LOW);}";
+ const low=E.analyze(p).dc;
+ assert.equal(low.ok,true,JSON.stringify(low));
+ assert.ok(Math.abs(low.branches.find(b=>b.id==="R1").current)<1e-9);
+});
+test("Arduino 5 V pin powers an external load through the board supply rail",()=>{
+ const p={components:[comp("UNO","arduino-uno-r3",38,{logicVoltage:5,sketch:""}),comp("R1","resistor",2,{resistance:1000})],wires:[wire("UNO:21","R1:0"),wire("R1:1","UNO:15")]};
+ const result=E.analyze(p).dc;
+ assert.equal(result.ok,true,JSON.stringify(result));
+ assert.ok(result.branches.find(b=>b.id==="R1").current>.0049);
+ assert.ok(result.branches.find(b=>b.id==="R1").current<.0051);
 });
