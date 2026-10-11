@@ -324,7 +324,7 @@ $("[data-meter]").forEach(b=>b.onclick=()=>{
  let value,display;
  if(S.meter==="voltage"){value=branch?measured("voltage",branch.voltage):sourceVoltage;display=(Number(value)||0).toFixed(2)+" V"}
  else if(S.meter==="current"){value=branch?measured("current",branch.current):sourceSelected?(result.sourceCurrents||[]).filter(x=>x.id===selected.id).reduce((sum,x)=>sum+Math.abs(Number(x.current)||0),0)/3:Math.abs(sourceCurrent);display=(Number(value)||0).toFixed(3)+" A"}
- else if(S.meter==="resistance"){value=branch?measured("resistance",Math.abs(branch.current)>1e-12?Math.abs(branch.voltage/branch.current):Infinity):(Math.abs(sourceCurrent)>1e-12?Math.abs(sourceVoltage/sourceCurrent):Infinity);display=Number.isFinite(value)?value.toFixed(1)+" Ω":"∞ Ω"}
+ else if(S.meter==="resistance"){value=branch?measured("resistance",Math.abs(branch.current)>1e-12?Math.abs(branch.voltage/branch.current):Infinity):(Math.abs(sourceCurrent)>1e-12?Math.abs((sourceSelected?sourceVoltage/Math.sqrt(3):sourceVoltage)/sourceCurrent):Infinity);display=Number.isFinite(value)?value.toFixed(1)+" Ω":"∞ Ω"}
  else if(!branch){display="SELECT PART"}
  else {value=measured("continuity",Math.abs(branch.current)>1e-12&&Math.abs(branch.voltage/branch.current)<=.1);display=value?"PASS":"OPEN"}
  $("#meterReadout").textContent=display;
