@@ -87,3 +87,8 @@ test("catalog combinational blocks expose their full signal pin lists",()=>{
  assert.equal(T.definitionFor("logic-logic-adder").terminals.map(t=>t.id).join(","),"A,B,Cin,Sum,Cout");
  assert.equal(T.definitionFor("logic-logic-subtractor").terminals.map(t=>t.id).join(","),"A,B,Bin,Diff,Borrow");
 });
+
+test("catalog shift register exposes serial, clock, enable and four output pins",()=>{
+ const T=load();
+ assert.equal(T.definitionFor("logic-logic-shiftregister").terminals.map(t=>t.id).join(","),"SER,CLK,EN,Q0,Q1,Q2,Q3");
+});
