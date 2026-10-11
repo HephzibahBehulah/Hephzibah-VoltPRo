@@ -333,6 +333,7 @@ async function loadProject(data){
  $$(".mode").forEach(b=>{const active=b.dataset.mode===S.mode;b.classList.toggle("active",active)});
  syncWireMenu();render();window.VoltProRealisticDevices?.update?.();
  log("PROJECT LOADED · "+S.components.length+" devices · "+S.wires.length+" wires");
+ window.dispatchEvent(new CustomEvent("voltpro-project-loaded",{detail:{data:input}}));
 }
 window.VoltProSimulator.serialize=serialize;
 window.VoltProSimulator.loadProject=loadProject;
