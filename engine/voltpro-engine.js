@@ -205,6 +205,9 @@ function linearSolve(b,options,history={}){
   if(q.s2>0)A[ip][q.s2-1]=add(A[ip][q.s2-1],C(q.ratio));
   A[is][ip]=add(A[is][ip],C(1));
   A[is][is]=add(A[is][is],C(1/q.ratio));
+  // A floating ideal secondary has an arbitrary common-mode voltage. Add a
+  // 1 GΩ solver reference to ground; this is negligible beside practical loads.
+  if(q.s2>0)stampG(A,q.s2,0,C(1e-9));
  });
  let x;try{x=solve(A,z)}catch(e){return {ok:false,error:e.message}};
  return {ok:true,x,nodeCount:n,sourceCount:vs};
