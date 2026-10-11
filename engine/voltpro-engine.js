@@ -45,10 +45,10 @@ function topology(project){
  return {find};
 }
 function build(project,options={}){
- const t=topology(project), comps=project.components||[], source=comps.find(x=>["battery","dcsource","voltage_source","ac_source","acsource","threephase","controlsource"].includes(typeOf(x)));
+ const t=topology(project), comps=project.components||[], source=comps.find(x=>["battery","dcsource","voltage_source","ac_source","acsource","threephase","controlsource","arduino_uno_r3"].includes(typeOf(x)));
  const explicit=options.groundRef||project.groundRef||"GND";
  let ground=explicit;
- if(!comps.some(x=>pinsOf(x).includes(explicit)) && source)ground=typeOf(source)==="threephase"?(pinsOf(source)[3]||pinsOf(source)[1]):pinsOf(source)[1];
+ if(!comps.some(x=>pinsOf(x).includes(explicit)) && source)ground=typeOf(source)==="threephase"?(pinsOf(source)[3]||pinsOf(source)[1]):typeOf(source)==="arduino_uno_r3"?(pinsOf(source)[15]||pinsOf(source)[22]||pinsOf(source)[37]):pinsOf(source)[1];
  const nodeKeys=[], nodeMap=new Map();
  const nodeFor=r=>{const q=t.find(r);if(t.find(ground)===q)return 0;if(!nodeMap.has(q)){nodeMap.set(q,nodeKeys.length+1);nodeKeys.push(q)}return nodeMap.get(q)};
  const refs=(project.wires||[]).flatMap(w=>[w.a,w.b]).filter(Boolean);
@@ -96,6 +96,14 @@ function build(project,options={}){
     const closed=Boolean(tripped)===Boolean(contact.closedWhen??true);
     addBranch(x,a,b,"resistor",{R:closed?Math.max(EPS,value(x,["onResistance"],1e-6)):Math.max(EPS,value(x,["offResistance"],3e10)),contactId:contact.id});
    }
+   continue;
+  }
+  if(ty==="arduino_uno_r3"){
+   const index=new Map((definition?.terminals||[]).map((t,i)=>[String(t.id),p[i]])),gnd=index.get("GND_D")||index.get("GND_1")||index.get("GND_2")||p[15],fiveV=index.get("5V"),threeV3=index.get("3V3"),ioRef=index.get("IOREF"),firmware=window.VoltProMCU?.simulate?.(String(x.props?.sketch??x.props?.code??""),{target:"Arduino Uno R3"}),pinStates=firmware?.pins||{},pullups=[];
+   for(let n=0;n<=13;n++){const pin=index.get("D"+n),state=pinStates[String(n)];if(!pin||!state)continue;if(state.mode==="OUTPUT"&&wired.has(pin)){const voltage=Number(state.voltage??(state.state?value(x,["logicVoltage"],5):0));voltageSources.push({comp:x,a:nodeFor(pin),b:nodeFor(gnd),kind:"voltage",value:Number.isFinite(voltage)?voltage:0,phase:0,pinName:"D"+n})}else if(state.mode==="INPUT_PULLUP"&&wired.has(pin))pullups.push(pin)}
+   if(fiveV&&(wired.has(fiveV)||(ioRef&&wired.has(ioRef))||pullups.length))voltageSources.push({comp:x,a:nodeFor(fiveV),b:nodeFor(gnd),kind:"voltage",value:Math.max(EPS,value(x,["logicVoltage"],5)),phase:0,pinName:"5V"});
+   if(threeV3&&wired.has(threeV3))voltageSources.push({comp:x,a:nodeFor(threeV3),b:nodeFor(gnd),kind:"voltage",value:3.3,phase:0,pinName:"3V3"});
+   for(const pin of pullups){if(fiveV)addBranch(x,pin,fiveV,"resistor",{R:Math.max(EPS,value(x,["pullupResistance"],20000)),contactId:"pullup-"+String(pin).split(":").pop()})}
    continue;
   }
   if(ty==="plc_controller"){
