@@ -70,11 +70,32 @@ function panel(){
  syncDevices();draw();
 }
 function plc(){
- const io={i0:false,i1:false,i2:false,q0:false,q1:false};
- const draw=()=>{io.q0=io.i0&&!io.i1&&!io.i2;io.q1=io.q0;const state=io.i2?"EMERGENCY STOP ACTIVE":io.i1?"STOP PRESSED":io.q0?"MOTOR RUNNING":"READY · MOTOR OFF";const ladder="PLC LADDER LOGIC\n\n|----[ I0 START ]----[/ I1 STOP ]----[/ I2 E-STOP ]----( Q0 MOTOR )----|\n|-----------------------------------------------[ Q0 MOTOR ]----( Q1 LAMP )----|\n\nState: "+state+"\n\nInputs: I0="+(io.i0?"ON":"OFF")+" · I1="+(io.i1?"PRESSED":"RELEASED")+" · I2="+(io.i2?"ACTIVE":"SAFE")+"\nOutputs: Q0="+(io.q0?"ON":"OFF")+" · Q1="+(io.q1?"ON":"OFF")+"\n\nEducational logic only. No physical PLC is connected.";const el=$("#vpwLadder");if(el)el.textContent=ladder;document.querySelectorAll("[data-plc]").forEach(btn=>{const key=btn.dataset.plc;btn.classList.toggle("active",io[key]);btn.setAttribute("aria-pressed",String(io[key]));btn.textContent=(key==="i0"?"I0 Start":key==="i1"?"I1 Stop":"I2 E-Stop")+(io[key]?" · ACTIVE":"")})};
- open("PLC LOGIC LAB",'<aside class="vpw-side"><div class="vpw-logic-card"><b>Digital inputs</b><p>Toggle an input to see the ladder outputs update.</p><button data-plc="i0">I0 Start</button><button data-plc="i1">I1 Stop</button><button data-plc="i2">I2 E-Stop</button></div><div class="vpw-logic-card"><b>Calculated outputs</b><p>Q0 Motor: <strong id="vpwQ0">OFF</strong></p><p>Q1 Lamp: <strong id="vpwQ1">OFF</strong></p></div></aside><main class="vpw-main"><div class="vpw-ladder" id="vpwLadder"></div></main>');
- document.querySelectorAll("[data-plc]").forEach(btn=>btn.onclick=()=>{const key=btn.dataset.plc;io[key]=!io[key];draw();$("#vpwQ0").textContent=io.q0?"ON":"OFF";$("#vpwQ1").textContent=io.q1?"ON":"OFF";$("#vpwQ0").style.color=io.q0?"#65e6ad":"#8da4bd";$("#vpwQ1").style.color=io.q1?"#65e6ad":"#8da4bd"});
- draw();
+ const program={rungs:[
+  {id:"motor-seal-in",branches:[
+   [{address:"I1",type:"NC"},{address:"I2",type:"NC"},{address:"I0",type:"NO"}],
+   [{address:"I1",type:"NC"},{address:"I2",type:"NC"},{address:"Q0",type:"NO"}]
+  ],coils:[{address:"Q0",type:"COIL"}]},
+  {id:"run-lamp",branches:[[{address:"Q0",type:"NO"}]],coils:[{address:"Q1",type:"COIL"}]}
+ ]};
+ const io={i0:false,i1:false,i2:false,q0:false,q1:false,state:{}};
+ const draw=(dtMs=0)=>{
+  const result=window.VoltProLadder?.scan(program,{I0:io.i0,I1:io.i1,I2:io.i2},io.state,{dtMs});
+  if(!result?.ok){io.q0=false;io.q1=false;const el=$("#vpwLadder");if(el)el.textContent="LADDER ENGINE UNAVAILABLE\n\nNo simulated outputs were updated.";return}
+  io.state=result.state;io.q0=Boolean(result.outputs.Q0);io.q1=Boolean(result.outputs.Q1);
+  const state=io.i2?"EMERGENCY STOP ACTIVE":io.i1?"STOP PRESSED":io.q0?"MOTOR RUNNING":"READY · MOTOR OFF";
+  const rungText=program.rungs.map((r,i)=>{
+   const live=result.rungs[i],branches=r.branches.map((branch,j)=>branch.map(c=>(c.type==="NC"?"[/ ":"[ ")+c.address+(c.type==="NC"?" ]":" ]")).join("──"));
+   return (live.powered?"●":"○")+" "+branches.join("  ||  ")+" ── ("+r.coils.map(c=>c.address).join(", ")+")";
+  }).join("\n");
+  const ladder="PLC LADDER LOGIC · EXECUTING\n\n"+rungText+"\n\nState: "+state+"\n\nInputs: I0="+(io.i0?"ON":"OFF")+" · I1="+(io.i1?"PRESSED":"RELEASED")+" · I2="+(io.i2?"ACTIVE":"SAFE")+"\nOutputs: Q0="+(io.q0?"ON":"OFF")+" · Q1="+(io.q1?"ON":"OFF")+"\n\nEngine: scan-based ladder evaluation · Seal-in contact Q0 · NC stop and E-stop interlocks.\nEducational logic only. No physical PLC is connected.";
+  const el=$("#vpwLadder");if(el)el.textContent=ladder;
+  document.querySelectorAll("[data-plc]").forEach(btn=>{const key=btn.dataset.plc;btn.classList.toggle("active",io[key]);btn.setAttribute("aria-pressed",String(io[key]));btn.textContent=(key==="i0"?"I0 Start":key==="i1"?"I1 Stop":"I2 E-Stop")+(io[key]?" · ACTIVE":"")});
+  $("#vpwQ0").textContent=io.q0?"ON":"OFF";$("#vpwQ1").textContent=io.q1?"ON":"OFF";
+  $("#vpwQ0").style.color=io.q0?"#65e6ad":"#8da4bd";$("#vpwQ1").style.color=io.q1?"#65e6ad":"#8da4bd";
+ };
+ open("PLC LOGIC LAB",'<aside class="vpw-side"><div class="vpw-logic-card"><b>Digital inputs</b><p>Toggle an input to scan the ladder program.</p><button data-plc="i0">I0 Start</button><button data-plc="i1">I1 Stop</button><button data-plc="i2">I2 E-Stop</button></div><div class="vpw-logic-card"><b>Calculated outputs</b><p>Q0 Motor: <strong id="vpwQ0">OFF</strong></p><p>Q1 Lamp: <strong id="vpwQ1">OFF</strong></p></div></aside><main class="vpw-main"><div class="vpw-ladder" id="vpwLadder"></div></main>');
+ document.querySelectorAll("[data-plc]").forEach(btn=>btn.onclick=()=>{const key=btn.dataset.plc;io[key]=!io[key];draw(10)});
+ draw(0);
 }
 function micro(){
  open("MICROCONTROLLER LAB",'<main class="vpw-main"><div class="vpw-logic-card"><b>Local educational sketch runner</b><p>Models a safe static subset of pinMode, digitalWrite and Serial print statements. It does not compile or upload firmware.</p><label>Board <select id="vpwBoard"><option>Arduino UNO</option><option>Generic GPIO</option></select></label></div><textarea id="vpwCode" rows="12" style="width:100%;margin:10px 0;background:#06101b;color:#eaf5ff;border:1px solid #31516d;border-radius:8px;padding:12px;font:12px/1.6 ui-monospace,monospace">void setup(){\n  pinMode(13, OUTPUT);\n  Serial.println("VoltPRo ready");\n}\nvoid loop(){\n  digitalWrite(13, HIGH);\n}</textarea><button id="vpwRunMcu">Run educational simulation</button><pre id="vpwMcuOut" style="white-space:pre-wrap;overflow-wrap:anywhere;background:#06101b;border:1px solid #29475f;border-radius:8px;padding:12px">Ready. Run the sketch to inspect modeled pin states.</pre></main>');
