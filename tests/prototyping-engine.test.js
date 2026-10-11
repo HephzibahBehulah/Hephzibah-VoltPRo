@@ -39,6 +39,18 @@ test("fuse opens when current exceeds its simplified pickup threshold",()=>{
  assert.ok(Math.abs(result.branches.find(b=>b.id==="R1").current)<1e-8);
 });
 
+
+test("AC overcurrent pickup opens a breaker and re-solves the phasor network",()=>{
+ const p={components:[
+  comp("V1","ac_source",2,{voltage:230,frequency:50}),
+  comp("Q1","circuit-breaker-1p",2,{rating:2,tripMultiplier:5,closed:1}),
+  comp("R1","resistor",2,{resistance:10})
+ ],wires:[wire("V1:0","Q1:0"),wire("Q1:1","R1:0"),wire("R1:1","V1:1")]};
+ const result=E.ac(p,{frequency:50,points:1});
+ assert.equal(result.ok,true,JSON.stringify(result));
+ assert.equal(result.sweep[0].deviceStates.Q1.tripped,true,"23 A exceeds the 10 A pickup");
+ assert.ok(Math.abs(result.sweep[0].branches.find(b=>b.id==="R1").current)<1e-8,"AC breaker trip must interrupt the load");
+});
 test("four-pole breaker exposes independent phase and neutral paths without shorting different poles",()=>{const def=T.definitionFor("circuit-breaker-4p");assert.equal(def.paths.length,4);assert.deepEqual(Array.from(def.paths,p=>[p.from,p.to]),[["L1","T1"],["L2","T2"],["L3","T3"],["N","TN"]]);});
 
 test("Arduino Uno R3 aliases shared power, ground, reset and I2C terminals in the MNA topology",()=>{const p={components:[comp("V1","battery",2,{voltage:5}),comp("R1","resistor",2,{resistance:100}),comp("U1","arduino-uno-r3",38)],wires:[wire("V1:0","U1:21"),wire("R1:0","U1:33"),wire("R1:1","V1:1")]};const result=E.analyze(p).dc;assert.equal(result.ok,true,JSON.stringify(result));assert.ok(result.totalCurrent>0.04&&result.totalCurrent<0.06,"5V and ICSP VCC should share a net")});
