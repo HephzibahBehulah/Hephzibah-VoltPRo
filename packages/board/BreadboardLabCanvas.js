@@ -2,7 +2,7 @@
 (function(root,factory){const api=factory();if(typeof module!=="undefined"&&module.exports)module.exports=api;if(root)root.VoltProBreadboardLabCanvas=api;})(typeof globalThis!=="undefined"?globalThis:this,function(){
 'use strict';
 const Model=typeof require==='function'?require('./BreadboardModel.js'):globalThis.VoltProBoardModel;
-const Renderer=typeof require==='function'?require('./BreadboardRenderer.js'):globalThis.VoltProBreadboardRenderer;
+const Renderer=typeof require==='function'?require('./BreadboardRenderer.js').BreadboardRenderer:globalThis.VoltProBreadboardRenderer.BreadboardRenderer;
 const Camera=typeof require==='function'?require('./CameraController.js').CameraController:globalThis.VoltProCameraController;
 function legacyToHole(r,c){const col=Math.max(0,Math.min((r<2||r>12)?49:62,Number(c)||0))+1;if(r<2)return 'TP'+(r===0?'+':'-')+col;if(r>12)return 'BP'+(r===13?'+':'-')+col;if(r===7)return null;const rows={2:'a',3:'b',4:'c',5:'d',6:'e',8:'f',9:'g',10:'h',11:'i',12:'j'};return rows[r]?rows[r]+col:null;}
 function holeToLegacy(id){const h=Model.holeAt(id);if(!h)return null;if(h.kind==='terminal'){const rows='abcdefghij',r=rows.indexOf(h.row);return {r:r+(r<5?2:3),c:h.column-1};}const m=/^([TB])P([+-])(\d+)$/.exec(id);if(!m)return null;return {r:m[1]==='T'?(m[2]==='+'?0:1):(m[2]==='+'?13:14),c:Number(m[3])-1};}
