@@ -1,0 +1,22 @@
+/* Live Canvas2D view adapter for the existing Breadboard Lab project model. */
+(function(root,factory){const api=factory();if(typeof module!=="undefined"&&module.exports)module.exports=api;if(root)root.VoltProBreadboardLabCanvas=api;})(typeof globalThis!=="undefined"?globalThis:this,function(){
+'use strict';
+const Model=typeof require==='function'?require('./BreadboardModel.js'):globalThis.VoltProBoardModel;
+const Renderer=typeof require==='function'?require('./BreadboardRenderer.js'):globalThis.VoltProBreadboardRenderer;
+const Camera=typeof require==='function'?require('./CameraController.js').CameraController:globalThis.VoltProCameraController;
+function legacyToHole(r,c){const col=Math.max(0,Math.min((r<2||r>12)?49:62,Number(c)||0))+1;if(r<2)return 'TP'+(r===0?'+':'-')+col;if(r>12)return 'BP'+(r===13?'+':'-')+col;if(r===7)return null;const rows={2:'a',3:'b',4:'c',5:'d',6:'e',8:'f',9:'g',10:'h',11:'i',12:'j'};return rows[r]?rows[r]+col:null;}
+function holeToLegacy(id){const h=Model.holeAt(id);if(!h)return null;if(h.kind==='terminal'){const rows='abcdefghij',r=rows.indexOf(h.row);return {r:r+(r<5?2:3),c:h.column-1};}const m=/^([TB])P([+-])(\d+)$/.exec(id);if(!m)return null;return {r:m[1]==='T'?(m[2]==='+'?0:1):(m[2]==='+'?13:14),c:Number(m[3])-1};}
+class BreadboardLabCanvas{
+ constructor(canvas,options={}){this.canvas=canvas;this.camera=new Camera({boardBounds:{x:-4,y:-8,width:165,height:55},padding:18});this.renderer=new Renderer(canvas,{camera:this.camera,theme:'dark',boardBounds:{x:-4,y:-8,width:165,height:55}});this.onHole=options.onHole||(()=>{});this.state=null;this.resizeObserver=typeof ResizeObserver!=='undefined'?new ResizeObserver(()=>this.resize()):null;this.resizeObserver?.observe(canvas.parentElement);this.resize();canvas.addEventListener('click',e=>this.handleClick(e));canvas.addEventListener('pointermove',e=>this.handleMove(e));canvas.addEventListener('keydown',e=>this.handleKey(e));canvas.tabIndex=0;canvas.setAttribute('role','application');canvas.setAttribute('aria-label','Physical breadboard canvas. Click a tie point to place a component or connect a wire. Use plus and minus to zoom, and arrow keys to pan.');}
+ resize(){const box=this.canvas.parentElement.getBoundingClientRect();if(!box.width||!box.height)return;const h=Math.max(320,box.height);this.renderer.resize(box.width,h,globalThis.devicePixelRatio||1);this.camera.resize(box.width,h);this.camera.fit();if(this.state)this.update(this.state);}
+ fit(){this.camera.fit();this.renderer.render();if(this.state)this.update(this.state);}
+ zoom(factor){this.camera.zoomAt(this.canvas.clientWidth/2,this.canvas.clientHeight/2,factor);this.renderer.render();if(this.state)this.update(this.state);}
+ point(e){const r=this.canvas.getBoundingClientRect();return {x:e.clientX-r.left,y:e.clientY-r.top};}
+ holeAtEvent(e){const p=this.camera.screenToWorld(this.point(e));return Model.holeIdAt(p.x,p.y,1.35);}
+ handleClick(e){const id=this.holeAtEvent(e);if(id)this.onHole(id,e);}
+ handleMove(e){this.renderer.overlay.hover=this.holeAtEvent(e);this.renderer.render();}
+ handleKey(e){if(e.key==='+'||e.key==='='){e.preventDefault();this.zoom(1.2);}else if(e.key==='-'){e.preventDefault();this.zoom(1/1.2);}else if(e.key.startsWith('Arrow')){e.preventDefault();this.camera.pan(e.key==='ArrowLeft'?24:e.key==='ArrowRight'?-24:0,e.key==='ArrowUp'?24:e.key==='ArrowDown'?-24:0);this.renderer.render();}}
+ update(state){this.state=state;this.renderer.wires=state.wires.map(w=>({id:w.id,from:legacyToHole(w.a.r,w.a.c),to:legacyToHole(w.b.r,w.b.c),color:w.color,selected:w.id===state.selectedWire,createdAt:Number(w.id.slice(1))||0})).filter(w=>w.from&&w.to);this.renderer.components=state.parts.map(p=>{const a=p.pins?.[0]?legacyToHole(p.pins[0].r,p.pins[0].c):legacyToHole(p.y,p.x),b=p.pins?.[1]?legacyToHole(p.pins[1].r,p.pins[1].c):a;return {id:p.id,type:p.type,label:({resistor:'220R',led:'LED +',capacitor:'100uF',jumper:'JMP',battery:'9V BAT',arduino:'ARDUINO UNO R3'})[p.type]||p.type,from:a,to:b,selected:p.id===state.selectedPart};}).filter(p=>p.from);this.renderer.render();}
+}
+return {BreadboardLabCanvas,legacyToHole,holeToLegacy};
+});
