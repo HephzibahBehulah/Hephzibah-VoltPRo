@@ -1,21 +1,14 @@
-(()=>{"use strict";
-const manifestUrl="components/index.json";
-let records=new Map();
-let ready=null;
-const slug=x=>String(x||"").replace(/[^a-zA-Z0-9]+/g,"-").replace(/^-|-$/g,"").toLowerCase();
-function defaults(parameters){const o={};for(const [k,v] of Object.entries(parameters||{}))o[k]=v&&Object.prototype.hasOwnProperty.call(v,"default")?v.default:"";return o}
-function toDef(r){return {cat:String(r.category||"Other"),name:r.name||r.id,symbol:r.symbol?.label||"◇",pins:Array.isArray(r.terminals)?r.terminals.length:2,props:defaults(r.parameters),unit:"",res:typeof r.parameters?.resistance?.default==="number"?r.parameters.resistance.default:undefined,registryId:r.id,model:r.electricalModel,behavior:r.behaviorModel,ratings:r.ratings||{},terminals:r.terminals||[],faultModes:r.faultModes||[],documentation:r.documentation||{}}}
-async function load(){
- if(ready)return ready;
- ready=(async()=>{try{
-  const m=await fetch(manifestUrl,{cache:"no-store"}).then(r=>{if(!r.ok)throw Error("component manifest unavailable");return r.json()});
-  const chunks=await Promise.all((m.files||[]).map(f=>fetch(f,{cache:"no-store"}).then(r=>{if(!r.ok)throw Error("component family unavailable: "+f);return r.json()})));
-  for(const chunk of chunks)for(const r of chunk.components||[]){records.set(r.id,r);if(window.defs&&!window.defs[r.id])window.defs[r.id]=toDef(r)}
-  window.VoltProRegistry={version:3,records,count:records.size,get:id=>records.get(id),definition:id=>records.get(id)?toDef(records.get(id)):null,search:(q="")=>[...records.values()].filter(r=>(r.name+" "+r.id+" "+r.category).toLowerCase().includes(q.toLowerCase())),categories:()=>[...new Set([...records.values()].map(r=>String(r.category||"Other")))].sort(),ready:Promise.resolve()};
-  window.dispatchEvent(new CustomEvent("voltpro-registry-ready",{detail:{count:records.size}}));
-  return records;
- }catch(e){window.VoltProRegistry={version:3,records,count:0,get:()=>null,definition:()=>null,search:()=>[],categories:()=>[],ready:Promise.resolve()};console.warn("VoltPRo component registry:",e.message);return records}})();
- return ready;
-}
-window.VoltProRegistry={version:3,records,count:0,ready:load(),get:id=>records.get(id),definition:id=>records.get(id)?toDef(records.get(id)):null,search:()=>[],categories:()=>[]};
+/* Legacy catalogue adapter: template records cannot masquerade as verified parts. */
+(()=>{'use strict';
+const records=new Map(),defaults=p=>Object.fromEntries(Object.entries(p||{}).map(([k,v])=>[k,v?.default??'']));
+const category=s=>String(s||'Other').replace(/[-_]/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+function normalize(input){const r=JSON.parse(JSON.stringify(input)),graph=window.VoltProTerminalGraph?.definitionFor?.(r.id),template=r.electricalModel?.type==='lumped';
+r.category=category(r.category);r.audit={status:template?'review':'educational',reason:template?'Unverified template record: pin map, ratings and model need review.':'Existing educational model; manufacturer fidelity is not established.'};
+if(graph){r.terminals=graph.terminals;r.audit={status:template?'reference':'educational',reason:template?'Functional pin map available; ratings and behavior remain unverified.':'Named functional terminals and existing educational model.'};}
+if(template){r.parameters={};r.ratings={};delete r.panelModel;r.electricalModel={type:'unverified',engine:null};}const supported=new Set(['protection','contactor','relay','motor','transformer','three-phase-transformer','resistive-sensor','sensor-contact','led','load','mosfet','bjt','three-phase-source','ground','conductor']);if(!template&&!supported.has(r.electricalModel?.type)&&!/^logic-logic-/.test(r.id)){r.audit={status:graph?'reference':'review',reason:'No validated electrical adapter for this catalogue family.'};}
+r.name=String(r.name||r.id).replace(/^Device /,'').replace(/^Passive /,'');return r;}
+function definition(id){const r=records.get(id);if(!r)return null;const contract=window.VoltProComponents?.definition?.(id);if(contract)return contract;return {cat:r.category,name:r.name,symbol:r.symbol?.label||'?',pins:r.terminals?.length||0,terminals:r.terminals||[],props:defaults(r.parameters),registryId:r.id,status:r.audit.status,model:r.electricalModel,behavior:r.behaviorModel,ratings:r.ratings||{},documentation:r.documentation||{},unsupported:r.audit.status==='review'||r.audit.status==='reference'};}
+function search(q='',filters={}){q=q.trim().toLowerCase();return [...records.values()].filter(r=>(!q||[r.id,r.name,r.category].join(' ').toLowerCase().includes(q))&&(!filters.category||r.category===filters.category)&&(!filters.status||r.audit.status===filters.status));}
+const api={version:4,records,count:0,get:id=>records.get(id),definition,search,categories:()=>[...new Set([...records.values()].map(r=>r.category))].sort(),stats:()=>[...records.values()].reduce((a,r)=>(a[r.audit.status]=(a[r.audit.status]||0)+1,a),{})};window.VoltProRegistry=api;
+api.ready=(async()=>{try{const read=async url=>{const response=await fetch(url,{cache:'no-store'});if(!response.ok)throw Error('Component data unavailable: '+url);return response.json();};const manifest=await read('components/index.json'),chunks=await Promise.all((manifest.files||[]).map(read));for(const chunk of chunks)for(const record of chunk.components||[]){if(records.has(record.id))throw Error('Duplicate component ID: '+record.id);records.set(record.id,normalize(record));}api.count=records.size;window.dispatchEvent(new CustomEvent('voltpro-registry-ready',{detail:{count:records.size,stats:api.stats()}}));return records;}catch(error){console.warn('VoltPRo component registry:',error.message);api.error=error.message;return records;}})();
 })();

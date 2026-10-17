@@ -18,11 +18,16 @@ function build(project){
   if(ids.has(part.id))throw Error('Duplicate component ID: '+part.id);ids.add(part.id);
   if(part.type==='jumper')continue;
   if(part.type==='arduino')throw Error('Arduino is a footprint here. Full firmware execution is not available in this breadboard engine. Open the simulator MCU Lab for the supported GPIO interpreter.');
-  if(part.pins?.length!==2)throw Error(part.id+' needs two connected terminal holes. Re-place this older footprint to assign its pins.');
-  const nets=part.pins.map(topo.net);if(nets[0]===nets[1])throw Error(part.id+' has both legs on the same connected strip. Move one leg to a different net.');
+  const contract=root.VoltProComponents?.get?.(part.type),expected=contract?.terminals.length||(['potentiometer3','spdt3'].includes(part.type)?3:2);
+  if(contract&&contract.status!=='educational')throw Error(contract.name+': reference pin map only; no electrical model is installed.');
+  if(part.pins?.length!==expected)throw Error(part.id+' needs '+expected+' connected terminal holes. Re-place this older footprint to assign its pins.');
+  const nets=part.pins.map(topo.net);if(expected===2&&nets[0]===nets[1])throw Error(part.id+' has both legs on the same connected strip. Move one leg to a different net.');
   let type=part.type,props={};
   const positive=(value,name)=>{if(!Number.isFinite(value)||value<=0)throw Error(part.id+': '+name+' must be a positive number.');return value};
-  if(['resistor','potentiometer','photoresistor'].includes(type)){type='resistor';props.resistance=positive(Number(part.resistanceOhm??220),'resistance')}
+  if(contract?.model==='cmos_package'){props={outputResistance:25};}
+  else if(type==='potentiometer3'){type='potentiometer3';props={resistance:positive(Number(part.resistanceOhm??10000),'resistance'),position:Number(part.wiperPosition??.5)};if(!Number.isFinite(props.position)||props.position<0||props.position>1)throw Error('Wiper must be between 0 and 1.');}
+  else if(type==='spdt3')props.closed=part.closed?1:0;
+  else if(['resistor','potentiometer','photoresistor'].includes(type)){type='resistor';props.resistance=positive(Number(part.resistanceOhm??220),'resistance')}
   else if(type==='battery'){props.voltage=positive(Number(part.voltageV??9),'voltage')}
   else if(type==='acsource'){props={voltage:positive(Number(part.voltageV??5),'amplitude'),frequency:positive(Number(part.frequencyHz??50),'frequency')}}
   else if(type==='capacitor')props.capacitance=positive(Number(part.capacitanceF??100e-6),'capacitance');

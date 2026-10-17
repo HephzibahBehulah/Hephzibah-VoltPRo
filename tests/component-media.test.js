@@ -7,5 +7,5 @@ test("component media loader is syntactically valid and exposes the media API",a
 });
 test("simulator has dynamic registry and media integration",()=>{
  const s=fs.readFileSync("simulator.js","utf8");
- assert.match(s,/function paletteEntries\(\)/);assert.match(s,/VoltProRegistry\?\.definition/);assert.match(s,/VoltProMedia\?\.get/);
+ assert.match(s,/function paletteEntries\(\)/);assert.match(s,/VoltProRegistry\?\.definition/);assert.match(s,/VoltProComponents\.preview/);
 });

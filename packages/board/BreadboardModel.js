@@ -2,7 +2,7 @@
 (function(root,factory){const api=factory();if(typeof module!=="undefined"&&module.exports)module.exports=api;if(root)root.VoltProBoardModel=api;})(typeof globalThis!=="undefined"?globalThis:this,function(){
 'use strict';
 const PITCH=2.54, ROWS=['a','b','c','d','e','f','g','h','i','j'], COLS=63, RAIL_HOLES=50;
-const rowY=r=>r<=4?r*PITCH:(r+0.5)*PITCH; // a-e: 0..10.16; f-j: 13.97..24.13
+const rowY=r=>r<=4?r*PITCH:(r+2)*PITCH; // a-e: 0..10.16; f-j: 17.78..27.94; 7.62 mm DIP row spacing
 function holeAt(id){
  if(typeof id!=='string')return null;
  let m=/^([a-j])(\d{1,2})$/.exec(id);

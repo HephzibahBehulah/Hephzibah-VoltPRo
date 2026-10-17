@@ -12,6 +12,8 @@ const BLOCKING=new Set([
  'TOPOLOGY_VALIDATOR_UNAVAILABLE'
 ]);
 function validate(project){
+ const unavailable=(project.components||[]).map(c=>({c,r:window.VoltProComponents?.get?.(c.type),d:window.VoltProRegistry?.definition?.(c.type),unknown:Boolean(!window.VoltProComponents?.get?.(c.type)&&window.defs&&!window.defs[c.type]&&!window.VoltProRegistry?.get?.(c.type))})).filter(({r,d,unknown,c})=>unknown||c.type==="arduino"||(r?r.status!=="educational":["review","reference"].includes(d?.status)));
+ if(unavailable.length)return {available:true,valid:false,errors:unavailable.map(({c,r})=>({code:"COMPONENT_MODEL_UNAVAILABLE",deviceId:c.id,message:(r?.name||c.type)+": no tested electrical model is installed. Use a simulated part or remove this reference."})),warnings:[]};
  const runtime=window.VoltProV5Runtime;
  if(!runtime||typeof runtime.analyze!=='function')return {available:false,valid:true,errors:[],warnings:[]};
  let result;
