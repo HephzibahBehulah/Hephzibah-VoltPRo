@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-10-18 — VoltProPLC and connected professional workspaces
+- Added the typed React industrial ladder/FBD workstation, Web Worker scan engine, terminal-aware motor starter, project files and bounded Arduino export.
+- Added recoverable breadboard Clear/New controls, collapsible simulator panels, FBD editing, scope cursor/trigger/phase measurements and circuit review.
+- Connected Supabase Auth and owner-only versioned cloud projects, including PLC projects; public email sender setup remains in progress.
+- Added searchable workbench navigation, 10,000 calculation variants, 10,000 instrument exercises, component-to-AI explanations and a solved dashboard circuit gallery.
+- Added explicit solar-position/PV and cooling energy teaching calculations.
+
 ## 2026-10-17 — Breadboard Studio
 - Reworked the dedicated breadboard page around a physical canvas, searchable parts, select/wire/probe tools and wired experiments.
 - Connected real breadboard strips to the shared DC/transient engine, including capacitors, inductors, diodes, sine sources and switches.

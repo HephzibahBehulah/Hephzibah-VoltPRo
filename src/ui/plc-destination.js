@@ -1,0 +1,1 @@
+(()=>{'use strict';const target=document.querySelector('.top .nav')||document.querySelector('#bbToolbar');if(!target)return;const a=document.createElement('a');a.className='btn';a.href='voltpro-plc/';a.textContent='VoltProPLC ↗';a.title='Industrial ladder and function block simulator';target.append(a);})();

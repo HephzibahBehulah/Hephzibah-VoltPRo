@@ -4,3 +4,5 @@
 .design-node-label{fill:#c8f3e5;font:bold 12px ui-monospace,monospace;paint-order:stroke;stroke:#05121d;stroke-width:4px;text-anchor:middle;pointer-events:none}
 
 .design-constraint-notice{padding:10px 14px;border:1px solid #9c793a;background:#302718;color:#f5d99f;font-size:12px}.assistant-preview>header{position:sticky;top:0;background:#0a1a29;z-index:2;padding:10px 0}.assistant-preview>details{margin:12px 0}.assistant-preview>details>summary{cursor:pointer;color:#98dcca;padding:9px}
+
+.vp-fbd-dialog{width:min(1050px,95vw)}.fbd-toolbar{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0}.fbd-toolbar input,.fbd-toolbar select{max-width:180px;padding:8px;background:#0a1c29;color:#c9e7e2;border:1px solid #426372;border-radius:5px}.fbd-toolbar button{padding:8px;background:#1b414b;color:#c9eee0;border:1px solid #4d7978;border-radius:5px;cursor:pointer}.fbd-inputs{display:flex;gap:20px;flex-wrap:wrap}.fbd-graph{width:100%;max-height:460px;background:#06141f;border:1px solid #2e5762;border-radius:8px}.vp-fbd-dialog [role=status]{white-space:pre-wrap;color:#e2cb99}

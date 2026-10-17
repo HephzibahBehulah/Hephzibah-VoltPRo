@@ -14,3 +14,12 @@ jobs:
           node-version: 22
       - run: npm test
       - run: node scripts/validate-components.js
+      - name: Install PLC workstation dependencies
+        run: npm ci
+        working-directory: apps/voltpro-plc
+      - name: Test PLC scan engine
+        run: npm test
+        working-directory: apps/voltpro-plc
+      - name: Type-check and build PLC workstation
+        run: npm run build
+        working-directory: apps/voltpro-plc
