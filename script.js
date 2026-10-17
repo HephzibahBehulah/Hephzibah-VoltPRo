@@ -165,7 +165,7 @@ function renderTutorLog(){
    const sources=Array.isArray(x.sources)&&x.sources.length?'<div class="tutor-sources">'+x.sources.map(function(s){return '<a href="'+esc(s.url)+'" target="_blank" rel="noopener noreferrer">'+esc(s.title||s.url)+'</a>'}).join("")+'</div>':"";
    return body+sources;
  }).join("");
- log.querySelectorAll(".chat").forEach((element,index)=>{const item=(state.tutorLog||[])[index];if(item?.plan)window.VoltProAssistantActions?.renderActions(element,item.plan);});
+ log.querySelectorAll(".chat").forEach((element,index)=>{const item=(state.tutorLog||[])[index];if(item?.role==='tutor')window.VoltProAssistantActions?.renderAnswer?.(element,item.text);if(item?.plan)window.VoltProAssistantActions?.renderActions(element,item.plan);});
  log.scrollTop=log.scrollHeight;
 }
 function tutorReply(q){

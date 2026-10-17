@@ -1,0 +1,10 @@
+name = "voltpro-engineering-ai"
+main = "voltpro-ai-worker.mjs"
+compatibility_date = "2026-10-17"
+workers_dev = true
+[ai]
+binding = "AI"
+[[ratelimits]]
+name = "API_LIMITER"
+namespace_id = "1785"
+simple = { limit = 6, period = 60 }

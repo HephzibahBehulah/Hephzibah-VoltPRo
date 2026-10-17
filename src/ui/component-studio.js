@@ -28,5 +28,5 @@ function save(r){r={...r,status:'reference',model:null};const checked=api.valida
 editor.querySelector('[data-save]').onclick=()=>save(record());const file=editor.querySelector('input[type=file]');editor.querySelector('[data-import]').onclick=()=>file.click();file.onchange=async()=>{try{const r=JSON.parse(await file.files[0].text());if(!String(r.id).startsWith('custom-'))throw Error('Imported IDs must begin custom-.');save(r);}catch(error){message.textContent=error.message;}};editor.addEventListener('close',()=>editor.remove(),{once:true});paint();};
 function openRefresh(){const current=category.value;category.innerHTML='<option value="">All categories</option>'+[...new Set(all().map(r=>r.category))].sort().map(c=>'<option>'+esc(c)+'</option>').join('');category.value=current;refresh();show();}
 window.addEventListener('voltpro-registry-ready',()=>{if(box.open)openRefresh();});const pending=localStorage.getItem('voltpro-component-to-place');if(pending&&window.VoltProSimulator&&api.get(pending)){localStorage.removeItem('voltpro-component-to-place');window.VoltProSimulator.addComponent(pending,280,220);}
-window.VoltProComponentStudio={open};
+window.VoltProComponentStudio={open,create:()=>box.querySelector('[data-create]').click()};
 })();

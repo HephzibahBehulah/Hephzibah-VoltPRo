@@ -25,7 +25,7 @@ function build(project){
   let type=part.type,props={};
   const positive=(value,name)=>{if(!Number.isFinite(value)||value<=0)throw Error(part.id+': '+name+' must be a positive number.');return value};
   if(contract?.origin==='qualified-catalogue'&&['resistor','capacitor','inductor','battery','acsource','diode','led'].includes(contract.model)){props={...contract.props,...part.parameters};}
-  else if(contract&&['bjt','mosfet','relay','button4'].includes(contract.model)){props={...contract.props,...part.parameters,pressed:part.pressed?1:0};}
+  else if(contract&&['bjt','mosfet','relay','button4','lm317','fuse','mcu_board','arduino_uno_r3'].includes(contract.model)){props={...contract.props,...part.parameters,pressed:part.pressed?1:0};}
   else if(contract?.model==='cmos_package'){props={outputResistance:25};}
   else if(type==='potentiometer3'){type='potentiometer3';props={resistance:positive(Number(part.resistanceOhm??10000),'resistance'),position:Number(part.wiperPosition??.5)};if(!Number.isFinite(props.position)||props.position<0||props.position>1)throw Error('Wiper must be between 0 and 1.');}
   else if(type==='spdt3')props.closed=part.closed?1:0;
@@ -34,13 +34,13 @@ function build(project){
   else if(type==='acsource'){props={voltage:positive(Number(part.voltageV??5),'amplitude'),frequency:positive(Number(part.frequencyHz??50),'frequency')}}
   else if(type==='capacitor')props.capacitance=positive(Number(part.capacitanceF??100e-6),'capacitance');
   else if(type==='inductor')props.inductance=positive(Number(part.inductanceH??.01),'inductance');
-  else if(type==='led'||type==='diode'){props={forward:positive(Number(part.forwardVoltageV??(type==='led'?1.8:.7)),'forward voltage'),dynamicResistance:10,resistance:10}}
+  else if(type==='led'||type==='diode'){props={forward:positive(Number(part.forwardVoltageV??(type==='led'?1.8:.7)),'forward voltage'),dynamicResistance:Number(part.parameters?.dynamicResistance??10),resistance:10}}
   else if(type==='switch')props.closed=part.closed===false?0:1;
   else throw Error('No electrical model for '+part.type+'.');
-  const pins=part.pins.map((h,i)=>part.id+':'+i);components.push({id:part.id,type,props,pins});
+  const pins=part.pins.map((h,i)=>part.id+':'+i);components.push({id:part.id,type,props,pins,state:structuredClone(part.state||{})});
   nets.forEach((net,i)=>{if(!anchors.has(net))anchors.set(net,pins[i]);else wires.push({id:'N'+wires.length,a:anchors.get(net),b:pins[i]});if(!netPins.has(net))netPins.set(net,[]);netPins.get(net).push(pins[i])});
  }
- if(!components.some(c=>['battery','acsource'].includes(c.type)))throw Error('Add a DC battery or AC source, and connect a complete circuit.');
+ if(!components.some(c=>['battery','acsource','mcu_board','arduino_uno_r3'].includes(root.VoltProComponents?.get(c.type)?.model||c.type)))throw Error('Add a DC battery or AC source, and connect a complete circuit.');
  if(components.length>80)throw Error('This interactive analysis supports up to 80 electrical components per capture.');
  return {solver:{components,wires},topology:topo,anchors,netPins};
 }

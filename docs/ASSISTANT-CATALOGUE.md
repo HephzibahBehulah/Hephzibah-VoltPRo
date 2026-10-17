@@ -2,7 +2,7 @@
 
 ## Qualified catalogue
 
-The original 52 built-in contracts are joined by 92 specifically qualified catalogue records (144 built-in definitions total, before locally saved custom parts). These include 20 single-pole B/C/D MCBs, passive values, sources, switching devices, relay coils, semiconductor approximations and resistive loads. Each promoted record has a vector symbol, explicit terminals, editable parameters and documented model limits. They appear in the default reference results and can be imported into the schematic. Supported small electronic parts can also be placed on the breadboard with electrical parameters retained in project files.
+The original 52 built-in contracts are joined by 92 specifically qualified catalogue records (147 built-in definitions total (including the LM317, fuse and Uno header adapter), before locally saved custom parts). These include 20 single-pole B/C/D MCBs, passive values, sources, switching devices, relay coils, semiconductor approximations and resistive loads. Each promoted record has a vector symbol, explicit terminals, editable parameters and documented model limits. They appear in the default reference results and can be imported into the schematic. Supported small electronic parts can also be placed on the breadboard with electrical parameters retained in project files.
 
 The other legacy records are still searchable with Include legacy records. Existing educational records can be placed in the schematic; unqualified pin maps stay marked for review. No fictional manufacturer validation, million-part database or certified device curves are claimed. Generic MCB trip thresholds are illustrative instantaneous models, without thermal timing or breaking-capacity qualification. Industrial breakers do not pretend to have solderless breadboard footprints.
 
@@ -24,8 +24,9 @@ Proposals have preview, download, schematic import and compatible breadboard imp
 
 ## Connected AI service
 
-Open-ended reasoning uses the existing HTTPS chat service, configurable under Settings. The service did not return an AI answer in the browser connection test on 17 October 2026. Offline calculations, sketches, component data and supported concept explanations remain available, and the interface labels fallback responses. A working server-side AI service is still required for broader answers; this static GitHub Pages repository contains no such backend or provider credentials.
+Open-ended reasoning now uses the dedicated Cloudflare Worker at https://voltpro-engineering-ai.hephzibah-behulah.workers.dev/chat, with the native Workers AI binding and @cf/openai/gpt-oss-120b. The public health route and a non-template Wheatstone bridge request were tested successfully on 17 October 2026. Settings can override the endpoint. The server source and deployment configuration are included in this repository; provider credentials are not sent to the browser. Local calculations and supported sketches remain available when the service is unavailable.
 
+Requests have origin checks, body/message limits and six requests per minute per client IP through the Cloudflare rate limiter. Model output is untrusted data: structural project validation does not establish electrical correctness. Review, simulate and measure every generated design.
 The client posts JSON containing messages and siteContext, with content-type application/json and x-hb-session. The server must allow the deployed Pages origin through CORS (including POST and both headers), call its provider server-side, and return JSON with an answer string. Optional fenced JSON projects in the answer are parsed as data, validated, then offered as user-selected actions. Never publish provider keys in the repository or browser settings.
 
 ## Academy navigation and preferences
