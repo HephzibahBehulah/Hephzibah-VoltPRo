@@ -1,6 +1,6 @@
 import {isInput,ports,type Project} from './model';
 export function arduino(p:Project):string{
- if(p.nodes.some(n=>['threephase','motor','contactor3','overload3','breaker3','TON','TOF'].includes(n.data.kind)))throw Error('Arduino export currently supports digital contacts, coils, lamps and AND/OR/NOT gates. Power devices and timers must be removed from a copy first.');
+ if(p.nodes.some(n=>['threephase','motor','contactor3','overload3','breaker3','TON','TOF','TONR','CTU','CTD','R_TRIG','F_TRIG','RS','SR'].includes(n.data.kind)))throw Error('Arduino export currently supports digital contacts, coils, lamps and AND/OR/NOT gates. Power devices and timers must be removed from a copy first.');
  const inputs=p.nodes.filter(n=>isInput(n.data.kind)),outputs=p.nodes.filter(n=>['coil','lamp'].includes(n.data.kind));if(!outputs.length)throw Error('Add an output coil or lamp first.');
  const assigned=new Set<number>();for(const n of [...inputs,...outputs]){if(!Number.isInteger(n.data.pin)||n.data.pin<2||n.data.pin>19||assigned.has(n.data.pin))throw Error('Assign each input/output a unique Arduino Uno pin from 2 to 19 in Properties.');assigned.add(n.data.pin);}
  const expr:Record<string,string>={};let budget=0;

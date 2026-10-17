@@ -29,3 +29,11 @@
 - Added fault injection, measurement and simulation state services.
 - Added CAD symbol, device-face, panel-footprint and orthogonal-wire services.
 - Added panel, PLC, engineering calculation, instrument and training services.
+
+## Connected engineering systems · 2026-10-18
+- Shared native schematic, PLC, breadboard and worksheet documents, local revision checks, linked tags, JSON transfer, cloud envelope and parameter-linked evidence.
+- Motor starter showcase with a 400 V winding equivalent, 24 V PLC control and separately identified 5 V Nano functional trainer.
+- PLC commissioning HMI, I/O watch, bounded transition history, six injected fault controls, seven isolated acceptance scenarios, retentive timers, counters, edge detectors and set/reset latches.
+- Net annotations, explicit-junction inspection, DC terminal probes and five-point resistor tolerance study; breadboard lead-hole/strip checks and generated wiring steps.
+- Correct schematic cloud snapshot serialization; preserve all existing workspace tools and local save paths.
+- Notification sender configured separately in Supabase using a domain-restricted sending credential. Secrets are never included in client assets.

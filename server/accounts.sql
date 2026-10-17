@@ -2,7 +2,7 @@ begin;
 -- Apply once in the dedicated Supabase project. No browser/service-role secrets.
 create table if not exists public.projects (
  id uuid primary key default gen_random_uuid(), user_id uuid not null references auth.users(id) on delete cascade,
- name text not null check (length(name) between 1 and 100), kind text not null check(kind in ('schematic','breadboard','learning','plc')),
+ name text not null check (length(name) between 1 and 100), kind text not null check(kind in ('schematic','breadboard','learning','plc','system')),
  data jsonb not null check(octet_length(data::text)<=1500000), version integer not null default 1,
  archived boolean not null default false, created_at timestamptz not null default now(), updated_at timestamptz not null default now()
 );

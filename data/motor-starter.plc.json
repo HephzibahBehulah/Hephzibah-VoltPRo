@@ -1,0 +1,403 @@
+{
+  "version": 1,
+  "name": "Direct-on-line motor · seal-in",
+  "mode": "ladder",
+  "nodes": [
+    {
+      "id": "phase",
+      "type": "device",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "data": {
+        "kind": "threephase",
+        "tag": "PWR",
+        "label": "PWR",
+        "preset": 1000,
+        "pin": 2
+      }
+    },
+    {
+      "id": "q3",
+      "type": "device",
+      "position": {
+        "x": 0,
+        "y": 160
+      },
+      "data": {
+        "kind": "breaker3",
+        "tag": "QF1",
+        "label": "QF1",
+        "preset": 1000,
+        "pin": 2
+      }
+    },
+    {
+      "id": "km3",
+      "type": "device",
+      "position": {
+        "x": 0,
+        "y": 320
+      },
+      "data": {
+        "kind": "contactor3",
+        "tag": "KM1",
+        "label": "KM1",
+        "preset": 1000,
+        "pin": 2
+      }
+    },
+    {
+      "id": "fr3",
+      "type": "device",
+      "position": {
+        "x": 0,
+        "y": 480
+      },
+      "data": {
+        "kind": "overload3",
+        "tag": "FR1",
+        "label": "FR1",
+        "preset": 1000,
+        "pin": 2
+      }
+    },
+    {
+      "id": "motor",
+      "type": "device",
+      "position": {
+        "x": 0,
+        "y": 640
+      },
+      "data": {
+        "kind": "motor",
+        "tag": "M1",
+        "label": "M1",
+        "preset": 1000,
+        "pin": 2
+      }
+    },
+    {
+      "id": "l",
+      "type": "device",
+      "position": {
+        "x": 360,
+        "y": 0
+      },
+      "data": {
+        "kind": "supply",
+        "tag": "L",
+        "label": "L",
+        "preset": 1000,
+        "pin": 2
+      }
+    },
+    {
+      "id": "q",
+      "type": "device",
+      "position": {
+        "x": 360,
+        "y": 140
+      },
+      "data": {
+        "kind": "breaker",
+        "tag": "QF2",
+        "label": "QF2",
+        "preset": 1000,
+        "pin": 2
+      }
+    },
+    {
+      "id": "fr",
+      "type": "device",
+      "position": {
+        "x": 360,
+        "y": 280
+      },
+      "data": {
+        "kind": "overloadNC",
+        "tag": "FR1",
+        "label": "FR1",
+        "preset": 1000,
+        "pin": 2
+      }
+    },
+    {
+      "id": "stop",
+      "type": "device",
+      "position": {
+        "x": 360,
+        "y": 420
+      },
+      "data": {
+        "kind": "nc",
+        "tag": "Stop",
+        "label": "Stop",
+        "preset": 1000,
+        "pin": 2
+      }
+    },
+    {
+      "id": "start",
+      "type": "device",
+      "position": {
+        "x": 360,
+        "y": 560
+      },
+      "data": {
+        "kind": "no",
+        "tag": "Start",
+        "label": "Start",
+        "preset": 1000,
+        "pin": 2
+      }
+    },
+    {
+      "id": "hold",
+      "type": "device",
+      "position": {
+        "x": 580,
+        "y": 560
+      },
+      "data": {
+        "kind": "auxNO",
+        "tag": "KM1",
+        "label": "KM1",
+        "preset": 1000,
+        "pin": 2
+      }
+    },
+    {
+      "id": "coil",
+      "type": "device",
+      "position": {
+        "x": 360,
+        "y": 740
+      },
+      "data": {
+        "kind": "coil",
+        "tag": "KM1",
+        "label": "KM1",
+        "preset": 1000,
+        "pin": 8
+      }
+    },
+    {
+      "id": "h1",
+      "type": "device",
+      "position": {
+        "x": 580,
+        "y": 740
+      },
+      "data": {
+        "kind": "lamp",
+        "tag": "H1",
+        "label": "H1",
+        "preset": 1000,
+        "pin": 2
+      }
+    },
+    {
+      "id": "n",
+      "type": "device",
+      "position": {
+        "x": 360,
+        "y": 920
+      },
+      "data": {
+        "kind": "neutral",
+        "tag": "N",
+        "label": "N",
+        "preset": 1000,
+        "pin": 2
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "p1",
+      "source": "phase",
+      "sourceHandle": "L1",
+      "target": "q3",
+      "targetHandle": "1",
+      "type": "smoothstep"
+    },
+    {
+      "id": "p2",
+      "source": "phase",
+      "sourceHandle": "L2",
+      "target": "q3",
+      "targetHandle": "3",
+      "type": "smoothstep"
+    },
+    {
+      "id": "p3",
+      "source": "phase",
+      "sourceHandle": "L3",
+      "target": "q3",
+      "targetHandle": "5",
+      "type": "smoothstep"
+    },
+    {
+      "id": "p4",
+      "source": "q3",
+      "sourceHandle": "2",
+      "target": "km3",
+      "targetHandle": "1",
+      "type": "smoothstep"
+    },
+    {
+      "id": "p5",
+      "source": "q3",
+      "sourceHandle": "4",
+      "target": "km3",
+      "targetHandle": "3",
+      "type": "smoothstep"
+    },
+    {
+      "id": "p6",
+      "source": "q3",
+      "sourceHandle": "6",
+      "target": "km3",
+      "targetHandle": "5",
+      "type": "smoothstep"
+    },
+    {
+      "id": "p7",
+      "source": "km3",
+      "sourceHandle": "2",
+      "target": "fr3",
+      "targetHandle": "1",
+      "type": "smoothstep"
+    },
+    {
+      "id": "p8",
+      "source": "km3",
+      "sourceHandle": "4",
+      "target": "fr3",
+      "targetHandle": "3",
+      "type": "smoothstep"
+    },
+    {
+      "id": "p9",
+      "source": "km3",
+      "sourceHandle": "6",
+      "target": "fr3",
+      "targetHandle": "5",
+      "type": "smoothstep"
+    },
+    {
+      "id": "p10",
+      "source": "fr3",
+      "sourceHandle": "2",
+      "target": "motor",
+      "targetHandle": "U",
+      "type": "smoothstep"
+    },
+    {
+      "id": "p11",
+      "source": "fr3",
+      "sourceHandle": "4",
+      "target": "motor",
+      "targetHandle": "V",
+      "type": "smoothstep"
+    },
+    {
+      "id": "p12",
+      "source": "fr3",
+      "sourceHandle": "6",
+      "target": "motor",
+      "targetHandle": "W",
+      "type": "smoothstep"
+    },
+    {
+      "id": "pe",
+      "source": "phase",
+      "sourceHandle": "PE",
+      "target": "motor",
+      "targetHandle": "PE",
+      "type": "smoothstep"
+    },
+    {
+      "id": "c1",
+      "source": "l",
+      "sourceHandle": "L",
+      "target": "q",
+      "targetHandle": "1",
+      "type": "smoothstep"
+    },
+    {
+      "id": "c2",
+      "source": "q",
+      "sourceHandle": "2",
+      "target": "fr",
+      "targetHandle": "95",
+      "type": "smoothstep"
+    },
+    {
+      "id": "c3",
+      "source": "fr",
+      "sourceHandle": "96",
+      "target": "stop",
+      "targetHandle": "1",
+      "type": "smoothstep"
+    },
+    {
+      "id": "c4",
+      "source": "stop",
+      "sourceHandle": "2",
+      "target": "start",
+      "targetHandle": "3",
+      "type": "smoothstep"
+    },
+    {
+      "id": "c5",
+      "source": "stop",
+      "sourceHandle": "2",
+      "target": "hold",
+      "targetHandle": "13",
+      "type": "smoothstep"
+    },
+    {
+      "id": "c6",
+      "source": "start",
+      "sourceHandle": "4",
+      "target": "coil",
+      "targetHandle": "A1",
+      "type": "smoothstep"
+    },
+    {
+      "id": "c7",
+      "source": "hold",
+      "sourceHandle": "14",
+      "target": "coil",
+      "targetHandle": "A1",
+      "type": "smoothstep"
+    },
+    {
+      "id": "c8",
+      "source": "coil",
+      "sourceHandle": "A2",
+      "target": "n",
+      "targetHandle": "N",
+      "type": "smoothstep"
+    },
+    {
+      "id": "c9",
+      "source": "start",
+      "sourceHandle": "4",
+      "target": "h1",
+      "targetHandle": "X1",
+      "type": "smoothstep"
+    },
+    {
+      "id": "c10",
+      "source": "h1",
+      "sourceHandle": "X2",
+      "target": "n",
+      "targetHandle": "N",
+      "type": "smoothstep"
+    }
+  ]
+}
