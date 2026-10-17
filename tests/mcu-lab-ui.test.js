@@ -17,7 +17,7 @@ test("MCU Lab supports editable input toggles and labels interpreter limitations
 });
 test("simulator loads MCU Lab UI after Workbench; breadboard loads its dedicated engines",()=>{
  const simulator=read("simulator.html"),breadboard=read("breadboard.html"),worker=read("service-worker.js");
- assert.ok(simulator.indexOf("platform/mcu-lab-ui.js?v=20261017e")>simulator.indexOf("platform/workbench.js?v=20261012b"));
+ assert.ok(simulator.indexOf("platform/mcu-lab-ui.js?v=20261017f")>simulator.indexOf("platform/workbench.js?v=20261017f"));
  assert.ok(breadboard.includes("engine/breadboard-project.js"));assert.ok(breadboard.includes("engine/breadboard-solver.js"));
  assert.ok(worker.includes('"./platform/mcu-lab-ui.js"'));assert.ok(worker.includes('"./engine/breadboard-project.js"'));assert.ok(worker.includes('"./engine/breadboard-solver.js"'));
 });

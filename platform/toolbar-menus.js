@@ -25,6 +25,7 @@ const menus={
   ["Open PLC Logic mode","mode","plc"]
  ]},
  projects:{title:"Project library",items:[
+  ["Wired application projects","applications"],
   ["Open saved project library","project-library"],
   ["Save current project","click-id","saveBtn"],
   ["Load project file","click-id","loadBtn"],
@@ -54,6 +55,7 @@ const menus={
   ["Open BB400 breadboard workspace","navigate","breadboard.html"]
  ]},
  tools:{title:"Engineering tools",items:[
+  ["Engineering component reference","reference"],
   ["Engineering Toolkit","tool","engineering"],
   ["Engineering Documentation","tool","docs"],
   ["Bill of Materials","tool","bom"],
@@ -74,6 +76,8 @@ function position(){
 }
 function dispatch(kind,value){
  const actions=window.VoltProPlatformActions||{};
+ if(kind==="applications"){window.VoltProReferenceLibrary?.open({view:"applications"});return}
+ if(kind==="reference"){window.VoltProReferenceLibrary?.open({view:"components"});return}
  if(kind==="demo"){const d=window.VoltProDemoLibrary?.demos?.().find(x=>x.title===value);if(!d){window.VoltProDemoLibrary?.open?.();return}window.VoltProDemoLibrary.load(d);return}
  if(kind==="demo-library"){window.VoltProDemoLibrary?.open?.();return}
  if(kind==="project-library"){window.VoltProProjectWorkspace?.open?.();return}
