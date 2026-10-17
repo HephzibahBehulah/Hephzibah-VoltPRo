@@ -14,6 +14,7 @@ function readBit(tag,inputs,state){
 }
 function contactClosed(contact,inputs,state,currentBits){
  const tag=address(contact.address??contact.tag??contact.bit),kind=String(contact.type??contact.kind??"NO").toUpperCase(),raw=readBit(tag,inputs,state);
+ if(['GT','LT','GE','LE','EQ','NE'].includes(kind)){const a=Number(inputs[tag]??state.memory[tag]??state.outputs[tag]??0),b=Number(contact.value??0);return kind==='GT'?a>b:kind==='LT'?a<b:kind==='GE'?a>=b:kind==='LE'?a<=b:kind==='EQ'?a===b:a!==b;}
  if(tag)currentBits[tag]=raw;
  if(["NC","XIO","NORMALLY_CLOSED"].includes(kind))return !raw;
  if(["P","RISING","ONS","ONE_SHOT"].includes(kind))return raw&&!bit(state.previousBits?.[tag]);
@@ -35,7 +36,8 @@ function scan(program,inputs={},previousState={},options={}){
   for(const coil of coils){
    const tag=address(coil.address??coil.tag??coil.output),kind=String(coil.type??coil.kind??"COIL").toUpperCase();
    if(!tag)continue;
-   if(["SET","LATCH","OTL"].includes(kind)){if(powered)writeBit(tag,true,state)}
+   if(kind==="RES"){if(powered){delete state.counters[tag];delete state.timers[tag];}}
+   else if(["SET","LATCH","OTL"].includes(kind)){if(powered)writeBit(tag,true,state)}
    else if(["RESET","UNLATCH","OTU"].includes(kind)){if(powered)writeBit(tag,false,state)}
    else if(["TON","TOF","TP"].includes(kind)){
     const key=address(coil.timer??tag),preset=Math.max(0,Number(coil.presetMs??coil.preset??1000)||0),old=state.timers[key]||{elapsedMs:0,done:false};

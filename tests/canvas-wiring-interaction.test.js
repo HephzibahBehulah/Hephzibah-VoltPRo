@@ -24,10 +24,10 @@ test('pin pointer interaction supports direct drag-to-connect and click-to-conne
   assert.match(source, /handlePin\(p\.dataset\.pin\)/);
 });
 
-test('Escape, right-click, and blank-canvas click cancel an active wire', () => {
+test('Escape and right-click cancel; blank-canvas clicks add route waypoints', () => {
   assert.match(workflow, /handleKey\(event\).*?event\?\.key==="Escape".*?this\.cancel\(\)/s);
   assert.match(source, /addEventListener\("contextmenu",e=>\{e\.preventDefault\(\);if\(wiring\?\.active\)wiring\.cancel\(\);\}\)/);
-  assert.match(source, /addEventListener\("click",e=>\{if\(e\.target===svg\|\|e\.target\.id==="gridRect"\)\{if\(wiring\?\.active\)wiring\.cancel\(\)/);
+  assert.match(source,/wiring\.addWaypoint\(\{x:snap\(p\.x\),y:snap\(p\.y\)\}\)/);
 });
 
 test('wire source receives a visual state without disabling its body handler', () => {
@@ -73,7 +73,7 @@ test('wire inspector exposes AWG and metric cross-section with synchronized appr
   assert.ok(source.includes('data-wire-prop="size"'));
   assert.ok(source.includes('Drawing thickness only. It does not calculate current capacity or electrical safety.'));
   const html = fs.readFileSync(path.join(__dirname, '..', 'simulator.html'), 'utf8');
-  assert.ok(html.includes('simulator.js?v=20261017a'));
+  assert.ok(html.includes('simulator.js?v=20261017e'));
   assert.ok(html.includes('simulator.css?v=20261013a'));
 });
 

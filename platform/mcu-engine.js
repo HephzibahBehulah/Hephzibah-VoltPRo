@@ -9,7 +9,7 @@ function applyWrite(pins,method,pin,raw){pins[pin]??={mode:"OUTPUT",state:0,volt
 function runWrites(code,pins){let m;const re=new RegExp(WRITE_RE.source,"g");while((m=re.exec(code||"")))applyWrite(pins,m[1],m[2],m[3])}
 function runConditionals(code,pins,inputs){let m;IF_RE.lastIndex=0;while((m=IF_RE.exec(code||""))){const input=Boolean(inputs?.[m[1]]??inputs?.["D"+m[1]]??false),expected=m[2]===undefined||m[2]==="HIGH"||m[2]==="1",chosen=input===expected?m[3]:(m[4]||"");runWrites(chosen,pins)}}
 function parseInstructions(code){const list=[];let m;INSTRUCTION_RE.lastIndex=0;while((m=INSTRUCTION_RE.exec(code||""))){if(m[1])list.push({type:"write",method:m[1],pin:m[2],value:m[3]});else list.push({type:"delay",ms:Math.max(0,Number(m[4])||0)})}return list}
-function simulate(code,opts={}){
+function simulate(code,opts={}){if(root.VoltProMCUScript)return root.VoltProMCUScript.simulate(String(code||""),opts);
  const source=String(code||""),inputs=opts.inputs||{},prior=opts.state?.signature===source?(opts.state||{}):{},pins={},serial=[];let m;
  PIN_RE.lastIndex=0;while((m=PIN_RE.exec(source))){const old=prior.pins?.[m[1]];pins[m[1]]=old?.mode===m[2]?{...old}:{mode:m[2],state:0,voltage:0}}
  const setup=functionBody(source,"setup"),loop=functionBody(source,"loop"),hasTimedLoop=loop!==null&&!/if\s*\(\s*digitalRead/.test(loop),instructions=hasTimedLoop?parseInstructions(loop):[];

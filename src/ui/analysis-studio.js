@@ -106,7 +106,7 @@ get('studioPlot').addEventListener('pointermove',event=>{
  const xx=layout.X(view==='ac'?Math.log10(closest.x):closest.x),text='x '+fmt(closest.x)+' · y '+fmt(closest.y)+(Number.isFinite(closest.phase)?' · '+fmt(closest.phase)+'°':'');
  get('studioCursor').innerHTML=`<path d="M${xx} ${layout.top}V${layout.h-layout.bottom}" stroke="#e4edf6" stroke-dasharray="3 4"/><text x="${layout.left+6}" y="${layout.top+12}">${text}</text>`;
 });
-function refreshVisuals(){
+function refreshVisuals(){if(window.VoltProLiveFlow?.active)return;
  if(paintPending)return;paintPending=true;requestAnimationFrame(()=>{paintPending=false;
   const result=S.lastAnalysis,valid=S.running&&result?.ok;
   legend.hidden=!valid;wrap.classList.toggle('studio-paused',!S.running);
