@@ -9,7 +9,7 @@ test("million-variant bank is loaded after the existing content expansion and ca
   const html = read("index.html");
   assert.match(html, /academy-content-expansion\.js\?v=20261011a"><\/script>\s*<script src="academy-question-bank\.js\?v=20261011c"><\/script>/);
   const worker = read("service-worker.js");
-  assert.match(worker, /voltpro-v78/);
+  assert.match(worker, /voltpro-v79/);
   assert.match(worker, /"\.\/academy-question-bank\.js"/);
 });
 

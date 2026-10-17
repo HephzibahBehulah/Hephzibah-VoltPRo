@@ -44,12 +44,15 @@ function toLegacy(input){
   const cut=value.lastIndexOf(":"),id=value.slice(0,cut),terminal=value.slice(cut+1),d=byId.get(id);
   if(!d)throw Error("Wire references missing device: "+id);
   const terms=Array.isArray(d.terminals)?d.terminals:[];
-  let index=terms.findIndex(t=>String(t.id)===terminal||String(t.label)===terminal||(t.number!=null&&String(t.number)===terminal));
+  // Exact IDs take precedence: terminal id "1" may be the second pin even
+  // when the first pin has the human-facing label "1".
+  let index=terms.findIndex(t=>String(t.id)===terminal);
+  if(index<0)index=terms.findIndex(t=>String(t.label)===terminal||(t.number!=null&&String(t.number)===terminal));
   if(index<0&&/^\d+$/.test(terminal)&&Number(terminal)<terms.length)index=Number(terminal);
   if(index<0)throw Error("Unknown terminal "+terminal+" on device "+id);
   return id+":"+index;
  }
- const wires=(p.wires||[]).map((w,i)=>({...w,id:w.id||"W"+String(i+1).padStart(3,"0"),a:endpoint(w.from||w.a),b:endpoint(w.to||w.b)}));
+ const wires=(p.wires||[]).map((wire,i)=>{const {from,to,...w}=wire;return {...w,id:w.id||"W"+String(i+1).padStart(3,"0"),a:endpoint(from||w.a),b:endpoint(to||w.b)}});
  const workspace=typeof p.workspace==="string"?p.workspace:(p.workspace?.mode||"schematic");
  return {format:"voltpro",version:2,mode:raw.mode||workspace,viewport:structuredClone(raw.viewport||{}),components,wires,wireStyle:structuredClone(raw.wireStyle||{}),panel:structuredClone(p.panel||{rails:[],items:[],width:600,height:400}),metadata:structuredClone(p.metadata||{})};
 }

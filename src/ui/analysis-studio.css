@@ -1,0 +1,52 @@
+/* Analysis Studio: one coherent workbench, with an optional instrument drawer. */
+.simulator-page{--studio-accent:#67e8c0;--studio-panel:#0d1725}
+.simulator-page .sim-app{grid-template-rows:64px auto minmax(0,1fr) 28px}
+.simulator-page .toolbar{height:auto;min-height:52px;flex-wrap:wrap;max-height:150px;overflow:auto;padding:8px 12px;gap:7px}
+.simulator-page .toolbar-group{padding:0 7px!important}
+.simulator-page .toolbar-group::before{display:none!important}
+.simulator-page .toolbar button{min-height:32px;font-size:11px}
+.simulator-page .workspace{grid-template-columns:240px minmax(0,1fr) 285px}
+.simulator-page .palette,.simulator-page .inspector{background:#0c1421}
+.simulator-page .panel-title{color:#a9bacb;font-size:10px;letter-spacing:.1em}
+.simulator-page .cat-tabs{max-height:102px;overflow:auto;flex-wrap:wrap}
+.simulator-page .palette-item{border-bottom:1px solid #1d2b3d;border-radius:4px}
+.simulator-page .palette-item:hover{background:#17293b}
+.simulator-page .palette-item b{font-size:12px}
+.simulator-page .palette-item small{font-size:10px}
+.simulator-page .canvas-wrap{background:#0b1220}
+.simulator-page .canvas-help{max-width:65%;font-size:10px}
+.studio-launch{border-color:#498b81!important;color:#95f4d3!important}
+.studio-drawer{position:absolute;left:0;right:0;bottom:0;height:310px;z-index:20;background:#0d1725;border-top:1px solid #456074;display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;box-shadow:0 -12px 35px #0004;color:#e5edf5;font:12px system-ui}
+.studio-drawer[hidden]{display:none}
+.studio-drawer [hidden],.studio-quickstart[hidden],.studio-legend[hidden]{display:none!important}
+.studio-head,.studio-controls,.studio-readings{display:flex;align-items:center;gap:10px;padding:8px 14px}
+.studio-head{border-bottom:1px solid #25364c}.studio-head b{letter-spacing:.12em;font-size:10px;color:#94f5d5}.studio-head .studio-close{margin-left:auto}
+.studio-drawer button,.studio-drawer select,.studio-drawer input{background:#142236;color:#e5edf5;border:1px solid #354b64;border-radius:5px;padding:6px 8px;font:12px system-ui;min-height:30px}
+.studio-drawer button{cursor:pointer}.studio-drawer button[aria-pressed=true]{background:#234941;border-color:#67e8c0;color:#9ffadc}
+.studio-controls{flex-wrap:wrap;padding-top:6px;padding-bottom:6px;gap:6px}
+.studio-controls label{display:flex;gap:5px;align-items:center;color:#adc0d4}.studio-controls input{width:75px}.studio-controls select{max-width:155px}
+.studio-plot-wrap{position:relative;min-height:0;margin:0 12px;background:#080f1b;border:1px solid #22374e;border-radius:6px}
+.studio-plot{width:100%;height:100%;display:block;touch-action:none;cursor:crosshair}
+.studio-plot text{font:10px ui-monospace,monospace;fill:#99b0c6}
+.studio-readings{font:10px/1.6 ui-monospace,monospace;flex-wrap:wrap;gap:6px 18px;padding-top:5px;padding-bottom:5px;min-height:30px}
+.studio-readings strong{color:#67e8c0}.studio-readings .studio-error{color:#ffacac}
+.studio-open #canvas{height:calc(100% - 310px)}
+.studio-open .canvas-help,.studio-open .zoom{bottom:320px}
+.studio-quickstart{position:absolute;top:32px;left:50%;transform:translateX(-50%);width:min(460px,90%);padding:25px;background:#101e30eF;border:1px solid #344d65;border-radius:12px;box-shadow:0 20px 60px #0004;z-index:2}
+.studio-quickstart h1{font-size:24px;letter-spacing:-.04em;margin:7px 0 12px}.studio-quickstart p{color:#afc0d2;line-height:1.6;font-size:12px}.studio-kicker{font:10px ui-monospace,monospace;letter-spacing:.15em;color:#76e8ca}
+.studio-example-list{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:18px}
+.studio-example-list button{padding:12px;text-align:left;background:#172c40;border:1px solid #36516a;border-radius:7px;color:#edf7ff;cursor:pointer;font:12px system-ui}
+.studio-example-list small{display:block;color:#9cb5ca;margin-top:5px;font-size:10px}
+.studio-legend{position:absolute;top:12px;left:12px;font:10px ui-monospace,monospace;color:#adc0d4;pointer-events:none;background:#0c1624dd;padding:7px 10px;border-radius:5px}
+.studio-live-values{display:grid;gap:4px;margin:12px 0;font:11px/1.5 ui-monospace,monospace}
+.studio-adjust{margin:10px 0 16px;color:#adc0d4;font-size:11px}.studio-adjust input{display:block;width:100%;accent-color:#67e8c0;margin-top:9px}
+.studio-replace{max-width:420px;border:1px solid #456074;border-radius:12px;background:#0d1725;color:#e5edf5;padding:24px;font:14px/1.6 system-ui}.studio-replace::backdrop{background:#0009}.studio-replace h2{font-size:20px;margin:0}.studio-replace button{background:#173346;color:#e5edf5;border:1px solid #456074;border-radius:6px;padding:9px;margin-right:6px;cursor:pointer}
+.studio-flow{stroke:#ffe08a;fill:none;stroke-width:3;stroke-linecap:round;stroke-dasharray:1 19;pointer-events:none;animation:studio-flow 1.2s linear infinite}
+.studio-paused .studio-flow{animation-play-state:paused}
+@keyframes studio-flow{to{stroke-dashoffset:-40}}
+.studio-legend [data-positive]{color:#74e5ae}.studio-legend [data-negative]{color:#ff8f99}
+.studio-open .canvas-wrap .studio-drawer .studio-plot{height:100%}
+@media(max-width:1100px){.simulator-page .workspace{grid-template-columns:210px minmax(0,1fr)}.simulator-page .workspace.inspector-hidden{grid-template-columns:210px minmax(0,1fr)}.studio-drawer{height:330px}.studio-open #canvas{height:calc(100% - 330px)}.studio-open .canvas-help,.studio-open .zoom{bottom:340px}.simulator-page .workspace.palette-hidden{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:720px){.simulator-page .workspace,.simulator-page .workspace.inspector-hidden{grid-template-columns:minmax(0,1fr)}.simulator-page .toolbar{max-height:104px;flex-wrap:nowrap}.studio-drawer{height:340px}.studio-open #canvas{height:calc(100% - 340px)}.studio-quickstart{top:48px;padding:16px}.studio-head{gap:6px;overflow:auto}.studio-controls{gap:4px}.studio-controls label{font-size:10px}.studio-head button{font-size:10px}.studio-readings{font-size:9px}.simulator-page .canvas-wrap{min-height:0}}
+body.light .studio-drawer,body.light .studio-quickstart{background:#eef4fa;color:#172c40}body.light .studio-drawer button,body.light .studio-drawer select,body.light .studio-drawer input{background:#fff;color:#172c40}
+@media(prefers-reduced-motion:reduce){.studio-flow{animation:none}}

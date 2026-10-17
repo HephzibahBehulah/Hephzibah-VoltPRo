@@ -224,8 +224,8 @@ function linearSolve(b,options,history={}){
  for(const q of b.branches){
   if(q.kind==="resistor")stampG(A,q.a,q.b,C(1/q.R));
   else if(q.kind==="open"){}
-  else if(q.kind==="capacitor"){const g=options.ac?C(0,q.C*options.omega):C(options.dt?q.C/options.dt:0); if(mag(g)>0)stampG(A,q.a,q.b,g);}
-  else if(q.kind==="inductor"){const g=options.ac?C(0,-1/(options.omega*q.L)):C(options.dt?options.dt/q.L:1e12);stampG(A,q.a,q.b,g);if(options.dt){const old=history[q.comp.id]||0;stampI(z,q.a,q.b,C(-old))}}
+  else if(q.kind==="capacitor"){const g=options.ac?C(0,q.C*options.omega):C(options.dt?q.C/options.dt:0); if(mag(g)>0)stampG(A,q.a,q.b,g);if(options.dt)stampI(z,q.a,q.b,C(-g.re*(history['capacitor:'+q.comp.id]||0)));}
+  else if(q.kind==="inductor"){const g=options.ac?C(0,-1/(options.omega*q.L)):C(options.dt?options.dt/q.L:1e12);stampG(A,q.a,q.b,g);if(options.dt){const old=history[q.comp.id]||0;stampI(z,q.a,q.b,C(old))}}
   else if(q.kind==="diode"){const vd=v(q.a).re-v(q.b).re;const on=vd>=q.vf;const g=on?1/q.rd:q.reverse;const iEq=on?(vd-q.vf)/q.rd-g*vd:0;stampG(A,q.a,q.b,C(g));stampI(z,q.a,q.b,C(iEq))}
   else if(q.kind==="bjt"){const vbe=q.polarity==="pnp"?v(q.emitter).re-v(q.base).re:v(q.base).re-v(q.emitter).re;const g=vbe>q.vt?1/q.onResistance:1e-9;stampG(A,q.a,q.b,C(g))}
   else if(q.kind==="mosfet"){const vgs=q.polarity==="p"?v(q.b).re-v(q.g).re:v(q.g).re-v(q.b).re;stampG(A,q.a,q.b,C(vgs>q.threshold?1/q.onResistance:1e-9))}
@@ -234,6 +234,7 @@ function linearSolve(b,options,history={}){
  for(const q of b.currentSources||[])stampI(z,q.a,q.b,C(q.value));
  b.voltageSources.forEach((q,k)=>{
   let vv=C(q.value);
+  if(q.kind==="voltage"&&options.dt&&["ac_source","acsource"].includes(typeOf(q.comp))){const frequency=value(q.comp,["frequency"],50);vv=C(q.value*Math.sin(2*Math.PI*frequency*(options.time||0)+(q.phase||0)*Math.PI/180));}
   if(q.kind==="voltage"&&options.ac&&(q.phasor||["ac_source","acsource"].includes(typeOf(q.comp)))){const ph=(q.phase||0)*Math.PI/180;vv=C(q.value*Math.cos(ph),q.value*Math.sin(ph))}
   if(q.kind==="vcvs")vv=mul(C(q.gain),sub(v(q.cp),v(q.cm)));
   stampV(A,z,q.a,q.b,n+k,vv);
@@ -288,7 +289,7 @@ function operatingPoint(project,options={}){
  const branches=b.branches.map(q=>{const u=nodeVoltage(q.a)-nodeVoltage(q.b);let i=0;if(q.kind==="resistor")i=u/q.R;else if(q.kind==="diode")i=u>=q.vf?(u-q.vf)/q.rd:u*q.reverse;else if(q.kind==="bjt"){const vbe=q.polarity==="pnp"?nodeVoltage(q.emitter)-nodeVoltage(q.base):nodeVoltage(q.base)-nodeVoltage(q.emitter);i=vbe>q.vt?(q.polarity==="pnp"?-u:u)/q.onResistance:u*1e-9}else if(q.kind==="mosfet"){const vgs=q.polarity==="p"?nodeVoltage(q.b)-nodeVoltage(q.g):nodeVoltage(q.g)-nodeVoltage(q.b);i=vgs>q.threshold?u/q.onResistance:u*1e-9}return {id:q.comp.id,type:q.comp.type,contactId:q.contactId||null,voltage:u,current:i,power:u*i}});
  const sourceCurrents=b.voltageSources.map((q,k)=>({id:q.comp.id,type:q.comp.type,current:x[b.N+k]?.re||0}));
  const totalCurrent=sourceCurrents.reduce((s,q)=>s+Math.abs(q.current),0);
- return {ok:true,analysis:"DC operating point (MNA)",engine:"VoltPRo MNA",sourceVoltage:b.voltageSources[0]?.value||0,totalCurrent,totalPower:branches.reduce((s,q)=>s+q.power,0),nodes:b.N,branches,sourceCurrents,nodeVoltages:Array.from({length:b.N},(_,i)=>({node:i+1,voltage:nodeVoltage(i+1)})),deviceStates:Object.fromEntries(Object.entries(stateOverrides)),iterations:12};
+ return {ok:true,analysis:"DC operating point (MNA)",engine:"VoltPRo MNA",sourceVoltage:b.voltageSources[0]?.value||0,totalCurrent,totalPower:branches.reduce((s,q)=>s+q.power,0),nodes:b.N,branches,sourceCurrents,nodeVoltages:Array.from({length:b.N},(_,i)=>({node:i+1,voltage:nodeVoltage(i+1)})),terminalVoltages:Object.fromEntries(b.comps.flatMap(c=>pinsOf(c).map(pin=>[pin,nodeVoltage(b.nodeFor(pin))]))),deviceStates:Object.fromEntries(Object.entries(stateOverrides)),iterations:12};
 }
 function dc(project,options={}){return operatingPoint(project,options)}
 function ac(project,{start=1,stop=1e5,points=50,frequency=50,groundRef}={}){
@@ -326,9 +327,29 @@ function ac(project,{start=1,stop=1e5,points=50,frequency=50,groundRef}={}){
  return {ok:true,analysis:"AC sweep (MNA)",frequency,points:freqs.length,start,stop,sweep:rows};
 }
 function transient(project,{duration=.1,steps=100,groundRef}={}){
- const b=build(project,{groundRef}),dt=duration/Math.max(1,steps),samples=[],history={};let xPrev=Array.from({length:b.N},()=>C());
- for(let s=0;s<=steps;s++){const t=s*dt;const r=linearSolve(b,{dt,xPrev},history);if(!r.ok)return {ok:false,analysis:"Transient analysis",error:r.error,time:t};const x=r.x;xPrev=x.slice(0,b.N);samples.push({t,nodeVoltages:xPrev.map((v,i)=>({node:i+1,voltage:v.re})),sourceCurrent:r.x[b.N]?.re||0});for(const q of b.branches)if(q.kind==="inductor")history[q.comp.id]=(xPrev[q.a-1]?.re||0)-(xPrev[q.b-1]?.re||0);}
- return {ok:true,analysis:"Transient analysis (backward Euler MNA)",duration,steps,dt,samples};
+ if(!Number.isFinite(duration)||duration<=0||!Number.isInteger(steps)||steps<1||steps>10000)return {ok:false,error:"Use a positive duration and 1–10000 integer steps."};
+ const b=build(project,{groundRef}),dt=duration/steps,samples=[],history={};let xPrev=Array.from({length:b.N},()=>C());
+ const terminalNodes=Object.fromEntries(b.comps.flatMap(c=>pinsOf(c).map(pin=>[pin,b.nodeFor(pin)])));
+ for(let s=0;s<=steps;s++){
+  const t=s*dt,step=s===0?Math.min(dt*1e-6,1e-12):dt;
+  let r,guess=xPrev,converged=false;
+  // Re-linearize nonlinear devices without advancing reactive history.
+  for(let iteration=0;iteration<60;iteration++){
+   r=linearSolve(b,{dt:step,xPrev:guess,time:t},history);
+   if(!r.ok)return {ok:false,analysis:"Transient analysis",error:r.error,time:t};
+   const delta=Math.max(0,...r.x.slice(0,b.N).map((v,i)=>Math.abs(v.re-(guess[i]?.re||0))));
+   guess=r.x.slice(0,b.N);if(delta<1e-7){converged=true;break}
+  }
+  if(!converged)return {ok:false,analysis:"Transient analysis",error:"Transient nonlinear iteration did not converge.",time:t};
+  xPrev=r.x.slice(0,b.N);const nodeV=n=>n===0?0:(xPrev[n-1]?.re||0);
+  samples.push({t,nodeVoltages:xPrev.map((v,i)=>({node:i+1,voltage:v.re})),sourceCurrent:r.x[b.N]?.re||0});
+  for(const q of b.branches){
+   const v=nodeV(q.a)-nodeV(q.b);
+   if(q.kind==="inductor")history[q.comp.id]=(history[q.comp.id]||0)+step/q.L*v;
+   if(q.kind==="capacitor")history['capacitor:'+q.comp.id]=v;
+  }
+ }
+ return {ok:true,analysis:"Transient analysis (backward Euler MNA)",duration,steps,dt,samples,terminalNodes};
 }
 function dcSweep(project,{componentId,param="resistance",start=100,stop=10000,points=20}={}){const base=JSON.parse(JSON.stringify(project));const target=(base.components||[]).find(x=>x.id===componentId);if(!target)return {ok:false,analysis:"DC sweep",error:"Component not found: "+componentId};const values=points<=1?[start]:Array.from({length:points},(_,i)=>start+(stop-start)*i/(points-1));const sweep=[];for(const v of values){target.props=target.props||{};target.props[param]=v;const r=dc(base);if(!r.ok)return {ok:false,analysis:"DC sweep",error:r.error,value:v};sweep.push({value:v,totalCurrent:r.totalCurrent,totalPower:r.totalPower,branches:r.branches})}return {ok:true,analysis:"DC parameter sweep (MNA)",componentId,param,start,stop,points:sweep.length,sweep}}
 function power(project,options={}){const r=dc(project,options);if(!r.ok)return r;return {ok:true,analysis:"DC power",totalPower:r.totalPower,branches:r.branches.map(x=>({id:x.id,power:x.power}))}}

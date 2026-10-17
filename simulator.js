@@ -157,7 +157,7 @@ function syncRunControls(state=S.running?"running":"stopped"){
  if(label)label.textContent=current==="running"?"RUNNING":current==="error"?"ERROR · STOPPED":"STOPPED";
  else status.textContent=current==="running"?"RUNNING":current==="error"?"ERROR · STOPPED":"STOPPED";
 }
-function render(){const key=[cat,search,window.VoltProRegistry?.count||0].join("|");if(key!==paletteRenderKey)renderPalette();renderCanvas();renderInspector();$("#componentCount").textContent=window.VoltProRegistry?.count||Object.keys(defs).length;syncRunControls();$("#zoomLabel").textContent=Math.round(S.zoom*100)+"%"}
+function render(){window.VoltProStudio?.invalidate?.();const key=[cat,search,window.VoltProRegistry?.count||0].join("|");if(key!==paletteRenderKey)renderPalette();renderCanvas();renderInspector();$("#componentCount").textContent=window.VoltProRegistry?.count||Object.keys(defs).length;syncRunControls();$("#zoomLabel").textContent=Math.round(S.zoom*100)+"%"}
 function renderPalette(){const entries=paletteEntries();paletteRenderKey=[cat,search,window.VoltProRegistry?.count||0].join("|");const cats=["All",...new Set(entries.map(([,d])=>d.cat))];const tabs=$("#catTabs");tabs.innerHTML=cats.map(x=>'<button class="'+(cat===x?"active":"")+'" data-cat="'+esc(x)+'">'+esc(x)+'</button>').join("");$$("[data-cat]").forEach(b=>b.onclick=()=>{cat=b.dataset.cat;renderPalette()});
  const list=entries.filter(([k,d])=>(cat==="All"||d.cat===cat)&&(d.name+" "+k).toLowerCase().includes(search.toLowerCase()));
  const MAX_VISIBLE=100,visible=list.slice(0,MAX_VISIBLE);$("#paletteList").innerHTML=(list.length>MAX_VISIBLE?'<div class="palette-results-note">Showing first '+MAX_VISIBLE+' of '+list.length+' matches. Search to narrow results.</div>':"")+visible.map(([k,d])=>{const media=window.VoltProMedia?.get?.(d.name)||null;const visual=media?.url?'<img class="palette-thumb" loading="lazy" src="'+esc(media.url)+'" alt="" referrerpolicy="no-referrer">':'<span class="sym">'+esc(d.symbol||"◇")+'</span>';return '<div class="palette-item" draggable="true" data-type="'+k+'">'+visual+'<span><b>'+esc(d.name)+'</b><small>'+esc(d.cat)+(d.registryId?" · catalog":"")+'</small></span></div>'}).join("");
@@ -166,6 +166,7 @@ function renderPalette(){const entries=paletteEntries();paletteRenderKey=[cat,se
 const physicalCanvasKinds=new Set(["arduino","breadboard","mcb","rcd","rcbo","mccb","resistor","knx","plc","contactor","relay","motor","db","fuse","sensor","drive","auxiliary","isolator"]);
 function canvasPhoto(){return "";}
 function canvasDevice(c,d){
+ if(S.mode==="schematic"&&S.deviceView!==true&&["battery","resistor","lamp","led","switch","capacitor","inductor","diode","zener","acsource"].includes(c.type))return symbol(c);
  const visuals=window.VoltProRealisticDevices,key=visuals?.kind?.(c.type,d.name);
  if(!physicalCanvasKinds.has(key))return symbol(c);
  const sizes=key==="arduino"?{x:-143,y:-105,w:286,h:210}:key==="breadboard"?{x:-280,y:-137,w:560,h:274}:key==="resistor"?{x:-70,y:-34,w:140,h:68}:key==="motor"?{x:-70,y:-70,w:140,h:140}:{x:-56,y:-70,w:112,h:140};
@@ -191,7 +192,7 @@ comps.querySelectorAll(".component[data-id]").forEach(g=>{g.onclick=e=>{if(e.tar
  $$(".pin").forEach(p=>p.onpointerdown=e=>{e.stopPropagation();e.preventDefault();dragWire={start:p.dataset.pin,pointerId:e.pointerId,startX:e.clientX,startY:e.clientY,moved:false};handlePin(p.dataset.pin)});
 applyViewport();renderWires();}
 function fitCanvasToContent(){
- const width=Math.max(1,wrap.clientWidth),height=Math.max(1,wrap.clientHeight);
+ const width=Math.max(1,svg.clientWidth||wrap.clientWidth),height=Math.max(1,svg.clientHeight||wrap.clientHeight);
  if(!S.components.length){S.zoom=1;S.pan={x:0,y:0};render();return}
  let minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity;
  const include=(x,y)=>{if(!Number.isFinite(x)||!Number.isFinite(y))return;minX=Math.min(minX,x);minY=Math.min(minY,y);maxX=Math.max(maxX,x);maxY=Math.max(maxY,y)};
@@ -210,12 +211,13 @@ function fitCanvasToContent(){
  if(!Number.isFinite(minX)||!Number.isFinite(minY)){S.zoom=1;S.pan={x:0,y:0};render();return}
  const margin=28;minX-=margin;minY-=margin;maxX+=margin;maxY+=margin;
  const contentW=Math.max(1,maxX-minX),contentH=Math.max(1,maxY-minY);
- const availableW=Math.max(160,width-72),availableH=Math.max(120,height-118);
+ const availableW=Math.max(160,width-72),availableH=Math.max(120,height-(wrap.classList.contains("studio-open")?48:118));
  S.zoom=Math.max(.35,Math.min(2.5,Math.min(availableW/contentW,availableH/contentH)));
  S.pan={x:width/2-((minX+maxX)/2)*S.zoom,y:height/2-((minY+maxY)/2)*S.zoom};
  render();
 }
 function applyViewport(){const t="translate("+S.pan.x+" "+S.pan.y+") scale("+S.zoom+")";[comps,wires,labels,selg,$("#gridRect")].forEach(el=>{if(el)el.setAttribute("transform",t)});}
+function isLiveWire(w){const ids=[String(w.a||"").split(":")[0],String(w.b||"").split(":")[0]];return (S.lastAnalysis?.branches||[]).some(branch=>ids.includes(branch.id)&&Math.abs(branch.current)>1e-8)}
 function renderWires(){
  wires.innerHTML=S.wires.filter(w=>!w.internal).map((w,i)=>{
   const a=getPin(w.a),b=getPin(w.b);if(!a||!b)return "";
@@ -261,6 +263,8 @@ function solve(){const connectedWires=electricalWires();const src=S.components.f
  const V=+src.props.voltage||12;const R=[];for(const c of active){const ps=connectedWires.filter(w=>w.a.startsWith(c.id+":")||w.b.startsWith(c.id+":"));if(ps.length<2)continue;const na=ps[0].a.startsWith(c.id)?nodeOf(ps[0].b):nodeOf(ps[0].a);const nb=ps[1].a.startsWith(c.id)?nodeOf(ps[1].b):nodeOf(ps[1].a);R.push({c,na,nb,r:resistance(c)})}
  let series=0;for(const x of R)series+=x.r;const current=series>0?V/series:0;return {voltage:V,current,loads:R.map(x=>({id:x.c.id,name:compDef(x.c.type).name,current:current,resistance:x.r}))}
 }
+window.VoltProSimulator.getSolverProject=()=>solverProject();
+window.VoltProSimulator.step=()=>{stop();solveSimulationTick(false);};
 function solverProject(){return {components:S.components.map(c=>({...c,pins:Array.from({length:compDef(c.type).pins},(_,i)=>c.id+":"+i)})),wires:electricalWires()}}
 let simulationInterval=null;
 function solveSimulationTick(continuous=false){
@@ -291,30 +295,32 @@ function solveSimulationTick(continuous=false){
    S.lastAnalysis=null;S.lastAnalysisSignature="";
    $("#meterReadout").textContent="--";
    const validation=error.validation;
-   const issues=(validation?.errors||[]).map(issue=>issue.code+" · "+issue.message).join("\\n");
-   $("#console").textContent="CANONICAL TOPOLOGY ERROR\\n"+(issues||error.message||"Unable to validate circuit topology.");
+   const issues=(validation?.errors||[]).map(issue=>issue.code+" · "+issue.message).join("\n");
+   $("#console").textContent="CANONICAL TOPOLOGY ERROR\n"+(issues||error.message||"Unable to validate circuit topology.");
    $("#calcPanel").textContent="Simulation stopped because canonical topology could not be validated. Correct the connection errors before running again.";
    renderCanvas();syncRunControls("error");return;
  }
  const preflight=window.VoltProSimulationPreflight?.validate?.(project);
- if(preflight?.valid===false){S.running=false;if(simulationInterval){clearInterval(simulationInterval);simulationInterval=null}S.lastAnalysis=null;S.lastAnalysisSignature="";$("#meterReadout").textContent="--";const details=(preflight.errors||[]).map(issue=>issue.code+(issue.wireId?" · "+issue.wireId:"")+(issue.terminalId?" · "+issue.terminalId:"")+(issue.message?" · "+issue.message:"")).join("\\n");$("#console").textContent="TOPOLOGY PREFLIGHT FAILED\\n"+details;$("#calcPanel").textContent="Simulation stopped because one or more wires reference missing or invalid terminals. Fix the highlighted connection data before running again.";renderCanvas();syncRunControls("error");log("Simulation blocked by topology preflight: "+details.replace(/\\n/g,"; "));return}
+ if(preflight?.valid===false){S.running=false;if(simulationInterval){clearInterval(simulationInterval);simulationInterval=null}S.lastAnalysis=null;S.lastAnalysisSignature="";$("#meterReadout").textContent="--";const details=(preflight.errors||[]).map(issue=>issue.code+(issue.wireId?" · "+issue.wireId:"")+(issue.terminalId?" · "+issue.terminalId:"")+(issue.message?" · "+issue.message:"")).join("\n");$("#console").textContent="TOPOLOGY PREFLIGHT FAILED\n"+details;$("#calcPanel").textContent="Simulation stopped because one or more wires reference missing or invalid terminals. Fix the highlighted connection data before running again.";renderCanvas();syncRunControls("error");log("Simulation blocked by topology preflight: "+details.replace(/\n/g,"; "));return}
  let r;
  if(window.VoltProEngine){
-   r=VoltProEngine.analyze(project,{dc:{scanTimeMs:250},transient:{duration:.1,steps:40},ac:{frequency:50,points:1,scanTimeMs:250}});
+   r={dc:VoltProEngine.dc(project,{scanTimeMs:250})};
+   if(project.components.some(c=>c.type==="threephase"))r.ac=VoltProEngine.ac(project,{frequency:50,points:1,scanTimeMs:250});
  } else {
    r={dc:solve()};
  }
  const phaseSource=project.components.find(c=>c.type==="threephase"),phasor=r.ac?.ok?r.ac.sweep?.[0]:null;
  const dc=phaseSource?(phasor?.branches?{...phasor,ok:true,analysis:"Three-phase AC operating point (MNA)",engine:"VoltPRo MNA",sourceVoltage:Number(phaseSource.props?.lineVoltage??phaseSource.props?.voltage)||400,totalCurrent:(phasor.sourceCurrents||[]).filter(x=>x.id===phaseSource.id).reduce((sum,x)=>sum+x.current,0)/3,totalPower:phasor.totalPower||0,nodes:phasor.nodeVoltages?.length||0,branches:phasor.branches,sourceCurrents:phasor.sourceCurrents,nodeVoltages:phasor.nodeVoltages,threePhase:true}:{ok:false,error:r.ac?.error||"Three-phase AC analysis failed."}):(r.dc||r);
- if(!dc.ok){S.running=false;if(simulationInterval){clearInterval(simulationInterval);simulationInterval=null}S.lastAnalysis=null;S.lastAnalysisSignature="";$("#meterReadout").textContent="--";$("#console").textContent="RUN ERROR\\n"+(dc.error||"Unable to solve circuit.");$("#calcPanel").textContent="Check source, connections and component values.";renderCanvas();syncRunControls("error");return}
+ if(!dc.ok){S.running=false;if(simulationInterval){clearInterval(simulationInterval);simulationInterval=null}S.lastAnalysis=null;S.lastAnalysisSignature="";$("#meterReadout").textContent="--";$("#console").textContent="RUN ERROR\n"+(dc.error||"Unable to solve circuit.");$("#calcPanel").textContent="Check source, connections and component values.";renderCanvas();syncRunControls("error");return}
  for(const [id,deviceState] of Object.entries(dc.deviceStates||{})){const component=S.components.find(c=>c.id===id);if(component){const patch=deviceState&&typeof deviceState==="object"?deviceState:{energized:Boolean(deviceState)};component.state={...(component.state||{}),...patch}}}
- S.lastAnalysis={...dc,topologyMode};S.lastAnalysisSignature=JSON.stringify({project:solverProject(),topologyMode});
+ S.lastAnalysis={...dc,topologyMode};
+ window.dispatchEvent(new CustomEvent("voltpro-analysis",{detail:{project,result:S.lastAnalysis}}));S.lastAnalysisSignature=JSON.stringify({project:solverProject(),topologyMode});
  const amps=Number(dc.totalCurrent)||0;
  $("#meterReadout").textContent=amps.toFixed(4)+" A";
- $("#console").textContent="VOLTPro Engine v3\\nAnalysis: "+(dc.analysis||"DC operating point")+"\\nSource: "+(dc.sourceVoltage||0)+" V\\nTotal current: "+amps.toFixed(4)+" A\\nTotal power: "+(Number(dc.totalPower)||0).toFixed(4)+" W\\nNodes: "+(dc.nodes||0)+"\\n";
- (dc.branches||[]).forEach(x=>$("#console").textContent+=x.name+" · "+(Number(x.voltage)||0).toFixed(3)+" V · "+(Number(x.current)||0).toFixed(4)+" A · "+(Number(x.power)||0).toFixed(4)+" W\\n");
- $("#calcPanel").innerHTML="<b>DC operating point</b><br>Current: "+amps.toFixed(4)+" A<br>Power: "+(Number(dc.totalPower)||0).toFixed(4)+" W<br><small>Engine v3 · educational analysis</small>";
- if(!continuous||visualBefore!==visualSignature())renderCanvas();syncRunControls();if(!continuous)log("Engine v3 analysis complete.");
+ $("#console").textContent="VoltPRo MNA Engine v4\nAnalysis: "+(dc.analysis||"DC operating point")+"\nSource: "+(dc.sourceVoltage||0)+" V\nTotal current: "+amps.toFixed(4)+" A\nTotal power: "+(Number(dc.totalPower)||0).toFixed(4)+" W\nNodes: "+(dc.nodes||0)+"\n";
+ (dc.branches||[]).forEach(x=>$("#console").textContent+=(x.name||x.id)+" · "+(Number(x.voltage)||0).toFixed(3)+" V · "+(Number(x.current)||0).toFixed(4)+" A · "+(Number(x.power)||0).toFixed(4)+" W\n");
+ $("#calcPanel").innerHTML="<b>DC operating point</b><br>Current: "+amps.toFixed(4)+" A<br>Power: "+(Number(dc.totalPower)||0).toFixed(4)+" W<br><small>MNA v4 · educational analysis</small>";
+ if(!continuous||visualBefore!==visualSignature())renderCanvas();syncRunControls();if(!continuous)log("MNA operating point complete.");
 }
 function run(){
  if(!S.running){S.running=true;syncRunControls()}
@@ -429,14 +435,14 @@ if(wireCableType)wireCableType.addEventListener("change",()=>{S.wireStyle.cableT
 if(wireSize)wireSize.addEventListener("change",()=>{S.wireStyle.size=wireSize.value;S.wireStyle.gauge=String(nearestAwg(wireSize.value));syncWireMenu()});
 if(wireGauge)wireGauge.addEventListener("change",()=>{S.wireStyle.gauge=wireGauge.value;S.wireStyle.size=nearestMetricSize(wireGauge.value);syncWireMenu()});
 if(startWireBtn)startWireBtn.addEventListener("click",toggleWireDrawing);$("#undoBtn").onclick=()=>{if(S.history.length){S.future.push(JSON.stringify({components:S.components,wires:S.wires,panel:S.panel||null}));restore(S.history.pop())}};$("#redoBtn").onclick=()=>{if(S.future.length){S.history.push(JSON.stringify({components:S.components,wires:S.wires,panel:S.panel||null}));restore(S.future.pop())}};$("#fitBtn").onclick=fitCanvasToContent;$("#zoomIn").onclick=()=>{S.zoom=Math.min(2.5,S.zoom*1.15);render()};$("#zoomOut").onclick=()=>{S.zoom=Math.max(.35,S.zoom/1.15);render()};
-$("[data-meter]").forEach(b=>b.onclick=()=>{
+$$("[data-meter]").forEach(b=>b.onclick=()=>{
  S.meter=b.dataset.meter;
  const project=solverProject(),signature=JSON.stringify(project);
  const preflight=window.VoltProSimulationPreflight?.validate?.(project);
- if(preflight?.valid===false){S.lastAnalysis=null;S.lastAnalysisSignature="";$("#meterReadout").textContent="--";const details=(preflight.errors||[]).map(issue=>issue.code+(issue.wireId?" · "+issue.wireId:"")+(issue.terminalId?" · "+issue.terminalId:"")+(issue.message?" · "+issue.message:"")).join("\\n");$("#console").textContent="METER BLOCKED BY TOPOLOGY ERROR\\n"+details;return}
+ if(preflight?.valid===false){S.lastAnalysis=null;S.lastAnalysisSignature="";$("#meterReadout").textContent="--";const details=(preflight.errors||[]).map(issue=>issue.code+(issue.wireId?" · "+issue.wireId:"")+(issue.terminalId?" · "+issue.terminalId:"")+(issue.message?" · "+issue.message:"")).join("\n");$("#console").textContent="METER BLOCKED BY TOPOLOGY ERROR\n"+details;return}
  let result=signature===S.lastAnalysisSignature?S.lastAnalysis:null;
  if(!result?.ok){result=window.VoltProEngine?.dc(project);if(result?.ok){S.lastAnalysis=result;S.lastAnalysisSignature=signature}}
- if(!result?.ok){$("#meterReadout").textContent="--";$("#console").textContent="METER ERROR\\n"+(result?.error||"Run the circuit and check its connections first.");return}
+ if(!result?.ok){$("#meterReadout").textContent="--";$("#console").textContent="METER ERROR\n"+(result?.error||"Run the circuit and check its connections first.");return}
  const selected=S.components.find(c=>c.id===S.selected);
  const candidates=selected?(result.branches||[]).filter(x=>x.id===selected.id):[];
  const branch=candidates.find(x=>x.contactId==="coil")||candidates.find(x=>!x.contactId)||candidates[0]||null;
@@ -454,7 +460,7 @@ $("[data-meter]").forEach(b=>b.onclick=()=>{
  else {value=measured("continuity",Math.abs(branch.current)>1e-12&&Math.abs(branch.voltage/branch.current)<=.1);display=value?"PASS":"OPEN"}
  $("#meterReadout").textContent=display;
 });
-$(".mode").forEach(b=>b.onclick=()=>{$(".mode").forEach(x=>x.classList.remove("active"));b.classList.add("active");S.mode=b.dataset.mode;$("#engineInfo").textContent=b.dataset.mode==="micro"?"Microcontroller workspace · local educational engine":b.dataset.mode==="panel"?"Panel planning workspace · local educational engine":"DC educational engine · local-only"});
+$$(".mode").forEach(b=>b.onclick=()=>{$$(".mode").forEach(x=>x.classList.remove("active"));b.classList.add("active");S.mode=b.dataset.mode;$("#engineInfo").textContent=b.dataset.mode==="micro"?"Microcontroller workspace · local educational engine":b.dataset.mode==="panel"?"Panel planning workspace · local educational engine":"DC educational engine · local-only"});
 window.addEventListener("voltpro-open-plc",()=>window.VoltProEngineeringWorkspaces?.plc?.());
 $("#themeBtn").onclick=()=>{document.body.classList.toggle("light");localStorage.setItem("voltpro-theme",document.body.classList.contains("light")?"light":"dark")};
 function toast(m){const t=document.createElement("div");t.textContent=m;t.style="position:fixed;right:18px;bottom:45px;background:#12314a;border:1px solid #39647f;color:white;padding:9px 13px;border-radius:8px;z-index:99;font-size:11px";document.body.append(t);setTimeout(()=>t.remove(),1600)}
