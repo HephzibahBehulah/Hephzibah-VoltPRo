@@ -140,9 +140,10 @@ NAVIGATION POLICY: avoid duplicate content ownership. Simulator = build/simulate
     if (!answer && sources.length) answer = "I found these public reference pages. Their snippets are starting points, not a substitute for official technical documentation.";
     if (!answer) answer = "The remote AI service is unavailable and I do not have a reliable offline answer for that question. Try a specific VoltPRo workspace or enable external lookup.";
     if (sources.length && !/https?:\/\//i.test(answer)) answer += "\n\nExternal references: " + sources.map(s => s.title + " — " + s.url).join("; ");
+    const proposal=window.VoltProAssistantEngineering?.remotePlan(answer);if(proposal)window.VoltProDesignStudio?.remember(proposal);else if(window.VoltProAssistantEngineering?.proposalError)answer+='\n\nPROJECT CHECK: Import is unavailable because '+window.VoltProAssistantEngineering.proposalError+' Ask for a corrected design.';
     history.push({ role: "user", content: q }, { role: "assistant", content: answer });
     if (history.length > 12) history.splice(0, history.length - 12);
-    const proposal=window.VoltProAssistantEngineering?.remotePlan(answer);if(proposal)window.VoltProDesignStudio?.remember(proposal);return { answer, sources, mode: responseMode, ...(proposal?{plan:proposal}:{}) };
+    return { answer, sources, mode: responseMode, ...(proposal?{plan:proposal}:{}) };
   };
   const boot = () => {
     if (document.getElementById("vpBotWindow")) return;
