@@ -73,7 +73,7 @@
       ]
     }
   };
-  function plan(prompt,previous){
+  function plan(prompt,previous){if(globalThis.VoltProAssistantEngineering&&/(?:three|3)[ -]?way/.test(String(prompt).toLowerCase())){const project=globalThis.VoltProAssistantEngineering.normalize(globalThis.VoltProAssistantEngineering.threeWay());return {recognized:true,title:project.metadata.name,description:project.metadata.objective,template:"three-way-switch",components:project.components,wires:project.wires,warnings:["Low-voltage SPDT teaching circuit; regional terminology differs."]};}
     const q=String(prompt||"").toLowerCase().replace(/[–—]/g,"-").trim();
     if(!q)return {recognized:false,error:"Enter a circuit description first.",components:[],wires:[],warnings:[]};
     if(previous&&previous.recognized){

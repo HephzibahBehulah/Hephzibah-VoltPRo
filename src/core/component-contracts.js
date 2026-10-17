@@ -60,6 +60,8 @@ else if(s==='diode'||s==='led')body=line(-55,0,-15,0)+path('M-15 -16 L15 0 -15 1
 else if(s==='source'||s==='sine')body=line(-55,0,-23,0)+'<circle r="23"/>'+line(23,0,55,0)+(s==='source'?text('+',0,-4)+text('−',0,14):path('M-15 0 C-12 -20 -3 -20 0 0 C3 20 12 20 15 0'));
 else if(s==='relay'){body=line(-55,-48,-24,-48)+'<rect x="-24" y="-60" width="48" height="24"/>'+line(24,-48,55,-48)+text('K',0,-44)+(r.terminals.length===5?[0]:[0,54]).map(y=>line(-55,y,-20,y)+line(-20,y,22,y-12)+line(22,y-12,55,y-12)+line(22,y+12,55,y+12)).join('')+path('M0 -34 V-18 M0 18 V36');}
 else if(s==='button4')body=r.terminals.map((t,i)=>line(t.position.x,t.position.y,i<2?-20:20,0)).join('')+line(-20,0,15,-15)+'<circle cx="-20" r="3"/><circle cx="20" r="3"/>';
+else if(s==='breaker')body=line(-55,0,-22,0)+line(-22,0,18,-16)+line(22,0,55,0)+line(0,-23,0,-32)+text('I>',0,25);
+else if(s==='lamp')body=line(-55,0,-24,0)+'<circle r="24"/>'+line(-16,-16,16,16)+line(-16,16,16,-16)+line(24,0,55,0);
 else if(s==='switch')body=line(-55,0,-20,0)+line(-20,0,20,-18)+line(20,0,55,0);
 else if(s==='spdt')body=line(-55,0,-20,0)+line(-20,0,20,-20)+line(20,-20,55,-20)+line(20,20,55,20);
 else if(['npn','pnp','mosfet-n','mosfet-p'].includes(s)){body='<circle r="29"/>'+line(-55,0,-12,0)+line(-12,-20,-12,20)+line(-8,-13,35,-42)+line(-8,13,35,42);body+=s.startsWith('mosfet')?line(-5,-21,-5,21):s==='npn'?path('M18 25 l11 12 -15 -5 Z'):path('M23 33 l-13 -11 5 16 Z');}

@@ -2,7 +2,7 @@
 (()=>{'use strict';
 const records=new Map(),defaults=p=>Object.fromEntries(Object.entries(p||{}).map(([k,v])=>[k,v?.default??'']));
 const category=s=>String(s||'Other').replace(/[-_]/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
-function normalize(input){const r=JSON.parse(JSON.stringify(input)),graph=window.VoltProTerminalGraph?.definitionFor?.(r.id),template=r.electricalModel?.type==='lumped';
+function normalize(input){const qualified=window.VoltProCatalogModels?.qualify(input);if(qualified)return qualified;const r=JSON.parse(JSON.stringify(input)),graph=window.VoltProTerminalGraph?.definitionFor?.(r.id),template=r.electricalModel?.type==='lumped';
 r.category=category(r.category);r.audit={status:template?'review':'educational',reason:template?'Unverified template record: pin map, ratings and model need review.':'Existing educational model; manufacturer fidelity is not established.'};
 if(graph){r.terminals=graph.terminals;r.audit={status:template?'reference':'educational',reason:template?'Functional pin map available; ratings and behavior remain unverified.':'Named functional terminals and existing educational model.'};}
 if(template){r.parameters={};r.ratings={};delete r.panelModel;r.electricalModel={type:'unverified',engine:null};}const supported=new Set(['protection','contactor','relay','motor','transformer','three-phase-transformer','resistive-sensor','sensor-contact','led','load','mosfet','bjt','three-phase-source','ground','conductor']);if(!template&&!supported.has(r.electricalModel?.type)&&!/^logic-logic-/.test(r.id)){r.audit={status:graph?'reference':'review',reason:'No validated electrical adapter for this catalogue family.'};}

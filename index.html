@@ -42,49 +42,36 @@
     <div class="student-mini"><div class="avatar">HB</div><div><strong id="studentName">Student</strong><small>Electrical Apprentice</small></div></div>
     <nav class="nav" aria-label="Main navigation">
       <button class="nav-item active" data-view="dashboard"><span>⌂</span>Dashboard</button>
-
-      <details class="nav-group" open>
-        <summary class="nav-group-title">Learn &amp; Reference</summary>
-        <div class="nav-group-items">
-          <button class="nav-item" data-view="learn"><span>▣</span>Learning Path</button>
-          <button class="nav-item" data-view="quiz"><span>✓</span>Knowledge Checks</button>
-          <button class="nav-item" data-view="exam"><span>🎓</span>Exam Practice</button>
-          <button class="nav-item" data-view="reference"><span>☷</span>Reference Library</button>
-        </div>
-      </details>
-
-      <details class="nav-group">
-        <summary class="nav-group-title">Safety &amp; Practical Learning</summary>
-        <div class="nav-group-items">
-          <button class="nav-item" data-view="safety"><span>⚠</span>Safety &amp; Standards</button>
-          <button class="nav-item" data-view="labs"><span>⌘</span>Virtual Labs</button>
-          <a class="nav-item" href="academy-workbench.html"><span>⌁</span>Practical Workbench</a>
-          <button class="nav-item" data-view="tools"><span>🧰</span>Tools &amp; Equipment</button>
-          <button class="nav-item" data-view="ar"><span>◉</span>Component Learning</button>
-        </div>
-      </details>
-
-      <details class="nav-group">
-        <summary class="nav-group-title">Engineering</summary>
-        <div class="nav-group-items">
-          <a class="nav-item" href="simulator.html"><span>⚡</span>VoltPRo Simulator</a>
-          <a class="nav-item" href="engineering.html"><span>∑</span>Engineering Tools</a><a class="nav-item" href="breadboard.html"><span>▦</span>Breadboard Electronics</a>
-        </div>
-      </details>
-
-      <details class="nav-group">
-        <summary class="nav-group-title">Assistance</summary>
-        <div class="nav-group-items">
-          <button class="nav-item" data-view="tutor"><span>🤖</span>AI Tutor</button>
-        </div>
-      </details>
-    </nav>
-    <div class="vp-ecosystem-links" aria-label="External links — Hephzibah Behulah">
+      <details class="nav-group"><summary class="nav-group-title">Study &amp; assessment</summary><div class="nav-group-items">
+        <button class="nav-item" data-view="learn"><span>▣</span>Learning Path</button>
+        <button class="nav-item" data-view="quiz"><span>✓</span>Knowledge Checks</button>
+        <button class="nav-item" data-view="exam"><span>🎓</span>Exam Practice</button>
+      </div></details>
+      <details class="nav-group" open><summary class="nav-group-title">Design &amp; simulation</summary><div class="nav-group-items">
+        <a class="nav-item" href="simulator.html"><span>⚡</span>VoltPRo Simulator</a>
+        <a class="nav-item" href="breadboard.html"><span>▦</span>Breadboard Electronics</a>
+        <a class="nav-item" href="engineering.html"><span>∑</span>Engineering Tools</a>
+      </div></details>
+      <details class="nav-group"><summary class="nav-group-title">Practical workshop</summary><div class="nav-group-items">
+        <button class="nav-item" data-view="labs"><span>⌘</span>Virtual Labs</button>
+        <a class="nav-item" href="academy-workbench.html"><span>⌁</span>Practical Workbench</a>
+        <button class="nav-item" data-view="tools"><span>🧰</span>Tools &amp; Equipment</button>
+        <button class="nav-item" data-view="ar"><span>◉</span>Component Learning</button>
+      </div></details>
+      <details class="nav-group"><summary class="nav-group-title">Reference &amp; safety</summary><div class="nav-group-items">
+        <button class="nav-item" data-view="reference"><span>☷</span>Reference Library</button>
+        <button class="nav-item" data-view="safety"><span>⚠</span>Safety &amp; Standards</button>
+      </div></details>
+      <details class="nav-group"><summary class="nav-group-title">AI assistance</summary><div class="nav-group-items">
+        <button class="nav-item" data-view="tutor"><span>AI</span>AI Tutor</button>
+        <button class="nav-item" data-open-adigun><span>AD</span>Adigun Assistant</button>
+      </div></details>
+    </nav><details class="sidebar-resources"><summary>External resources ↗</summary><div class="vp-ecosystem-links" aria-label="External links — Hephzibah Behulah">
       <a href="https://hephzibahbehulah.com/" rel="noopener noreferrer">HB / PROFESSIONAL PORTFOLIO ↗</a>
       <a href="https://github.com/HephzibahBehulah" rel="noopener noreferrer">GITHUB ↗</a>
       <a href="https://www.linkedin.com/in/isaacoluwoleadigun" rel="noopener noreferrer">LINKEDIN ↗</a>
     </div>
-    <div class="sidebar-bottom">
+    </details><div class="sidebar-bottom">
       <div class="progress-mini"><div><span>Academy progress</span><strong id="sideProgress">0%</strong></div><div class="track"><i id="sideProgressBar"></i></div></div>
       <button class="nav-item" data-view="settings"><span>⚙</span>Settings</button>
     </div>
@@ -165,10 +152,10 @@
   </main>
 </div>
 <dialog id="lessonDialog"><div id="lessonModal"></div></dialog>
-<script src="script.js?v=20261017f"></script>
+<script src="script.js?v=20261017i"></script>
 <script src="academy-content-expansion.js?v=20261011a"></script>
 <script src="academy-question-bank.js?v=20261011c"></script>
-<script src="voltpro-assistant.js?v=20261010d" defer></script>
+<script src="voltpro-assistant.js?v=20261017i" defer></script>
 <script>if("serviceWorker" in navigator){navigator.serviceWorker.register("service-worker.js").catch(()=>{})}</script>
-<script src="engine/voltpro-engine.js?v=20261017f" defer></script><script src="src/core/experiment-catalog.js?v=20261017d" defer></script><script src="src/ui/experiment-library.js?v=20261017d" defer></script><script src="src/ui/external-resources.js?v=20261017d" defer></script><script src="src/ui/academy-live.js?v=20261017d" defer></script><link rel="stylesheet" href="src/ui/integrated-labs.css?v=20261017d"><link rel="stylesheet" href="src/ui/academy-live.css?v=20261017d"><script src="src/core/component-contracts.js?v=20261017f" defer></script><script src="platform/board-targets.js?v=20261017f" defer></script><script src="src/core/reference-catalog.js?v=20261017f" defer></script><script src="platform/component-registry.js?v=20261017f" defer></script><script src="platform/mcu-projects.js?v=20261017f" defer></script><script src="platform/application-projects.js?v=20261017f" defer></script><script src="platform/panel-engineering.js?v=20261017f" defer></script><script src="src/ui/industrial-panel.js?v=20261017f" defer></script><script src="src/ui/reference-workspace.js?v=20261017f" defer></script><link rel="stylesheet" href="src/ui/engineering-system.css?v=20261017f"></body>
+<script src="engine/voltpro-engine.js?v=20261017f" defer></script><script src="src/core/experiment-catalog.js?v=20261017d" defer></script><script src="src/ui/experiment-library.js?v=20261017d" defer></script><script src="src/ui/external-resources.js?v=20261017d" defer></script><script src="src/ui/academy-live.js?v=20261017d" defer></script><link rel="stylesheet" href="src/ui/integrated-labs.css?v=20261017d"><link rel="stylesheet" href="src/ui/academy-live.css?v=20261017d"><script src="src/core/component-contracts.js?v=20261017i" defer></script><script src="platform/catalog-models.js?v=20261017i" defer></script><script src="platform/board-targets.js?v=20261017f" defer></script><script src="src/core/reference-catalog.js?v=20261017i" defer></script><script src="platform/component-registry.js?v=20261017i" defer></script><script src="platform/mcu-projects.js?v=20261017f" defer></script><script src="platform/application-projects.js?v=20261017f" defer></script><script src="platform/panel-engineering.js?v=20261017f" defer></script><script src="src/ui/industrial-panel.js?v=20261017f" defer></script><script src="src/ui/component-studio.js?v=20261017i" defer></script><link rel="stylesheet" href="src/ui/component-studio.css?v=20261017i"><script src="src/ui/reference-workspace.js?v=20261017i" defer></script><link rel="stylesheet" href="src/ui/engineering-system.css?v=20261017f"><script src="platform/user-preferences.js?v=20261017i" defer></script><script src="platform/assistant-engineering.js?v=20261017i" defer></script><script src="src/ui/assistant-actions.js?v=20261017i" defer></script><link rel="stylesheet" href="src/ui/assistant-command.css?v=20261017i"><script src="src/ui/academy-command.js?v=20261017i" defer></script><script src="src/ui/ai-circuit-planner.js?v=20261017i" defer></script></body>
 </html>

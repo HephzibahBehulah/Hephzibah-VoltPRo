@@ -71,7 +71,7 @@ document.getElementById("resetBtn").addEventListener("click",resetProgress);
 document.getElementById("languageBtn").addEventListener("click",function(){state.language=state.language==="DE"?"EN":"DE";document.getElementById("languageBtn").textContent=state.language;toast(state.language==="DE"?"Deutsch aktiviert":"English mode selected")});
 document.addEventListener("click",function(e){if(!e.target.closest(".search")&&!e.target.closest(".search-results"))document.querySelector(".search-results")?.remove()});
 document.getElementById("globalSearch").addEventListener("input",function(e){var q=e.target.value.trim().toLowerCase();document.querySelector(".search-results")?.remove();if(!q)return;var hits=modules.map(function(m){return{t:m.title,d:m.desc,v:"learn"}}).concat(terms.map(function(t){return{t:t[0],d:t[1],v:"reference"}}),labs.map(function(l){return{t:l.title,d:l.desc,v:"labs"}})).filter(function(x){return(x.t+" "+x.d).toLowerCase().indexOf(q)>=0}).slice(0,7);var box=document.createElement("div");box.className="search-results";box.innerHTML=hits.length?hits.map(function(h){return '<button><b>'+h.t+'</b><br><small class="muted">'+h.d+'</small></button>'}).join(""):'<div class="empty">Keine Treffer</div>';document.querySelector(".topbar").appendChild(box);box.querySelectorAll("button").forEach(function(b,i){b.onclick=function(){nav(hits[i].v);box.remove();e.target.value=""}})});
-var lessonDialog=document.getElementById("lessonDialog");render();
+var lessonDialog=document.getElementById("lessonDialog");
 /* ===== VoltPRo Academy 2026 Expansion ===== */
 modules.push(
 {id:"exam",icon:"🎓",level:"Certification",time:"45 min",title:{DE:"Gesellenprüfung Training",EN:"Journeyman Exam Training"},desc:{DE:"Originale Prüfungssimulation zu Theorie, Sicherheit, Berechnung und Fehlersuche.",EN:"Original practice across theory, safety, calculations and troubleshooting."},lessons:["Theory","Safety","Calculations","Troubleshooting"],body:"This is an original training simulation. It is not an official IHK or HWK exam paper."},
@@ -165,6 +165,7 @@ function renderTutorLog(){
    const sources=Array.isArray(x.sources)&&x.sources.length?'<div class="tutor-sources">'+x.sources.map(function(s){return '<a href="'+esc(s.url)+'" target="_blank" rel="noopener noreferrer">'+esc(s.title||s.url)+'</a>'}).join("")+'</div>':"";
    return body+sources;
  }).join("");
+ log.querySelectorAll(".chat").forEach((element,index)=>{const item=(state.tutorLog||[])[index];if(item?.plan)window.VoltProAssistantActions?.renderActions(element,item.plan);});
  log.scrollTop=log.scrollHeight;
 }
 function tutorReply(q){
@@ -192,7 +193,7 @@ async function askTutorExpanded(){
    if(window.VoltProAssistant&&typeof window.VoltProAssistant.ask==="function")result=await window.VoltProAssistant.ask(q,{external});
  }catch(_){}
  if(!result||!result.answer)result={answer:tutorReply(q),sources:[],mode:"offline"};
- state.tutorLog[pending]={role:"tutor",text:result.answer+(result.mode==="offline"?"\n\nOffline fallback: the remote AI service did not return an answer.":""),sources:result.sources||[]};
+ state.tutorLog[pending]={role:"tutor",text:result.answer+(result.mode==="offline"?"\n\nOffline fallback: the remote AI service did not return an answer.":""),sources:result.sources||[],plan:result.plan||null};
  state.tutorLog=state.tutorLog.slice(-12);save();renderTutorLog();
  if(button)button.disabled=false;
  if(e)e.focus();

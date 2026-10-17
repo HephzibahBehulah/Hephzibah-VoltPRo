@@ -24,7 +24,8 @@ function build(project){
   const nets=part.pins.map(topo.net);if(expected===2&&nets[0]===nets[1])throw Error(part.id+' has both legs on the same connected strip. Move one leg to a different net.');
   let type=part.type,props={};
   const positive=(value,name)=>{if(!Number.isFinite(value)||value<=0)throw Error(part.id+': '+name+' must be a positive number.');return value};
-  if(contract&&['bjt','mosfet','relay','button4'].includes(contract.model)){props={...contract.props,...part.parameters,pressed:part.pressed?1:0};}
+  if(contract?.origin==='qualified-catalogue'&&['resistor','capacitor','inductor','battery','acsource','diode','led'].includes(contract.model)){props={...contract.props,...part.parameters};}
+  else if(contract&&['bjt','mosfet','relay','button4'].includes(contract.model)){props={...contract.props,...part.parameters,pressed:part.pressed?1:0};}
   else if(contract?.model==='cmos_package'){props={outputResistance:25};}
   else if(type==='potentiometer3'){type='potentiometer3';props={resistance:positive(Number(part.resistanceOhm??10000),'resistance'),position:Number(part.wiperPosition??.5)};if(!Number.isFinite(props.position)||props.position<0||props.position>1)throw Error('Wiper must be between 0 and 1.');}
   else if(type==='spdt3')props.closed=part.closed?1:0;
