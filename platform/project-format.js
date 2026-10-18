@@ -37,7 +37,7 @@ function toLegacy(input){
  const raw=envelope.format==="voltpro-export"?envelope.project:envelope;
  if(!raw||raw.format!=="voltpro")throw Error("Unsupported VoltPRo project format");
  const p=migrate(raw),devices=p.devices||[],byId=new Map(devices.map(d=>[String(d.id),d]));
- const components=devices.map(d=>({id:d.id,type:d.type||d.model||"unknown",registryId:d.registryId||null,x:Number(d.position?.x??0),y:Number(d.position?.y??0),rotation:Number(d.rotation||0),props:structuredClone(d.parameters||{}),pins:(d.terminals||[]).map((_,i)=>d.id+":"+i)}));
+ const components=devices.map(d=>({id:d.id,ref:d.ref||d.id,type:d.type||d.model||"unknown",registryId:d.registryId||null,x:Number(d.position?.x??0),y:Number(d.position?.y??0),rotation:Number(d.rotation||0),props:structuredClone(d.parameters||{}),pins:(d.terminals||[]).map((_,i)=>d.id+":"+i)}));
  function endpoint(value){
   if(value&&typeof value==="object"&&value.deviceId!=null&&value.terminalId!=null)value=String(value.deviceId)+":"+String(value.terminalId);
   if(typeof value!=="string"||!value.includes(":"))throw Error("Invalid wire endpoint: "+String(value));

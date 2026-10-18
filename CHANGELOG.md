@@ -37,3 +37,8 @@
 - Net annotations, explicit-junction inspection, DC terminal probes and five-point resistor tolerance study; breadboard lead-hole/strip checks and generated wiring steps.
 - Correct schematic cloud snapshot serialization; preserve all existing workspace tools and local save paths.
 - Notification sender configured separately in Supabase using a domain-restricted sending credential. Secrets are never included in client assets.
+
+## Shared system compatibility fix · 2026-10-18
+- Preserve linked device tags when the schematic editor saves its native version 5 document, including reference designators and parameter tags.
+- Rebuild derived links for existing saved systems without altering their workspace documents.
+- Apply motor-showcase supply parameters to both legacy component documents and native device documents without changing coil ratings or wire routes.
