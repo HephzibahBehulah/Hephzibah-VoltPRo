@@ -1,0 +1,19 @@
+/* Academy layout: the document is the scroll container for both header rows. */
+.vp-unified-site body.academy-page{overflow:visible}
+.vp-unified-site .academy-page #app.app-shell{overflow:visible;min-height:calc(100dvh - var(--vp-header-height))}
+.vp-unified-site .academy-page .main{overflow:visible;min-width:0}
+.vp-unified-site .academy-page .topbar{top:var(--vp-header-height);height:auto;min-height:64px;display:flex;flex-wrap:wrap;gap:12px 20px;padding:12px clamp(14px,2vw,28px);align-items:center}
+.academy-page .topbar .crumb{display:flex;flex-wrap:wrap;gap:6px 10px;flex:1 1 300px;min-width:0;line-height:1.5}
+.academy-page .topbar .crumb>*{min-width:0;overflow-wrap:anywhere}
+.academy-page .topbar .topbar-byline{white-space:normal;line-height:1.5}
+.academy-page .topbar .top-actions{flex:0 1 auto;max-width:100%;flex-wrap:wrap;overflow:visible;gap:8px}
+.academy-page .topbar .search{width:clamp(150px,23vw,330px);min-width:0;max-width:100%}
+.academy-page .academy-command>header{display:grid;grid-template-columns:minmax(0,1fr) minmax(130px,160px);gap:24px;align-items:start}
+.academy-page .academy-command>header>*{min-width:0}
+.academy-page .academy-command h1{line-height:1.12;overflow-wrap:break-word}
+.academy-page .academy-stats{min-width:0;gap:18px}
+.academy-page .academy-stats>span{display:block;line-height:1.6}
+.academy-page .academy-stats b{line-height:1.25;margin-bottom:4px}
+.academy-page .academy-actions>*{max-width:100%;white-space:normal;line-height:1.5}
+@media(max-width:1000px){.academy-page .academy-command>header{grid-template-columns:minmax(0,1fr)}.academy-page .academy-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.academy-page .academy-command h1{font-size:clamp(30px,5vw,52px)}}
+@media(max-width:600px){.academy-page .topbar .crumb{flex:1 1 100%}.academy-page .topbar .top-actions{width:100%}.academy-page .topbar .search{flex:1;width:auto}.academy-page .topbar .topbar-byline{flex-basis:100%;margin:0;padding:0;border:0}.academy-page .academy-command{padding:18px}.academy-page .academy-command h1{letter-spacing:-1px;font-size:clamp(28px,8vw,42px)}.academy-page .academy-stats{gap:10px}.academy-page .academy-stats b{font-size:20px}.academy-page .academy-live aside{grid-template-columns:minmax(0,1fr)}.academy-page .academy-live-head{flex-wrap:wrap}}
