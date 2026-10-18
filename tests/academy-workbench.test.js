@@ -21,7 +21,7 @@ test("workbench declares all major learning and engineering sections", () => {
 
 test("fault and challenge banks are parameterised to the requested sizes", () => {
   const js = read("academy-workbench.js");
-  assert.match(js, /Array\.from\(\{length:1000\}/);
+  assert.match(js, /Array\.from\(\{length:10000\}/);
   assert.match(js, /Array\.from\(\{length:10000\}/);
   assert.match(js, /function openFault/);
   assert.match(js, /function openChallenge/);

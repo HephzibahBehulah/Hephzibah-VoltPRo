@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-10-18 — Live Workbench studies
+- Added 10,000 wired healthy/fault comparisons: 25 fault patterns with 400 physical parameter sets, shared circuit solving, live voltage/current paths, terminal probes, controls and editable simulator export. Industrial equivalents and thermal assumptions are explicitly labeled.
+- Expanded the linked index to 10,000 entries: 401 existing references plus 9,599 worked parameter studies, with relevant reading and practical circuit links. Checked the protected admin library and incorporated its engineering documentation sources.
+- Verified every definition pair is distinct and every wire endpoint exists; all 25 families solve at parameter boundaries. Browser checks cover fault toggling, desktop/mobile layout and simulator import/run.
+
 ## 2026-10-18 — VoltProPLC and connected professional workspaces
 - Added the typed React industrial ladder/FBD workstation, Web Worker scan engine, terminal-aware motor starter, project files and bounded Arduino export.
 - Added recoverable breadboard Clear/New controls, collapsible simulator panels, FBD editing, scope cursor/trigger/phase measurements and circuit review.
