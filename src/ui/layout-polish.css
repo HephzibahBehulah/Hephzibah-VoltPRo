@@ -1,0 +1,44 @@
+/* Keep page branding independent of legacy icon/span and button rules. */
+.engineering-page>header:not(#vpSiteHeader){height:auto;min-height:78px;padding:14px 22px;gap:16px 24px;align-items:center}
+.engineering-page>header .vp-brand-lockup{display:flex;align-items:center;gap:14px;flex:0 1 auto;min-width:0;max-width:100%;text-decoration:none;color:inherit}
+.engineering-page>header .vp-brand-lockup>img{width:112px;height:33px;flex:0 0 112px;object-fit:contain}
+.engineering-page>header .vp-brand-lockup>.vp-brand-product{width:auto;height:auto;display:block;place-items:normal;flex:1 1 auto;min-width:0;padding:0;margin:0;border:0;border-radius:0;background:none!important;box-shadow:none!important;color:var(--text)!important;font-size:inherit}
+.engineering-page>header .vp-brand-lockup>.vp-brand-divider{width:1px;height:34px;display:block;flex:0 0 1px;padding:0;margin:0;border:0;border-radius:0;background:#365166!important;box-shadow:none!important}
+.engineering-page>header .vp-brand-product b{font-size:20px!important;line-height:1.25;white-space:nowrap;letter-spacing:-.02em}
+.engineering-page>header .vp-brand-product small{display:block;font-size:10px;line-height:1.6;letter-spacing:.09em;color:#95cbd6;white-space:normal;overflow-wrap:normal;max-width:46ch;margin-top:4px}
+.engineering-page>header:not(#vpSiteHeader)>nav{margin-left:auto;max-width:100%;flex-wrap:wrap;gap:8px}
+/* Shared navigation must not inherit calculator/PLC button treatments. */
+#vpSiteHeader .vp-site-navigation nav{margin:0;padding:0;border:0;background:none;max-width:100%}
+#vpSiteHeader a{font:500 13px/1.4 system-ui;box-sizing:border-box;margin:0;border:0;box-shadow:none;background:transparent;white-space:nowrap}
+#vpSiteHeader .vp-site-brand{font-weight:750;letter-spacing:1px}
+#vpSiteHeader nav button,#vpSiteHeader .vp-account-menu button{font:500 13px/1.4 system-ui;margin:0;padding:8px 10px;color:#d7eaf3!important;background:#173b4b!important;border:1px solid #365d71;box-shadow:none;text-transform:none;letter-spacing:0;min-height:34px}
+#vpSiteHeader a:hover,#vpSiteHeader [aria-current=page]{background:#19404c!important;color:#7be3cf!important}
+#vpSiteHeader .vp-site-identity{min-width:0;flex:0 1 auto}
+#vpSiteHeader .vp-site-identity summary>span:last-child{max-width:150px;overflow:hidden;text-overflow:ellipsis}
+/* Let workspace headings and controls occupy separate rows when required. */
+.vp-unified-site .aw-header{flex-wrap:wrap;min-width:0}
+.vp-unified-site .aw-header .aw-brand{flex:0 1 auto;min-width:0}
+.vp-unified-site .aw-header nav{min-width:0;max-width:100%;line-height:1.6}
+.vp-unified-site .sim-top .mode-tabs{min-width:0;max-width:100%;flex-wrap:wrap;justify-content:center}
+.vp-unified-site .vp-account-menu{max-width:calc(100vw - 24px)}
+@media(max-width:1099px){#vpSiteHeader .vp-site-navigation nav{max-width:calc(100vw - 24px);background:#122c3a;border:1px solid #416578;padding:12px}}
+@media(max-width:600px){.engineering-page>header:not(#vpSiteHeader){padding:14px;align-items:flex-start}.engineering-page>header .vp-brand-lockup{gap:10px}.engineering-page>header .vp-brand-lockup>img{width:90px;height:30px;flex-basis:90px}.engineering-page>header .vp-brand-product small{font-size:9px;letter-spacing:.05em}.engineering-page>header:not(#vpSiteHeader)>nav{width:100%;margin:0}.engineering-page>header:not(#vpSiteHeader)>nav a{white-space:normal;line-height:1.5}#vpSiteHeader a{font-size:11px}#vpSiteHeader .vp-site-brand{letter-spacing:0}#vpSiteHeader .vp-site-identity summary>span:last-child{max-width:90px}.vp-unified-site .aw-brand small{white-space:normal;line-height:1.6}}
+/* Drawer navigation must not consume a phone's drawing/content width. */
+.vp-unified-site .aw-command-sidebar{top:var(--aw-navigation-top,140px)}
+.vp-unified-site .aw-hero,.vp-unified-site .aw-section{min-width:0}
+.vp-unified-site .aw-hero h1{overflow-wrap:break-word}
+.vp-unified-site .aw-pagination{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+@media(max-width:800px){.vp-unified-site body:has(.aw-command-sidebar) .aw-shell{margin-left:46px;padding:14px;min-width:0}.vp-unified-site .aw-command-sidebar{width:min(280px,85vw);z-index:60}.vp-unified-site .aw-navigation-collapsed .aw-command-sidebar{width:46px}.vp-unified-site .aw-pagination>*{max-width:100%;min-width:0}.vp-unified-site .aw-hero h1{font-size:clamp(32px,7vw,48px);line-height:1.08}}
+@media(max-width:700px){.vp-unified-site .vp-managed-panels,.vp-unified-site .layout.vp-managed-panels,.vp-unified-site .vp-managed-panels.vp-left-closed,.vp-unified-site .vp-managed-panels.vp-right-closed,.vp-unified-site .vp-managed-panels.vp-left-closed.vp-right-closed{grid-template-columns:minmax(0,1fr)!important}.vp-unified-site .vp-managed-panels>.board-area{grid-column:1!important}.vp-unified-site .vp-managed-panels:not(.vp-left-closed)>.side:not(.right),.vp-unified-site .vp-managed-panels:not(.vp-right-closed)>.right,.vp-unified-site .vp-managed-panels:not(.vp-left-closed)>#palette,.vp-unified-site .vp-managed-panels:not(.vp-right-closed)>#inspectorPanel{position:absolute!important;top:0!important;bottom:0!important;width:min(290px,85vw)!important;overflow:auto;z-index:40!important}.vp-unified-site .vp-managed-panels:not(.vp-left-closed)>.side:not(.right),.vp-unified-site .vp-managed-panels:not(.vp-left-closed)>#palette{left:0!important;right:auto!important}.vp-unified-site .vp-managed-panels:not(.vp-right-closed)>.right,.vp-unified-site .vp-managed-panels:not(.vp-right-closed)>#inspectorPanel{right:0!important;left:auto!important}}
+/* Explicitly override older simulator mobile panel rules. */
+.vp-unified-site .simulator-page .workspace.vp-managed-panels.vp-right-closed #inspectorPanel,.vp-unified-site .simulator-page .workspace.vp-managed-panels.vp-left-closed #palette,.vp-unified-site .layout.vp-managed-panels.vp-left-closed>.side:not(.right),.vp-unified-site .layout.vp-managed-panels.vp-right-closed>.right{display:none!important}
+.vp-unified-site .simulator-page .sim-top{height:auto!important;max-height:none;min-height:48px;overflow:visible!important;flex-shrink:0;padding:8px 12px}
+.vp-unified-site .simulator-page .sim-top .mode-tabs{height:auto;min-width:0;flex:1 1 auto;flex-wrap:wrap;overflow:visible}
+.vp-unified-site .simulator-page .vp-clean-toolbar{flex-shrink:0}
+.vp-unified-site .simulator-page .sim-app{grid-template-rows:auto auto minmax(0,1fr) auto auto!important}
+.vp-unified-site .simulator-page .vp-clean-toolbar>.vp-toolbar-primary,.vp-unified-site .simulator-page .vp-clean-toolbar>.vp-toolbar-menus{min-width:0;max-width:100%;flex:1 1 100%;width:100%;flex-wrap:wrap;justify-content:flex-start;margin-left:0}
+@media(min-width:1100px){.vp-unified-site .simulator-page .vp-clean-toolbar>.vp-toolbar-primary{flex:1 1 auto;width:auto;max-width:100%}.vp-unified-site .simulator-page .vp-clean-toolbar>.vp-toolbar-menus{flex:0 1 auto;width:auto;margin-left:auto}}
+.vp-unified-site .simulator-page .vp-clean-toolbar{height:auto!important;max-height:none!important;align-content:start}
+@media(max-width:700px){.vp-unified-site .simulator-page .studio-quickstart{max-height:calc(100% - 70px);overflow:auto;top:56px}.plc-app>.topbar .toolbar .run,.plc-app>.topbar .toolbar .stop{order:-2}.plc-app>.topbar .toolbar button[aria-label="Single 20 ms scan"]{order:-1}}
+.engineering-page>header .vp-brand-product small{max-width:none;white-space:nowrap}
+@media(max-width:600px){.engineering-page>header .vp-brand-product small{white-space:normal}}
