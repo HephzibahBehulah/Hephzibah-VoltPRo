@@ -104,7 +104,8 @@ NAVIGATION POLICY: avoid duplicate content ownership. Simulator = build/simulate
   };
   const history = [];
   let externalMode = false;
-  const ask = async (question, options = {}) => {
+  const answer = async (question, options = {}) => {
+    const history = options.history || [];
     const q = String(question || "").trim();
     if (!q) return { answer: "", sources: [] };
     if(!options.forceRemote&&!(window.VoltProDesignStudio?.current&&/think.*deep|redesign|rethink|alternative|research/i.test(q))){try{const local=window.VoltProAssistantEngineering?.local(q);if(local){history.push({role:"user",content:q},{role:"assistant",content:local.answer});if(history.length>12)history.splice(0,history.length-12);return local;}}catch(error){return {answer:"The circuit proposal needs more detail: "+error.message,sources:[],mode:"tool-error"};}}
@@ -146,6 +147,7 @@ NAVIGATION POLICY: avoid duplicate content ownership. Simulator = build/simulate
     if (history.length > 12) history.splice(0, history.length - 12);
     return { answer, sources, mode: responseMode, ...(proposal?{plan:proposal}:{}) };
   };
+  const ask = async (question,options={}) => {const C=window.VoltProChats,channel=options.channel||'tutor',id=C?.current(channel),prior=C?.read(id);window.VoltProDesignStudio?.remember?.(options.contextPlan||[...(prior?.messages||[])].reverse().find(m=>m.plan)?.plan||null);const result=await answer(question,{...options,history:(prior?.messages||[]).map(m=>({role:m.role,content:m.content}))});if(String(question).trim()&&C){try{C.record(channel,id,String(question),result);}catch(e){result.answer+='\n\nHistory was not saved: '+e.message;}}return result;};
   const boot = () => {
     if (document.getElementById("vpBotWindow")) return;
     const root = document.createElement("div");
@@ -183,7 +185,7 @@ NAVIGATION POLICY: avoid duplicate content ownership. Simulator = build/simulate
     const close = () => { win.classList.remove("open"); win.setAttribute("aria-hidden", "true"); launcher.setAttribute("aria-expanded", "false"); launcher.focus(); };
     launcher.addEventListener("click", () => win.classList.contains("open") ? close() : open());
     root.querySelector("#vpBotClose").addEventListener("click", close);
-    root.querySelector("#vpBotClear").addEventListener("click", () => { historyEl.length = 0; history.length=0; msgs.replaceChildren(); add("Conversation cleared. Ask a new question."); });
+    root.querySelector("#vpBotClear").addEventListener("click", () => { if(send.disabled)return;historyEl.length = 0; history.length=0; window.VoltProConversationUI?.reset('bot');msgs.replaceChildren(); add("Conversation cleared. Ask a new question."); });
     const externalBox = root.querySelector("#vpBotExternal");
     externalBox.addEventListener("change", () => { externalMode = externalBox.checked; });
     root.querySelectorAll("#vpBotSuggestions button").forEach(button => button.addEventListener("click", () => { input.value = button.textContent; form.requestSubmit(); }));
@@ -196,7 +198,7 @@ NAVIGATION POLICY: avoid duplicate content ownership. Simulator = build/simulate
       input.value = "";
       send.disabled = true;
       const thinking = add("Checking project knowledge" + ((externalBox.checked || wantsExternal(question)) ? " and public sources…" : "…"), "system");
-      const result = await ask(question, { external: externalBox.checked });
+      const result = await ask(question, { external: externalBox.checked,channel:'bot' });
       thinking.remove();
       const reply=add(result.answer + (result.mode === "offline" ? "\n\nOffline fallback: the remote AI service did not return an answer." : ""));
       window.VoltProAssistantActions?.renderAnswer?.(reply,result.answer+(result.mode==='offline'?'\n\nOffline fallback: the remote AI service did not return an answer.':''));if(result.plan)window.VoltProAssistantActions?.renderActions(reply,result.plan);
@@ -223,6 +225,7 @@ NAVIGATION POLICY: avoid duplicate content ownership. Simulator = build/simulate
   else boot();
   window.VoltProAssistant = {
     ask,
+    clearHistory:()=>{history.length=0;window.VoltProChats?.clear();},
     open: () => document.getElementById("vpBotLauncher")?.click(),
     setExternalLookup: enabled => { externalMode = !!enabled; },
     projectContext: PROJECT_CONTEXT

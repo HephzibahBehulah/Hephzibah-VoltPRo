@@ -42,3 +42,11 @@
 - Preserve linked device tags when the schematic editor saves its native version 5 document, including reference designators and parameter tags.
 - Rebuild derived links for existing saved systems without altering their workspace documents.
 - Apply motor-showcase supply parameters to both legacy component documents and native device documents without changing coil ratings or wire routes.
+
+## Shared workspaces, identity and conversations · 2026-10-18
+
+- Shared fixed workspace navigation and account controls on Academy, Simulator, Breadboard, Engineering Tools, Workbench, Account and VoltProPLC. Signed-in users can edit display name, profile username and a compressed picture. Supabase verifies identity; usernames are labels, not unique login credentials.
+- Fresh assistant/tutor sessions on reload, with explicit device-local conversation history, New chat, rename, deletion and JSON export. Circuit proposals remain attached to the saved conversation. Limits: 40 conversations, 60 messages each and 4 MB per device. Legacy tutor transcripts migrate into history.
+- Simulator controls reuse their existing actions inside File, Draw, Analyse, Examples and View menus; Run, Step, Stop, Save, wiring, Undo/Redo and Fit remain accessible.
+- PLC projects support up to 100 named drawing sheets within the existing 300-device / 1,000-wire project limits. Added a 20-drive/40-sheet plant study (280 devices, 460 wires), interlocked forward/reverse control and 100,000 selectable parameter variants across 10 timer/counter templates. These are original executable learning models, not certified vendor programs or 100,000 independently engineered installations. Existing System project tools retain native PLC data alongside the other workspace views.
+- Account profiles remain in Supabase authentication metadata. Existing Cloudflare AI routing is preserved; profile metadata never grants authorization.

@@ -1,6 +1,8 @@
 const KEY="voltpro-academy-v1";
 const state=JSON.parse(localStorage.getItem(KEY)||"null")||{view:"dashboard",completed:[],checks:[true,true,false,false,false],quiz:{},safety:false,language:"DE",labDone:[],student:"Student"};
-function save(){localStorage.setItem(KEY,JSON.stringify(state));updateProgress()}
+if(Array.isArray(state.tutorLog)&&state.tutorLog.length){try{const C=window.VoltProChats;if(C){const id=C.current('tutor');for(let i=0;i<state.tutorLog.length-1;i++){const a=state.tutorLog[i],b=state.tutorLog[i+1];if(a.role==='user'&&b.role==='tutor'){C.record('tutor',id,a.text,{answer:b.text,sources:b.sources,plan:b.plan});i++;}}C.newChat('tutor');}state.tutorLog=[];localStorage.setItem(KEY,JSON.stringify(state));}catch(e){console.warn('Legacy chat retained in local learning data:',e.message);state.tutorLog=[];}}
+
+function save(){localStorage.setItem(KEY,JSON.stringify({...state,tutorLog:[]}));updateProgress()}
 function toast(m){var e=document.getElementById("toast");e.textContent=m;e.classList.add("show");clearTimeout(window._t);window._t=setTimeout(function(){e.classList.remove("show")},2200)}
 function nav(v){state.view=v;save();render()}
 var modules=[
