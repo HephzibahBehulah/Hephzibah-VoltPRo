@@ -2,7 +2,7 @@ import {create} from 'zustand';
 import {starter} from './examples';
 import {validate,type Project,type Result} from './model';
 const key='voltpro-plc-project-v1';
-function initial():Project{const example=starter();return {...example,name:'Untitled control project',nodes:[],edges:[]};}
+function initial():Project{try{const raw=localStorage.getItem(key);if(raw){const p=JSON.parse(raw) as Project;if(!validate(p).length)return p;}}catch{/* Keep the embedded example available. */}return starter();}
 interface State {sheet:string;trace:{scan:number;text:string}[];project:Project;past:Project[];future:Project[];running:boolean;inputs:Record<string,boolean>;result:Result|null;error:string;selected:string|null;grid:boolean;left:boolean;right:boolean;setProject:(p:Project,history?:boolean)=>void;undo:()=>void;redo:()=>void;toggleInput:(id:string)=>void;save:()=>void}
 const initialProject=initial();
 export const usePLC=create<State>((set,get)=>({project:initialProject,sheet:initialProject.sheets?.[0]?.id||'main',trace:[],past:[],future:[],running:false,inputs:{},result:null,error:'',selected:null,grid:true,left:true,right:true,
