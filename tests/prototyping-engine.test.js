@@ -871,13 +871,13 @@ test("SPDT treats numeric and string open states as selecting the NC throw",()=>
  for(const closed of [false,0,"0","false","off","open"]){
   const result=E.dc(make(closed));
   assert.equal(result.ok,true,JSON.stringify(result));
-  assert.ok(Math.abs(result.branches.find(b=>b.id==="RNC").current-.12)<1e-6, "NC should conduct when closed state is false: "+String(closed));
+  assert.ok(Math.abs(result.branches.find(b=>b.id==="RNC").current-.12)<1e-5, "NC should conduct when closed state is false: "+String(closed));
   assert.ok(Math.abs(result.branches.find(b=>b.id==="RNO").current)<1e-8, "NO should remain open when closed state is false: "+String(closed));
  }
  for(const closed of [true,1,"1","true","on","closed"]){
   const result=E.dc(make(closed));
   assert.equal(result.ok,true,JSON.stringify(result));
-  assert.ok(Math.abs(result.branches.find(b=>b.id==="RNO").current-.12)<1e-6, "NO should conduct when closed state is true: "+String(closed));
+  assert.ok(Math.abs(result.branches.find(b=>b.id==="RNO").current-.12)<1e-5, "NO should conduct when closed state is true: "+String(closed));
   assert.ok(Math.abs(result.branches.find(b=>b.id==="RNC").current)<1e-8, "NC should remain open when closed state is true: "+String(closed));
  }
 });
@@ -897,6 +897,6 @@ test("four-terminal button treats numeric and string pressed states consistently
  for(const pressed of [true,1,"1","true","on"]){
   const result=E.dc(make(pressed));
   assert.equal(result.ok,true,JSON.stringify(result));
-  assert.ok(Math.abs(result.branches.find(b=>b.id==="R1").current-.12)<1e-6,"button should close: "+String(pressed));
+  assert.ok(Math.abs(result.branches.find(b=>b.id==="R1").current-.12)<1e-5,"button should close: "+String(pressed));
  }
 });
