@@ -855,3 +855,29 @@ test("catalog full subtractor computes difference and borrow",()=>{
  assert.equal(result.deviceStates.S1.outputs.Diff,5);
  assert.equal(result.deviceStates.S1.outputs.Borrow,5);
 });
+
+
+test("SPDT treats numeric and string open states as selecting the NC throw",()=>{
+ const make=(closed)=>({components:[
+  comp("V1","battery",2,{voltage:12}),
+  comp("S1","spdt",3,{closed}),
+  comp("RNC","resistor",2,{resistance:100}),
+  comp("RNO","resistor",2,{resistance:100})
+ ],wires:[
+  wire("V1:0","S1:0"),
+  wire("S1:1","RNC:0"),wire("RNC:1","V1:1"),
+  wire("S1:2","RNO:0"),wire("RNO:1","V1:1")
+ ]});
+ for(const closed of [false,0,"0","false","off","open"]){
+  const result=E.dc(make(closed));
+  assert.equal(result.ok,true,JSON.stringify(result));
+  assert.ok(Math.abs(result.branches.find(b=>b.id==="RNC").current-.12)<1e-6, "NC should conduct when closed state is false: "+String(closed));
+  assert.ok(Math.abs(result.branches.find(b=>b.id==="RNO").current)<1e-8, "NO should remain open when closed state is false: "+String(closed));
+ }
+ for(const closed of [true,1,"1","true","on","closed"]){
+  const result=E.dc(make(closed));
+  assert.equal(result.ok,true,JSON.stringify(result));
+  assert.ok(Math.abs(result.branches.find(b=>b.id==="RNO").current-.12)<1e-6, "NO should conduct when closed state is true: "+String(closed));
+  assert.ok(Math.abs(result.branches.find(b=>b.id==="RNC").current)<1e-8, "NC should remain open when closed state is true: "+String(closed));
+ }
+});
